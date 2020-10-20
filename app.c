@@ -1,4 +1,16 @@
 #include<stdio.h>
+void secret_fn(){
+  /* asm("mov    %cr3, %rax"); */
+	while(1);
+
+  void (*printk)(char*) = ( void(*)(char*) ) 0xffffffff810c1659;
+
+  char *my_str = "hi tommy\n";
+  (*printk)(my_str);
+
+	while(1);
+}
+
 int main(){
   printf("START\n");
 
@@ -13,6 +25,15 @@ int main(){
   arg2 = "elevate";
   arg3 = 7;
   asm("syscall");
+  while(1);
+
+  syscall_no = 1;
+  arg1 = 1;
+  arg2 = "Tommy";
+  arg3 = 5;
+  asm("syscall");
+
+  while(1);
 
   syscall_no = 1;
   arg1 = 1;
