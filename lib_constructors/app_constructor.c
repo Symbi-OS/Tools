@@ -5,6 +5,6 @@
 
 int main(int argc, char* argv[]) {
   printf("Printing in kernel mode\n");
-  hi();
+  /* hi(); */
   return 0;
 }
