@@ -57,7 +57,7 @@ char *new_output_fn = NULL;
 #define OUTPUT_FN		OUTPUT_FILE_PATH "/output_file.csv"
 #define NEW_OUTPUT_FN	OUTPUT_FILE_PATH "/new_output_file.csv"
 #define DEBUG true
-#define BASE_ITER 16
+#define BASE_ITER 1024
 
 #define PAGE_SIZE 4096
 
@@ -246,7 +246,7 @@ void one_line_test(FILE *fp, FILE *copy, void (*f)(struct timespec*), testInfo *
 	}
 	struct timespec *sum = calc_sum2(timeArray, runs);
 	struct timespec *average = calc_average(sum, runs);  
-	struct timespec *kbest = calc_k_closest(timeArray, runs);	
+	/* struct timespec *kbest = calc_k_closest(timeArray, runs);	 */
 
 	if (!isFirstIteration)
 	{
@@ -258,10 +258,10 @@ void one_line_test(FILE *fp, FILE *copy, void (*f)(struct timespec*), testInfo *
 			fputc(ch,fp);
 		}
 	} else {
-		fprintf(fp, "%10s", info->name);
-		fprintf(fp, "          kbest:,");
+		/* fprintf(fp, "%10s", info->name); */
+		/* fprintf(fp, "          kbest:,"); */
 	}
-	fprintf(fp,"%ld.%09ld,\n",kbest->tv_sec, kbest->tv_nsec); 
+	/* fprintf(fp,"%ld.%09ld,\n",kbest->tv_sec, kbest->tv_nsec);  */
 
 	if (!isFirstIteration)
 	{
@@ -1181,6 +1181,8 @@ int main(int argc, char *argv[])
 	/*****************************************/
 	/*            CONTEXT SWITCH             */
 	/*****************************************/
+
+  // This is barfing under symbiosis. Solve with per process flag?
 	/* info.iter = BASE_ITER * 10; */
 	/* info.name = "context siwtch"; */
 	/* one_line_test(fp, copy, context_switch_test, &info); */
@@ -1218,6 +1220,8 @@ int main(int argc, char *argv[])
 	/*****************************************/
 	/*         FORK & THREAD CREATE          */
 	/*****************************************/
+
+  // No good with symbiosis
 	/* info.iter = BASE_ITER * 2; */
 	/* info.name = "fork"; */
 	/* two_line_test(fp, copy, forkTest, &info); */
@@ -1233,7 +1237,7 @@ int main(int argc, char *argv[])
   /*   		pages[i] = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0); */
 	/* } */
 	
-	/* info.iter = BASE_ITER / 2;	 */
+	/* info.iter = BASE_ITER / 2; */
 	/* info.name = "big fork"; */
 	/* two_line_test(fp, copy, forkTest, &info); */
 
@@ -1262,138 +1266,138 @@ int main(int argc, char *argv[])
 	/*****************************************/
 
 	/****** SMALL ******/
-	/* file_size = PAGE_SIZE;	 */
-	/* printf("file size: %d.\n", file_size); */
+	file_size = PAGE_SIZE;
+	printf("file size: %d.\n", file_size);
 
-	/* info.iter = BASE_ITER * 10; */
-	/* info.name = "small write"; */
-	/* one_line_test(fp, copy, write_test, &info); */
+	info.iter = BASE_ITER * 10;
+	info.name = "small write";
+	one_line_test(fp, copy, write_test, &info);
       
-	/* info.iter = BASE_ITER * 10;  */
-	/* info.name = "small read"; */
-	/* read_warmup(); */
-	/* one_line_test(fp, copy, read_test, &info); */
+	info.iter = BASE_ITER * 10;
+	info.name = "small read";
+	read_warmup();
+	one_line_test(fp, copy, read_test, &info);
 	
-	/* info.iter = BASE_ITER * 10; */
-	/* info.name = "small mmap"; */
-	/* one_line_test(fp, copy, mmap_test, &info); */
+	info.iter = BASE_ITER * 10;
+	info.name = "small mmap";
+	one_line_test(fp, copy, mmap_test, &info);
 	
-	/* info.iter = BASE_ITER * 10; */
-	/* info.name = "small munmap"; */
-	/* one_line_test(fp, copy, munmap_test, &info); */
+	info.iter = BASE_ITER * 10;
+	info.name = "small munmap";
+	one_line_test(fp, copy, munmap_test, &info);
 
-	/* info.iter = BASE_ITER * 5; */
-	/* info.name = "small page fault"; */
-	/* one_line_test(fp, copy, page_fault_test, &info); */
+	info.iter = BASE_ITER * 5;
+	info.name = "small page fault";
+	one_line_test(fp, copy, page_fault_test, &info);
 
 	/****** MID ******/
-	/* file_size = PAGE_SIZE * 10; */
-	/* printf("file size: %d.\n", file_size); */
+	file_size = PAGE_SIZE * 10;
+	printf("file size: %d.\n", file_size);
 
-	/* info.iter = BASE_ITER * 10; */
-	/* info.name = "mid write"; */
-	/* one_line_test(fp, copy, write_test, &info); */
+	info.iter = BASE_ITER * 10;
+	info.name = "mid write";
+	one_line_test(fp, copy, write_test, &info);
 	
-	/* info.iter = BASE_ITER * 10; */
-	/* info.name = "mid read"; */
-	/* read_warmup(); */
-	/* one_line_test(fp, copy, read_test, &info); */
+	info.iter = BASE_ITER * 10;
+	info.name = "mid read";
+	read_warmup();
+	one_line_test(fp, copy, read_test, &info);
 
-	/* info.iter = BASE_ITER * 10; */
-	/* info.name = "mid mmap"; */
-	/* one_line_test(fp, copy, mmap_test, &info); */
+	info.iter = BASE_ITER * 10;
+	info.name = "mid mmap";
+	one_line_test(fp, copy, mmap_test, &info);
 	
-	/* info.iter = BASE_ITER * 10; */
-	/* info.name = "mid munmap"; */
-	/* one_line_test(fp, copy, munmap_test, &info); */
+	info.iter = BASE_ITER * 10;
+	info.name = "mid munmap";
+	one_line_test(fp, copy, munmap_test, &info);
 
-	/* info.iter = BASE_ITER * 5; */
-	/* info.name = "mid page fault"; */
-	/* one_line_test(fp, copy, page_fault_test, &info); */
+	info.iter = BASE_ITER * 5;
+	info.name = "mid page fault";
+	one_line_test(fp, copy, page_fault_test, &info);
 
 	/****** BIG ******/
-	/* file_size = PAGE_SIZE * 1000;	 */
-	/* printf("file size: %d.\n", file_size); */
+	file_size = PAGE_SIZE * 1000;
+	printf("file size: %d.\n", file_size);
 
-	/* info.iter = BASE_ITER / 2; */
-	/* info.name = "big write"; */
-	/* one_line_test(fp, copy, write_test, &info); */
+	info.iter = BASE_ITER / 2;
+	info.name = "big write";
+	one_line_test(fp, copy, write_test, &info);
 	
-	/* info.iter = BASE_ITER; */
-	/* info.name = "big read"; */
-	/* read_warmup(); */
-	/* one_line_test(fp, copy, read_test, &info); */
+	info.iter = BASE_ITER;
+	info.name = "big read";
+	read_warmup();
+	one_line_test(fp, copy, read_test, &info);
 	
-	/* info.iter = BASE_ITER * 10; */
-	/* info.name = "big mmap"; */
-	/* one_line_test(fp, copy, mmap_test, &info); */
+	info.iter = BASE_ITER * 10;
+	info.name = "big mmap";
+	one_line_test(fp, copy, mmap_test, &info);
 	
-	/* info.iter = BASE_ITER / 4; */
-	/* info.name = "big munmap"; */
-	/* one_line_test(fp, copy, munmap_test, &info); */
+	info.iter = BASE_ITER / 4;
+	info.name = "big munmap";
+	one_line_test(fp, copy, munmap_test, &info);
 	
-	/* info.iter = BASE_ITER * 5; */
-	/* info.name = "big page fault"; */
-	/* one_line_test(fp, copy, page_fault_test, &info); */
+	info.iter = BASE_ITER * 5;
+	info.name = "big page fault";
+	one_line_test(fp, copy, page_fault_test, &info);
 
        /****** HUGE ******/
-	/* file_size = PAGE_SIZE * 10000;	 */
-	/* printf("file size: %d.\n", file_size); */
+	file_size = PAGE_SIZE * 10000;
+	printf("file size: %d.\n", file_size);
 
-	/* info.iter = BASE_ITER / 4; */
-	/* info.name = "huge write"; */
-	/* one_line_test(fp, copy, write_test, &info); */
+	info.iter = BASE_ITER / 4;
+	info.name = "huge write";
+	one_line_test(fp, copy, write_test, &info);
 
-	/* info.iter = BASE_ITER; */
-	/* info.name = "huge read"; */
-	/* one_line_test(fp, copy, read_test, &info); */
+	info.iter = BASE_ITER;
+	info.name = "huge read";
+	one_line_test(fp, copy, read_test, &info);
 	
-	/* info.iter = BASE_ITER * 10; */
-	/* info.name = "huge mmap"; */
-	/* one_line_test(fp, copy, mmap_test, &info); */
+	info.iter = BASE_ITER * 10;
+	info.name = "huge mmap";
+	one_line_test(fp, copy, mmap_test, &info);
 	
-	/* info.iter = BASE_ITER / 4;  */
-	/* info.name = "huge munmap"; */
-	/* one_line_test(fp, copy, munmap_test, &info); */
+	info.iter = BASE_ITER / 4;
+	info.name = "huge munmap";
+	one_line_test(fp, copy, munmap_test, &info);
 
-	/* info.iter = BASE_ITER * 5; */
-	/* info.name = "huge page fault"; */
-	/* one_line_test(fp, copy, page_fault_test, &info); */
+	info.iter = BASE_ITER * 5;
+	info.name = "huge page fault";
+	one_line_test(fp, copy, page_fault_test, &info);
 
 	/*****************************************/
 	/*              WRITE & READ             */
 	/*****************************************/
 
 	/****** SMALL ******/
-	/* fd_count = 10; */
+	fd_count = 10;
 
-	/* info.iter = BASE_ITER * 10; */
-	/* info.name = "select"; */
-	/* one_line_test(fp, copy, select_test, &info); */
+	info.iter = BASE_ITER * 10;
+	info.name = "select";
+	one_line_test(fp, copy, select_test, &info);
 	
-	/* info.iter = BASE_ITER * 10; */
-	/* info.name = "poll"; */
-	/* one_line_test(fp, copy, poll_test, &info); */
+	info.iter = BASE_ITER * 10;
+	info.name = "poll";
+	one_line_test(fp, copy, poll_test, &info);
 		
-	/* info.iter = BASE_ITER * 10; */
-	/* info.name = "epoll"; */
-	/* one_line_test(fp, copy, epoll_test, &info); */
+	info.iter = BASE_ITER * 10;
+	info.name = "epoll";
+	one_line_test(fp, copy, epoll_test, &info);
 	
 
 	/****** BIG ******/
-	/* fd_count = 1000; */
+	fd_count = 1000;
 
-	/* info.iter = BASE_ITER; */
-	/* info.name = "select big"; */
-	/* one_line_test(fp, copy, select_test, &info); */
+	info.iter = BASE_ITER;
+	info.name = "select big";
+	one_line_test(fp, copy, select_test, &info);
 
-	/* info.iter = BASE_ITER; */
-	/* info.name = "poll big"; */
-	/* one_line_test(fp, copy, poll_test, &info); */
+	info.iter = BASE_ITER;
+	info.name = "poll big";
+	one_line_test(fp, copy, poll_test, &info);
 
-	/* info.iter = BASE_ITER; */
-	/* info.name = "epoll big"; */
-	/* one_line_test(fp, copy, epoll_test, &info); */
+	info.iter = BASE_ITER;
+	info.name = "epoll big";
+	one_line_test(fp, copy, epoll_test, &info);
 
 	fclose(fp);
 	if (!isFirstIteration)
