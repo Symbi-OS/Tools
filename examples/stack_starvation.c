@@ -1,7 +1,7 @@
 #include <unistd.h>
 #include <stdio.h>
 
-#include "include/sym_lib.h"
+#include "../include/sym_lib.h"
 
 void stack_test(){
   int i = 0;
