@@ -57,7 +57,7 @@ char *new_output_fn = NULL;
 #define OUTPUT_FN		OUTPUT_FILE_PATH "/output_file.csv"
 #define NEW_OUTPUT_FN	OUTPUT_FILE_PATH "/new_output_file.csv"
 #define DEBUG true
-#define BASE_ITER 1024
+#define BASE_ITER 32
 
 #define PAGE_SIZE 4096
 
@@ -799,6 +799,14 @@ void epoll_test(struct timespec *diffTime) {
 void context_switch_test(struct timespec *diffTime) {
 	int iter = 1000;
 	struct timespec startTime, endTime;
+
+  // 2 bidirectional pipes fds1 and fds2
+
+  // fds1[0] is the read end of fds1 pipe
+  // fds1[1] is the write end of fds1 pipe
+
+  // fds2[0] is the read end of fds2 pipe
+  // fds2[1] is the write end of fds2 pipe
 	int fds1[2], fds2[2], retval;
 	retval = pipe(fds1);
 	if (retval != 0) printf("[error] failed to open pipe1.\n");
@@ -816,6 +824,11 @@ void context_switch_test(struct timespec *diffTime) {
 	
 	int forkId = fork();
 	if (forkId > 0) { // is parent
+    // The parent wants fds1[1] the write end of fds1
+    // Allows parent to send bytes to child who holds fds1[0] the read end of the pipe fds1
+    // This is how the parent can send bytes to the child.
+
+    // The parent wants fds2[0] the read end of fds2
 		retval = close(fds1[0]);
 		if (retval != 0) printf("[error] failed to close fd1.\n");
 		retval = close(fds2[1]);
