@@ -1,11 +1,12 @@
 CC=gcc
-LIBS=-pthread -O0
-CC_FLAGS=-static
+LIBS=-pthread
+CC_FLAGS=-static -O0 -ggdb -mno-red-zone
 .PHONY=all
 
-all: OS_Eval OS_Eval_WO_Elevate
+# XXX HACK
+all: OS_Eval #OS_Eval_WO_Elevate
 	cp OS_Eval ../app
-	cp OS_Eval_WO_Elevate ../app_no_elevate
+#cp OS_Eval_WO_Elevate ../app_no_elevate
 
 OS_Eval: OS_Eval.c ../lib_constructors/elevate.o
 	$(CC) $(CC_FLAGS) -o $@ $(LIBS) $^

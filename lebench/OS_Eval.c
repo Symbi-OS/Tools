@@ -26,6 +26,8 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 
+#include "../lib_constructors/elevate.h"
+
 int counter=3;
 bool  isFirstIteration = false;
 const char *home;
@@ -57,7 +59,8 @@ char *new_output_fn = NULL;
 #define OUTPUT_FN		OUTPUT_FILE_PATH "/output_file.csv"
 #define NEW_OUTPUT_FN	OUTPUT_FILE_PATH "/new_output_file.csv"
 #define DEBUG true
-#define BASE_ITER 32
+/* #define BASE_ITER 32 */
+int BASE_ITER = 32;
 
 #define PAGE_SIZE 4096
 
@@ -276,7 +279,7 @@ void one_line_test(FILE *fp, FILE *copy, void (*f)(struct timespec*), testInfo *
 		fprintf(fp, "%10s", info->name);
 		fprintf(fp, "        average:,");
 	}
-	fprintf(fp,"%ld.%09ld,\n",average->tv_sec, average->tv_nsec); 
+	fprintf(fp,"%ld.%09ld,\n",average->tv_sec, average->tv_nsec);
 
 	free(sum);
 	free(average);
@@ -285,7 +288,7 @@ void one_line_test(FILE *fp, FILE *copy, void (*f)(struct timespec*), testInfo *
 
 	clock_gettime(CLOCK_MONOTONIC,&testEnd);
 	struct timespec *diffTime = calc_diff(&testStart, &testEnd);
-	printf("Test took: %ld.%09ld seconds\n",diffTime->tv_sec, diffTime->tv_nsec); 
+	printf("Test took: %ld.%09ld seconds\n",diffTime->tv_sec, diffTime->tv_nsec);
 	free(diffTime);
 
 	return;
@@ -314,8 +317,8 @@ void one_line_test_v2(FILE *fp, FILE *copy, void (*f)(struct timespec*, int, int
 	}
 
 	struct timespec *sum = calc_sum2(timeArray, runs);
-	struct timespec *average = calc_average(sum, runs);  
-	struct timespec *kbest = calc_k_closest(timeArray, runs);	
+	struct timespec *average = calc_average(sum, runs);
+	struct timespec *kbest = calc_k_closest(timeArray, runs);
 
 	if (!isFirstIteration)
 	{
@@ -330,7 +333,7 @@ void one_line_test_v2(FILE *fp, FILE *copy, void (*f)(struct timespec*, int, int
 		fprintf(fp, "%10s", info->name);
 		fprintf(fp, "          kbest:,");
 	}
-	fprintf(fp,"%ld.%09ld,\n",kbest->tv_sec, kbest->tv_nsec); 
+	fprintf(fp,"%ld.%09ld,\n",kbest->tv_sec, kbest->tv_nsec);
 
 	if (!isFirstIteration)
 	{
@@ -371,12 +374,14 @@ void two_line_test(FILE *fp, FILE *copy, void (*f)(struct timespec*,struct times
 	struct timespec* timeArrayChild = (struct timespec *) malloc(sizeof(struct timespec) * runs);
 	for (int i=0; i < runs; i++)
 	{
+    printf("Iteration %d\n",i);
 		timeArrayParent[i].tv_sec = 0;
 		timeArrayParent[i].tv_nsec = 0;
 		timeArrayChild[i].tv_sec = 0;
 		timeArrayChild[i].tv_nsec = 0;
 		(*f)(&timeArrayChild[i],&timeArrayParent[i]);
 	}
+ printf("Got here\n");
 
 	struct timespec *sumParent = calc_sum2(timeArrayParent, runs);
 	struct timespec *sumChild = calc_sum2(timeArrayChild, runs);
@@ -392,6 +397,7 @@ void two_line_test(FILE *fp, FILE *copy, void (*f)(struct timespec*,struct times
 	kbests[0] = kbestParent;
 	kbests[1] = kbestChild;
 
+  printf("Got here\n");
 	char ch;
 	if(!isFirstIteration)
 	{
@@ -1131,9 +1137,10 @@ int main(int argc, char *argv[])
 	clock_gettime(CLOCK_MONOTONIC, &startTime);
 
 
-	if (argc != 3){printf("Invalid arguments, gave %d not 3",argc);return(0);}
+	if (argc != 4){printf("Invalid arguments, gave %d not 3",argc);return(0);}
 	char *iteration = argv[1];
 	char *str_os_name = argv[2];
+  BASE_ITER = atoi(argv[3]);
 	FILE *fp;
 	FILE *copy = NULL;
 
@@ -1168,14 +1175,15 @@ int main(int argc, char *argv[])
 		fprintf(fp, "OS Benchmark experiment\nTest Name:,");
 	}
 	fprintf(fp,"%s,\n",str_os_name);
-	
-	testInfo info;	
+
+	testInfo info;
 
 	/*****************************************/
 	/*               GETPID                  */
 	/*****************************************/
 
-	sleep(3);
+	/* sleep(1); */
+
 	info.iter = BASE_ITER * 100;
 	info.name = "ref";
 	one_line_test(fp, copy, ref_test, &info);
@@ -1190,32 +1198,33 @@ int main(int argc, char *argv[])
 	one_line_test(fp, copy, getpid_test, &info);
 
 
-	
+
 	/*****************************************/
 	/*            CONTEXT SWITCH             */
 	/*****************************************/
 
-  // This is barfing under symbiosis. Solve with per process flag?
+  /* This is barfing under symbiosis. Solve with per process flag? */
 	/* info.iter = BASE_ITER * 10; */
-	/* info.name = "context siwtch"; */
+	/* info.name = "context switch"; */
 	/* one_line_test(fp, copy, context_switch_test, &info); */
 
 
 	/*****************************************/
 	/*             SEND & RECV               */
 	/*****************************************/
-	/* msg_size = 1;	 */
+  // No good with symbiosis
+	/* msg_size = 1; */
 	/* curr_iter_limit = 50; */
 	/* printf("msg size: %d.\n", msg_size); */
 	/* printf("curr iter limit: %d.\n", curr_iter_limit); */
 	/* info.iter = BASE_ITER * 10; */
 	/* info.name = "send"; */
 	/* one_line_test_v2(fp, copy, send_test, &info); */
-	
+
 	/* info.iter = BASE_ITER * 10; */
 	/* info.name = "recv"; */
 	/* one_line_test_v2(fp, copy, recv_test, &info); */
-	
+
 
 	/* msg_size = 96000;	// This size 96000 would cause blocking on older kernels! */
 	/* curr_iter_limit = 1; */
@@ -1238,10 +1247,11 @@ int main(int argc, char *argv[])
 	/* info.iter = BASE_ITER * 2; */
 	/* info.name = "fork"; */
 	/* two_line_test(fp, copy, forkTest, &info); */
-	
-	/* info.iter = BASE_ITER * 5; */
-	/* info.name = "thr create"; */
-	/* two_line_test(fp, copy, threadTest, &info); */
+
+  // No good with symbiosis
+	info.iter = BASE_ITER * 5;
+	info.name = "thr create";
+	two_line_test(fp, copy, threadTest, &info);
 
 
 	/* int page_count = 6000; */
