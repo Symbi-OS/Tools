@@ -5,6 +5,13 @@
 #include <string.h>
 #include "elevate.h"
 
+/*
+  There are 3 parts here:
+  1) Taking over syscalls
+  2) Taking over interrupts
+  3) Getting the GDT
+*/
+
 // TODO: function to check if you're a symbiote
 // Megabyte aligned.
 __attribute__((aligned(1048576))) void my_syscall_handler(){
@@ -97,6 +104,7 @@ struct gdtr
   unsigned short limit; // limit 2
   unsigned long base;   // base 8
 }__attribute__((packed));
+
 // TODO statically assert this is 10 bytes.
 /* static_assert(sizeof(struct gdtr) == 10 ); */
 
@@ -238,6 +246,7 @@ int main(int argc, char* argv[]) {
 
   // TODO
   /* restore_system_idtr(); */
+
   return 0;
 }
 /* May not be marked __init: used by software suspend */
