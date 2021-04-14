@@ -5,6 +5,9 @@ CC_FLAGS_DYNAMIC=-O0 -ggdb -mno-red-zone
 write_syscall: write_syscall.c
 	$(CC) $(CC_FLAGS_DYNAMIC) -o $@ $^ -I ../lib_constructors/
 
+write_syscall_static: write_syscall_static.c
+	$(CC) $(CC_FLAGS) -o $@ $^ ../include/sym_lib.c
+
 fork: fork.c ../lib_constructors/elevate.c
 	$(CC) $(CC_FLAGS) -o $@ $^ -I ../lib_constructors/
 	cp fork ../app
@@ -12,8 +15,14 @@ fork: fork.c ../lib_constructors/elevate.c
 stack_starvation: stack_starvation.c ../include/sym_lib.c
 	$(CC) $(CC_FLAGS) -o $@ $^ -I ../include/
 
-getppid: getppid.c  ../lib_constructors/elevate.c
-	$(CC) $(CC_FLAGS_DYNAMIC) -o $@ $^ -I ../lib_constructors
+# getppid: getppid.c  ../lib_constructors/elevate.c
+# 	$(CC) $(CC_FLAGS_DYNAMIC) -o $@ $^ -I ../lib_constructors
+
+getppid_static: getppid.c
+	$(CC) $(CC_FLAGS) -o $@ $^ ../include/sym_lib.c
+
+getppid_dynamic: getppid_dynamic.c
+	$(CC) $(CC_FLAGS_DYNAMIC) -o $@ $^
 
 steal_syscalls: steal_syscalls.c ../lib_constructors/elevate.c
 	$(CC) $(CC_FLAGS) -o $@ $^ -I ../lib_constructors/
@@ -26,7 +35,7 @@ print_cr3_static: print_cr3_static.c
 	$(CC) $(CC_FLAGS) -o $@ $^ ../include/sym_lib.c
 
 clean:
-	rm fork print_cr3 print_cr3_dynamic stack_starvation steal_syscalls write_syscall getppid print_cr3_static 
+	rm fork print_cr3 print_cr3_dynamic stack_starvation steal_syscalls write_syscall write_syscall_static getppid_dynamic  getppid_static print_cr3_static
 
 # all: OS_Eval OS_Eval_WO_Elevate
 # 	cp OS_Eval ../app
