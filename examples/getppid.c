@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include <time.h>
 
-#include "include/sym_lib.h"
+#include "../include/sym_lib.h"
 
 int bench_time(){
   clock_t start, end;
@@ -39,7 +39,7 @@ int bench_time_internal(){
 }
 
 int main(){
-  sym_elevate();
+  printf("starting main\n");
 
   // Need generic way to get this.
   /* tommyu@don:~/Symbi-OS/linux$ nm vmlinux  | grep sys_getppid */
@@ -48,11 +48,13 @@ int main(){
   /*   ffffffff826ad990 t _eil_addr___x64_sys_getppid */
   /*   ffffffff8107f460 T __ia32_sys_getppid */
   /*   ffffffff8107f460 T __x64_sys_getppid */
-  int (*getppid_elevated)() = ( int(*)() ) 0xffffffff8107f460;
+  int (*getppid_elevated)() = ( int(*)() ) 0xffffffff810f62b0;
+
+  sym_elevate();
   int ppid=getppid_elevated();
 
-  bench_time();
-  bench_time_internal();
+  /* bench_time(); */
+  /* bench_time_internal(); */
 
   sym_lower();
 

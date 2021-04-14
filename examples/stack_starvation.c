@@ -41,12 +41,16 @@ void touch_stack(){
 }
 
 int main(){
+  printf("Touch the stack\n");
   touch_stack();
 
+  printf("Request elevation\n");
   sym_elevate();
 
+  printf("Try the test\n");
   stack_test();
 
+  printf("Lower now\n");
   sym_lower();
   return 0;
 }
