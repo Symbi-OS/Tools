@@ -2,7 +2,7 @@ CC=gcc
 CC_FLAGS=-static -O0 -ggdb -mno-red-zone
 CC_FLAGS_DYNAMIC=-O0 -ggdb -mno-red-zone
 .PHONY=all
-write_syscall: write_syscall.c
+write_syscall_dynamic: write_syscall.c
 	$(CC) $(CC_FLAGS_DYNAMIC) -o $@ $^ -I ../lib_constructors/
 
 write_syscall_static: write_syscall_static.c
@@ -34,8 +34,10 @@ print_cr3_dynamic: print_cr3.c
 print_cr3_static: print_cr3_static.c
 	$(CC) $(CC_FLAGS) -o $@ $^ ../include/sym_lib.c
 
+run:
+	./write_syscall_static > out.txt
 clean:
-	rm fork print_cr3 print_cr3_dynamic stack_starvation steal_syscalls write_syscall write_syscall_static getppid_dynamic  getppid_static print_cr3_static
+	- rm fork print_cr3 print_cr3_dynamic stack_starvation steal_syscalls write_syscall write_syscall_static getppid_dynamic  getppid_static print_cr3_static
 
 # all: OS_Eval OS_Eval_WO_Elevate
 # 	cp OS_Eval ../app

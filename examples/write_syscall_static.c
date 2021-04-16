@@ -1,9 +1,22 @@
+#include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <signal.h>
+#include <unistd.h>
 
 #include "../include/sym_lib.h"
+void handle_sigint(int sig)
+{
+  printf("Caught signal %d\n", sig);
+  printf("About to do lower in sig handler\n");
+  sym_lower();
+  printf("Done with lower\n");
+  exit(0);
+}
+
 
 int main(){
+  signal(SIGINT, handle_sigint);
 
   sym_elevate();
 
@@ -24,7 +37,6 @@ int main(){
     asm("syscall");
   }
 
-#elif 0
   /* void (*my_entry_SYSCALL_64)() = */
   /*   ( void(*)() ) 0xffffffff81c00010; */
   /* my_entry_SYSCALL_64(); */
@@ -36,24 +48,33 @@ int main(){
 
   // Get r11 setup
   asm("pushfq");
-  asm("popq %r11");
+  asm("popq %r11"); // let compiler know we're clobbering r11
 
   // Get rflags setup
   asm("cli");
 
-  // Get RCX setup
-  asm("mov $0x401de7, %rcx");
+  // Get RCX setup this is the retrun instruction.
+  asm("mov $0x401de7, %rcx"); // specify clobber here
 
-  asm("jmp 0xffffffff81c00010");
+  asm("jmp 0xffffffff81c00010"); // lstar pointer to system call handler
   }
 #else
-  /* int (*my_ksys_write)(unsigned int fd, const char *buf, size_t count) = */
-  /*   ( int(*)(unsigned int fd, const char *buf, size_t count) ) 0xffffffff8133e990; */
-  /* my_ksys_write(1, "Tommy\n", 6); */
+  int (*my_ksys_write)(unsigned int fd, const char *buf, size_t count) =
+    ( int(*)(unsigned int fd, const char *buf, size_t count) ) 0xffffffff8133e990;
 
-  int (*my___x64_sys_write)(unsigned int fd, const char *buf, size_t count) =
-    ( int(*)(unsigned int fd, const char *buf, size_t count) ) 0xffffffff8133ebd0;
-  my___x64_sys_write(1, "Tommy\n", 6);
+	int count = 1<<16;
+	while(count--){
+		if( (count % (1<<10)) == 0) {
+			write(1, "Opportunity to catch a signal\n", 30);
+		} else {
+			my_ksys_write(1, "Tommy\n", 6);
+      /* printf("Tommy\n"); */
+		}
+	}
+
+  /* int (*my___x64_sys_write)(unsigned int fd, const char *buf, size_t count) = */
+  /*   ( int(*)(unsigned int fd, const char *buf, size_t count) ) 0xffffffff8133ebd0; */
+  /* my___x64_sys_write(1, "Tommy\n", 6); */
 
 #endif
 
