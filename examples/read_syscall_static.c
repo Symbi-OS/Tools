@@ -12,7 +12,7 @@
 
 #include "../include/sym_lib.h"
 
-int NUM_REPS = 1<<0;
+int NUM_REPS = 1<<23;
 /* int NUM_REPS = 1<<30; */
 
 void handle_sigint(int sig)
@@ -125,7 +125,7 @@ void ksys_read_shortcut(int reps){
     /* write(1, "Opportunity to catch a signal\n", 30); */
     //		} else {
     my_ksys_read(fd, buf, sz);
-    fprintf(stderr, "read: %s\n", buf);
+//    fprintf(stderr, "read: %s\n", buf);
     //		}
 	}
 }
@@ -141,11 +141,12 @@ int main(){
 
   ksys_read_shortcut(NUM_REPS);
  /* standard_syscall_loop(NUM_REPS); */
-  /* safer_syscall_loop(NUM_REPS); */
+//   safer_syscall_loop(NUM_REPS); 
 
   end = clock();
 
   sym_lower();
+
   cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
   fprintf(stderr, "Time used: %f\n", cpu_time_used);
 

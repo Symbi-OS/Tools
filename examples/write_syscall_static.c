@@ -9,7 +9,7 @@
 
 #include "../include/sym_lib.h"
 
-int NUM_REPS = 1<<0;
+int NUM_REPS = 1<<23;
 /* int NUM_REPS = 1<<30; */
 
 void handle_sigint(int sig)
@@ -96,20 +96,20 @@ void ksys_write_shortcut(int reps){
 int main(){
   signal(SIGINT, handle_sigint);
 
-  /* sym_elevate(); */
+  sym_elevate(); 
 
   clock_t start, end;
   double cpu_time_used;
 
   start = clock();
 
-  /* ksys_write_shortcut(NUM_REPS); */
+   ksys_write_shortcut(NUM_REPS); 
  /* standard_syscall_loop(NUM_REPS); */
-  safer_syscall_loop(NUM_REPS);
+//  safer_syscall_loop(NUM_REPS);
 
   end = clock();
 
-  /* sym_lower(); */
+  sym_lower(); 
   cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC; 
   fprintf(stderr, "Time used: %f\n", cpu_time_used);
 
