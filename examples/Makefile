@@ -8,6 +8,9 @@ write_syscall_dynamic: write_syscall.c
 write_syscall_static: write_syscall_static.c
 	$(CC) $(CC_FLAGS) -o $@ $^ ../include/sym_lib.c
 
+read_syscall_static: read_syscall_static.c
+	$(CC) $(CC_FLAGS) -o $@ $^ ../include/sym_lib.c
+
 fork: fork.c ../lib_constructors/elevate.c
 	$(CC) $(CC_FLAGS) -o $@ $^ -I ../lib_constructors/
 	cp fork ../app
