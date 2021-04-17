@@ -3,8 +3,14 @@
 #include <stdio.h>
 #include <signal.h>
 #include <unistd.h>
+#include <time.h>
+#include <assert.h>
 
 #include "../include/sym_lib.h"
+
+//int NUM_REPS = 1<<23;
+int NUM_REPS = 1<<30;
+
 void handle_sigint(int sig)
 {
   printf("Caught signal %d\n", sig);
@@ -14,21 +20,10 @@ void handle_sigint(int sig)
   exit(0);
 }
 
+void standard_syscall_loop(int reps){
+  assert(reps > 0);
 
-int main(){
-  signal(SIGINT, handle_sigint);
-
-  sym_elevate();
-
-  /* printf("Can we read cr3?\n"); */
-  /* uint64_t cr3_reg; */
-  /* asm("movq %%cr3,%0" */
-  /*     : "=r"(cr3_reg) */
-  /*     ); */
-  /* printf("Cr3 holds %p\n", cr3_reg); */
-
-#if 0
-  while(1){
+  while(reps--){
     /* Can even call a syscall from ring 0 */
     register int    syscall_no  asm("rax") = 1; // write
     register int    arg1        asm("rdi") = 1; // file des
@@ -36,49 +31,64 @@ int main(){
     register int    arg3        asm("rdx") = 6;
     asm("syscall");
   }
+}
 
-  /* void (*my_entry_SYSCALL_64)() = */
-  /*   ( void(*)() ) 0xffffffff81c00010; */
-  /* my_entry_SYSCALL_64(); */
-  while(1){
-  register int    syscall_no  asm("rax") = 1; // write
-  register int    arg1        asm("rdi") = 1; // file des
-  register char*  arg2        asm("rsi") = "Tommy\n";
-  register int    arg3        asm("rdx") = 6;
+void skipping_syscall_instruction(int reps){
+  assert(reps > 0);
 
-  // Get r11 setup
-  asm("pushfq");
-  asm("popq %r11"); // let compiler know we're clobbering r11
+  while(reps--){
+    register int    syscall_no  asm("rax") = 1; // write
+    register int    arg1        asm("rdi") = 1; // file des
+    register char*  arg2        asm("rsi") = "Tommy\n";
+    register int    arg3        asm("rdx") = 6;
 
-  // Get rflags setup
-  asm("cli");
+    // Get r11 setup
+    asm("pushfq");
+    asm("popq %r11"); // let compiler know we're clobbering r11
 
-  // Get RCX setup this is the retrun instruction.
-  asm("mov $0x401de7, %rcx"); // specify clobber here
+    // Get rflags setup
+    asm("cli");
 
-  asm("jmp 0xffffffff81c00010"); // lstar pointer to system call handler
+    // Get RCX setup this is the retrun instruction.
+    asm("mov $0x401de7, %rcx"); // specify clobber here
+
+    asm("jmp 0xffffffff81c00010"); // lstar pointer to system call handler
   }
-#else
+}
+
+void ksys_write_shortcut(int reps){
+  assert(reps > 0);
+
   int (*my_ksys_write)(unsigned int fd, const char *buf, size_t count) =
     ( int(*)(unsigned int fd, const char *buf, size_t count) ) 0xffffffff8133e990;
 
-	int count = 1<<16;
-	while(count--){
-		if( (count % (1<<10)) == 0) {
-			write(1, "Opportunity to catch a signal\n", 30);
-		} else {
-			my_ksys_write(1, "Tommy\n", 6);
-      /* printf("Tommy\n"); */
-		}
+	while(reps--){
+    //		if( (count % (1<<10)) == 0) {
+    /* write(1, "Opportunity to catch a signal\n", 30); */
+    //		} else {
+    my_ksys_write(1, "Tommy\n", 6);
+    /* printf("Tommy\n"); */
+    //		}
 	}
+}
+int main(){
+  signal(SIGINT, handle_sigint);
 
-  /* int (*my___x64_sys_write)(unsigned int fd, const char *buf, size_t count) = */
-  /*   ( int(*)(unsigned int fd, const char *buf, size_t count) ) 0xffffffff8133ebd0; */
-  /* my___x64_sys_write(1, "Tommy\n", 6); */
+  sym_elevate();
 
-#endif
+  clock_t start, end;
+  double cpu_time_used;
+
+  start = clock();
+
+  /* ksys_write_shortcut(NUM_REPS); */
+ standard_syscall_loop(NUM_REPS);
+
+  end = clock();
 
   sym_lower();
+  cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC; 
+  printf("Time used: %f\n", cpu_time_used);
 
   return 0;
 }
