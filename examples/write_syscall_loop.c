@@ -7,21 +7,37 @@
 #include <assert.h>
 #include <string.h>
 
-#include "../include/sym_lib.h"
+#include "../lib_constructors/elevate.h"
+
+#include "kallsymlib.h"
 
 int NUM_REPS = 1<<23;
 /* int NUM_REPS = 1<<30; */
 
-void handle_sigint(int sig)
-{
-  fprintf(stderr, "Caught signal %d\n", sig);
-  fprintf(stderr, "About to do lower in sig handler\n");
-  sym_lower();
-  fprintf(stderr, "Done with lower\n");
-  exit(0);
+/* void handle_sigint(int sig) */
+/* { */
+/*   fprintf(stderr, "Caught signal %d\n", sig); */
+/*   fprintf(stderr, "About to do lower in sig handler\n"); */
+
+/*   sym_lower(); */
+
+/*   fprintf(stderr, "Done with lower\n"); */
+/*   exit(0); */
+/* } */
+typedef int(*ksys_write_type)(unsigned int fd, const char *buf, size_t count);
+
+ksys_write_type get_fn_address(char *symbol){
+  struct kallsymlib_info *info;
+
+  if (!kallsymlib_lookup(symbol, &info)) {
+    fprintf(stderr, "%s : not found\n", symbol);
+    while(1);
+  }
+  return (ksys_write_type) info->addr;
 }
+
 #define WR_SYSCALL_NUM 1
-void safer_syscall_loop(int reps){
+void syscall_loop(int reps){
   assert(reps > 0);
 
   int fd = 1;
@@ -41,18 +57,6 @@ void safer_syscall_loop(int reps){
                             );
   }
 
-}
-void standard_syscall_loop(int reps){
-  assert(reps > 0);
-
-  while(reps--){
-    /* Can even call a syscall from ring 0 */
-    register int    syscall_no  asm("rax") = 1; // write
-    register int    arg1        asm("rdi") = 1; // file des
-    register char*  arg2        asm("rsi") = "Tommy\n";
-    register int    arg3        asm("rdx") = 6;
-    asm("syscall");
-  }
 }
 
 void skipping_syscall_instruction(int reps){
@@ -78,11 +82,12 @@ void skipping_syscall_instruction(int reps){
   }
 }
 
-void ksys_write_shortcut(int reps){
-  assert(reps > 0);
+static ksys_write_type my_ksys_write = NULL;
+/* my_ksys_write = (ksys_write_type) 0xffffffff8133e990; */
 
-  int (*my_ksys_write)(unsigned int fd, const char *buf, size_t count) =
-    ( int(*)(unsigned int fd, const char *buf, size_t count) ) 0xffffffff8133e990;
+void ksys_write_shortcut(int reps, ksys_write_type my_ksys_write){
+  assert(reps > 0);
+  assert(my_ksys_write != NULL);
 
 	while(reps--){
     //		if( (count % (1<<10)) == 0) {
@@ -92,24 +97,32 @@ void ksys_write_shortcut(int reps){
     /* fprintf("Tommy\n"); */
     //		}
 	}
+  kallsymlib_cleanup();
 }
-int main(){
-  signal(SIGINT, handle_sigint);
 
-  sym_elevate(); 
+int main(){
+  /* signal(SIGINT, handle_sigint); */
+
+
+#ifdef STATIC_BUILD
+  sym_elevate();
+#endif
+
 
   clock_t start, end;
   double cpu_time_used;
 
+  ksys_write_type my_ksys_write = get_fn_address("ksys_write");
   start = clock();
 
-   ksys_write_shortcut(NUM_REPS); 
- /* standard_syscall_loop(NUM_REPS); */
-//  safer_syscall_loop(NUM_REPS);
+  ksys_write_shortcut(NUM_REPS, my_ksys_write);
+  /* syscall_loop(NUM_REPS); */
 
   end = clock();
 
-  sym_lower(); 
+#ifdef STATIC_BUILD
+  sym_lower();
+#endif
   cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC; 
   fprintf(stderr, "Time used: %f\n", cpu_time_used);
 
