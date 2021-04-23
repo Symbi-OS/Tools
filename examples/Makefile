@@ -3,14 +3,24 @@ CC_FLAGS=-static -O0 -ggdb -mno-red-zone
 CC_FLAGS_DYNAMIC=-O0 -ggdb -mno-red-zone
 .PHONY=all
 
-MY_CC_FLAGS=-O0 -ggdb -mno-red-zone
+MY_CC_FLAGS=-O0 -ggdb -mno-red-zone #-Wall #-Wfatal-errors
 MY_STATIC_FLAG=-static
+
+MY_INCLUDES=-I../../linux/arch/x86/include/generated  -I../../linux/include -I../../linux/arch/x86/include/uapi -I../../linux/arch/x86/include/generated/uapi -I../../linux/include/uapi -I../../linux/include/generated/uapi -I../../linux/include
 
 write_syscall_loop_static: write_syscall_loop.c ../lib_constructors/elevate.c
 	$(CC) $(MY_CC_FLAGS) $(MY_STATIC_FLAG) -DSTATIC_BUILD -o $@ $^
 
 write_syscall_loop_dynamic: write_syscall_loop.c
 	$(CC) $(MY_CC_FLAGS) -o $@ $< -I ~/kallsymlib -L ~/kallsymlib -lkallsym
+
+#-I../../linux/arch/x86/include/generated  -I../../linux/include -I../../linux/arch/x86/include/uapi -I../../linux/arch/x86/include/generated/uapi -I../../linux/include/uapi -I../../linux/include/generated/uapi -I../../linux/include
+
+
+
+#-I../../linux/include -I../../linux/arch/x86/include
+
+#$(MY_INCLUDES)
 
 
 
