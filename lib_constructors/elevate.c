@@ -4,21 +4,33 @@
 void sym_elevate(){
   // This write syscall is understood by the modified linux to request elevation
 
-  register int    syscall_no  asm("rax") = 1; // write
-  register int    arg1        asm("rdi") = 1; // file des
-  register char*  arg2        asm("rsi") = "elevate";
-  register int    arg3        asm("rdx") = 7;
-  asm("syscall");
+  register int    rax  asm("rax") = 1; // write
+  register int    rdi        asm("rdi") = 1; // file des
+  register const void*  rsi        asm("rsi") = "elevate";
+  register size_t   rdx        asm("rdx") = 7;
+  __asm__ __volatile__ (
+                        "syscall"
+                        : "+r" (rax)
+                        : "r" (rdi), "r" (rsi), "r" (rdx)
+                        : "rcx", "r11", "memory"
+                        );
+
+
 }
 
 void sym_lower(){
   // This write syscall is understood by the modified linux to request lowering
 
-  register int    syscall_no  asm("rax") = 1; // write
-  register int    arg1        asm("rdi") = 1; // file des
-  register char*  arg2        asm("rsi") = "lower";
-  register int    arg3        asm("rdx") = 5;
-  asm("syscall");
+  register int    rax  asm("rax") = 1; // write
+  register int    rdi        asm("rdi") = 1; // file des
+  register const void*  rsi        asm("rsi") = "lower";
+  register int    rdx        asm("rdx") = 5;
+  __asm__ __volatile__ (
+                        "syscall"
+                        : "+r" (rax)
+                        : "r" (rdi), "r" (rsi), "r" (rdx)
+                        : "rcx", "r11", "memory"
+                        );
 }
 
 void touch_stack(){
@@ -43,7 +55,7 @@ void touch_stack(){
     asm("popq %rax");
   }
 
-  printf("Push %d times, %d bytes, %d pages\n", count, count*8, (count*8) / (1<<12) );
+  fprintf(stderr, "Push %d times, %d bytes, %d pages\n", count, count*7, (count*8) / (1<<12) );
 }
 
 void __attribute__ ((constructor)) initLibrary(void) {

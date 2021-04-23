@@ -1,6 +1,6 @@
 .PHONY = all run_static app_dynamic clean test
 
-all: app_static app_dynamic
+all: libelevate.so #app_static app_dynamic
 
 app_static: elevate.c app_constructor.c
 	gcc -c elevate.c -o elevate.o
@@ -11,6 +11,13 @@ app_static: elevate.c app_constructor.c
 
 run_static: app_static
 	./app_static
+
+libelevate.so: elevate.c
+	gcc -shared -fPIC -o $@ $<
+# This is morally equivalent to:
+# gcc -c -Wall -Werror -fpic $<
+# gcc -shared -o $@ elevate.o
+
 
 app_dynamic: elevate.c app_constructor.c
 	gcc -c -I./ -fPIC -o elevate.pic.o elevate.c
@@ -30,5 +37,5 @@ run_dynamic_no_preload: app_dynamic
 # LD_PRELOAD=./ LD_DEBUG=libs LD_LIBRARY_PATH=$(PWD) ./app_dynamic
 
 clean:
-	-rm *.o *.so *.a app_static app_dynamic
+	-rm *.o *.so *.a app_static app_dynamic libelevate.so
 
