@@ -14,6 +14,8 @@ int main(int argc , char *argv[])
 	struct sockaddr_in server , client;
 	char client_message[2000];
 
+  printf("server pid: %ld\n", (long)getpid());
+
 	//Create socket
 	socket_desc = socket(AF_INET , SOCK_STREAM , 0);
 	if (socket_desc == -1)

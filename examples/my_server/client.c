@@ -23,6 +23,8 @@ int main(int argc , char *argv[])
 	struct sockaddr_in server;
 	char message[1000] , server_reply[2000];
 
+  int runs = 1<<17;
+
 	//Create socket
 	sock = socket(AF_INET , SOCK_STREAM , 0);
 	if (sock == -1)
@@ -46,7 +48,7 @@ int main(int argc , char *argv[])
 
 	//keep communicating with server
 	int count = 0;
-	while(1)
+	while(runs--)
 	{
 		//printf("Enter message : ");
 		//scanf("%s" , message);
@@ -68,8 +70,8 @@ int main(int argc , char *argv[])
 
 		//puts("Server reply :");
 		//puts(server_reply);
-		if(++count % 10000 == 0)
-			printf("%d\n",count++);
+		/* if(++count % 10000 == 0) */
+		/* 	printf("%d\n",count++); */
 	}
 
 	close(sock);
