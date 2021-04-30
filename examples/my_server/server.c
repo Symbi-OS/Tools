@@ -8,8 +8,41 @@
 #include<arpa/inet.h>	//inet_addr
 #include<unistd.h>	//write
 
+int use_shortcut;
+
+typedef int (*my_ksys_write_t)(unsigned int fd, const char *buf, size_t count);
+/* typedef void (*my_schedule_t)(void); */
+typedef int (*my_tcp_sendmsg_t)(void *soc, void *msghdr, size_t count);
+
+char msg_struct[96];
+char kiocb_struct[48];
+
+void *sym_sk = NULL;
+struct iovec iov;
+
+void do_write(int conn, char* data, int data_len){
+  my_tcp_sendmsg_t my_tcp_sendmsg = (my_tcp_sendmsg_t) 0xffffffff81ab4e20;
+  my_ksys_write_t my_ksys_write = (my_ksys_write_t) 0xffffffff8133e990;
+  //Send the message back to client
+  /* write(client_sock , client_message , strlen(client_message)); */
+  iov.iov_base = (void *)data;
+  iov.iov_len  = data_len;
+  char msg_struct_c[96];
+
+  if(use_shortcut){
+    memcpy(msg_struct_c, msg_struct, 96);
+    /* memcpy(kiocb_struct_c, kiocb_struct, 48); */
+    /* iov_c = iov; */
+    my_tcp_sendmsg(sym_sk, msg_struct_c, data_len);
+  }else{
+    my_ksys_write(conn , data , data_len);
+  }
+  /* my_schedule(); */
+}
+
 int main(int argc , char *argv[])
 {
+  /* my_schedule_t my_schedule = (my_schedule_t) 0xffffffff81bd12a0; */
 	int socket_desc , client_sock , c , read_size;
 	struct sockaddr_in server , client;
 	char client_message[2000];
@@ -57,8 +90,8 @@ int main(int argc , char *argv[])
 	//Receive a message from client
 	while( (read_size = recv(client_sock , client_message , 2000 , 0)) > 0 )
 	{
-		//Send the message back to client
-		write(client_sock , client_message , strlen(client_message));
+    do_write(client_sock , client_message , strlen(client_message));
+    /* write(client_sock , client_message , strlen(client_message)); */
 	}
 
 	if(read_size == 0)

@@ -1,6 +1,6 @@
 all: client server
 
-CFLAGS=-O2
+CFLAGS=-ggdb -O0 -fno-omit-frame-pointer
 
 client:
 

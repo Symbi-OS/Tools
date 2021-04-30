@@ -23,7 +23,7 @@ int main(int argc , char *argv[])
 	struct sockaddr_in server;
 	char message[1000] , server_reply[2000];
 
-  int runs = 1<<17;
+  int runs = 1<<30;
 
 	//Create socket
 	sock = socket(AF_INET , SOCK_STREAM , 0);
