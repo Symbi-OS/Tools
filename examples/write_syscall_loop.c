@@ -1,18 +1,20 @@
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <signal.h>
-#include <unistd.h>
-#include <time.h>
-#include <assert.h>
-#include <string.h>
+/* #include <stdlib.h> */
+/* #include <stdint.h> */
+/* #include <stdio.h> */
+/* #include <signal.h> */
+/* #include <unistd.h> */
+/* #include <time.h> */
+/* #include <assert.h> */
+/* #include <string.h> */
 
 #include "../lib_constructors/elevate.h"
 
 /* #include "../../linux/include/linux/file.h" */
-/* #include "../../linux/include/linux/fs.h" */
 
-#include "kallsymlib.h"
+#include "../../linux/include/linux/fs.h"
+
+/* #include "kallsymlib.h" */
+extern int kallsymlib_lookup(char *name, struct kallsymlib_info **info_ptr);
 // Really should include this from linux headers.
 struct fd {
 	struct file *file;
@@ -32,7 +34,14 @@ int NUM_REPS = 1<<23;
 /*   fprintf(stderr, "Done with lower\n"); */
 /*   exit(0); */
 /* } */
-
+#define assert kassert
+  struct kallsymlib_info {
+    unsigned long long addr;
+    char type;
+    char *symbol;
+    char *extra;
+    struct kallsymlib_info *next;
+  };
 
 
 typedef int(*ksys_write_type)(unsigned int fd, const char *buf, size_t count);
@@ -48,7 +57,7 @@ void_fn_ptr get_fn_address(char *symbol){
   struct kallsymlib_info *info;
 
   if (!kallsymlib_lookup(symbol, &info)) {
-    fprintf(stderr, "%s : not found\n", symbol);
+    /* fprintf(stderr, "%s : not found\n", symbol); */
     while(1);
   }
   return (void_fn_ptr) info->addr;
@@ -63,7 +72,7 @@ static inline struct fd fdget_pos(int fd)
 {
   // Get fn ptr to __fd_get_pos
   __fdget_pos_type my___fdget_pos  = (__fdget_pos_type) get_fn_address("__fdget_pos");
-  assert(my___fdget_pos != NULL);
+  /* assert(my___fdget_pos != NULL); */
 	return __to_fd(my___fdget_pos(fd));
 }
 
@@ -102,7 +111,7 @@ ssize_t local_ksys_write(unsigned int fd, const char *buf, size_t count)
 
 #define WR_SYSCALL_NUM 1
 void syscall_loop(int reps){
-  assert(reps > 0);
+  /* assert(reps > 0); */
 
   int fd = 1;
   const void *buf = "Tommy!\n";
@@ -124,7 +133,7 @@ void syscall_loop(int reps){
 }
 
 void skipping_syscall_instruction(int reps){
-  assert(reps > 0);
+  /* assert(reps > 0); */
 
   while(reps--){
     register int    syscall_no  asm("rax") = 1; // write
@@ -150,8 +159,8 @@ static ksys_write_type my_ksys_write = NULL;
 /* my_ksys_write = (ksys_write_type) 0xffffffff8133e990; */
 
 void ksys_write_shortcut(int reps, ksys_write_type my_ksys_write){
-  assert(reps > 0);
-  assert(my_ksys_write != NULL);
+  //assert(reps > 0);
+  /* assert(my_ksys_write != NULL); */
 
 	while(reps--){
     //		if( (count % (1<<10)) == 0) {
@@ -165,8 +174,8 @@ void ksys_write_shortcut(int reps, ksys_write_type my_ksys_write){
 }
 
 void vfs_write_shortcut(int reps, ksys_write_type my_vfs_write){
-  assert(reps > 0);
-  assert(my_ksys_write != NULL);
+  //assert(reps > 0);
+  //assert(my_ksys_write != NULL);
 
 	while(reps--){
     //		if( (count % (1<<10)) == 0) {
@@ -198,7 +207,7 @@ int main(){
 
   ksys_write_shortcut(NUM_REPS, my_ksys_write);
 
-  vfs_write_shortcut(NUM_REPS, my_ksys_write);
+  /* vfs_write_shortcut(NUM_REPS, my_ksys_write); */
 
   /* syscall_loop(NUM_REPS); */
 
@@ -208,7 +217,7 @@ int main(){
   sym_lower();
 #endif
   cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC; 
-  fprintf(stderr, "Time used: %f\n", cpu_time_used);
+  //fprintf(stderr, "Time used: %f\n", cpu_time_used);
 
   return 0;
 }

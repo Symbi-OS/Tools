@@ -12,7 +12,7 @@ write_syscall_loop_static: write_syscall_loop.c ../lib_constructors/elevate.c
 	$(CC) $(MY_CC_FLAGS) $(MY_STATIC_FLAG) -DSTATIC_BUILD -o $@ $^
 
 write_syscall_loop_dynamic: write_syscall_loop.c
-	$(CC) $(MY_CC_FLAGS) -o $@ $< -I ~/kallsymlib -L ~/kallsymlib -lkallsym
+	$(CC) $(MY_CC_FLAGS) -o $@ $< #-I ~/kallsymlib -L ~/kallsymlib -lkallsym
 
 #-I../../linux/arch/x86/include/generated  -I../../linux/include -I../../linux/arch/x86/include/uapi -I../../linux/arch/x86/include/generated/uapi -I../../linux/include/uapi -I../../linux/include/generated/uapi -I../../linux/include
 
