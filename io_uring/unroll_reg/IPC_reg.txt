@@ -1,0 +1,2201 @@
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 1':
+
+       581,535,079      cycles:u                                                    
+       313,063,796      instructions:u            #    0.54  insn per cycle         
+
+       9.904505734 seconds time elapsed
+
+       3.707792000 seconds user
+       6.182317000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 1':
+
+       586,952,103      cycles:u                                                    
+       316,294,044      instructions:u            #    0.54  insn per cycle         
+
+       9.989015544 seconds time elapsed
+
+       3.657854000 seconds user
+       6.317032000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 1':
+
+       587,432,292      cycles:u                                                    
+       316,155,717      instructions:u            #    0.54  insn per cycle         
+
+       9.988935571 seconds time elapsed
+
+       3.338086000 seconds user
+       6.636533000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 1':
+
+       589,779,044      cycles:u                                                    
+       317,494,363      instructions:u            #    0.54  insn per cycle         
+
+       9.989023270 seconds time elapsed
+
+       3.313220000 seconds user
+       6.661682000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 1':
+
+       583,124,795      cycles:u                                                    
+       314,212,817      instructions:u            #    0.54  insn per cycle         
+
+       9.989032351 seconds time elapsed
+
+       3.512985000 seconds user
+       6.461824000 seconds sys
+
+
+5
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 2':
+
+       620,676,595      cycles:u                                                    
+       411,527,075      instructions:u            #    0.66  insn per cycle         
+
+       9.989021307 seconds time elapsed
+
+       3.573780000 seconds user
+       6.400596000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 2':
+
+       668,951,131      cycles:u                                                    
+       413,117,731      instructions:u            #    0.62  insn per cycle         
+
+       9.988849052 seconds time elapsed
+
+       3.612843000 seconds user
+       6.360948000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 2':
+
+       627,473,301      cycles:u                                                    
+       415,920,778      instructions:u            #    0.66  insn per cycle         
+
+       9.988997767 seconds time elapsed
+
+       3.728592000 seconds user
+       6.245765000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 2':
+
+       626,376,341      cycles:u                                                    
+       415,677,207      instructions:u            #    0.66  insn per cycle         
+
+       9.988125699 seconds time elapsed
+
+       3.436485000 seconds user
+       6.535511000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 2':
+
+       626,557,280      cycles:u                                                    
+       415,289,215      instructions:u            #    0.66  insn per cycle         
+
+       9.988723871 seconds time elapsed
+
+       3.732501000 seconds user
+       6.241724000 seconds sys
+
+
+5
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 3':
+
+       709,871,353      cycles:u                                                    
+       611,680,587      instructions:u            #    0.86  insn per cycle         
+
+       9.989005551 seconds time elapsed
+
+       3.697614000 seconds user
+       6.276766000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 3':
+
+       710,303,527      cycles:u                                                    
+       612,077,102      instructions:u            #    0.86  insn per cycle         
+
+       9.989006705 seconds time elapsed
+
+       3.720496000 seconds user
+       6.253710000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 3':
+
+       720,894,435      cycles:u                                                    
+       611,207,452      instructions:u            #    0.85  insn per cycle         
+
+       9.988985761 seconds time elapsed
+
+       3.686529000 seconds user
+       6.287736000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 3':
+
+       711,836,603      cycles:u                                                    
+       613,389,730      instructions:u            #    0.86  insn per cycle         
+
+       9.989005571 seconds time elapsed
+
+       3.673585000 seconds user
+       6.300475000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 3':
+
+       709,740,912      cycles:u                                                    
+       612,199,255      instructions:u            #    0.86  insn per cycle         
+
+       9.988950492 seconds time elapsed
+
+       3.551628000 seconds user
+       6.422272000 seconds sys
+
+
+5
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 4':
+
+       864,936,142      cycles:u                                                    
+     1,000,289,987      instructions:u            #    1.16  insn per cycle         
+
+       9.988993728 seconds time elapsed
+
+       3.819425000 seconds user
+       6.154990000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 4':
+
+       864,593,275      cycles:u                                                    
+     1,000,380,602      instructions:u            #    1.16  insn per cycle         
+
+       9.987911400 seconds time elapsed
+
+       3.345601000 seconds user
+       6.626576000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 4':
+
+       856,417,654      cycles:u                                                    
+       990,424,150      instructions:u            #    1.16  insn per cycle         
+
+       9.988943077 seconds time elapsed
+
+       3.728643000 seconds user
+       6.246048000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 4':
+
+       856,266,540      cycles:u                                                    
+       990,755,979      instructions:u            #    1.16  insn per cycle         
+
+       9.989015928 seconds time elapsed
+
+       3.650696000 seconds user
+       6.323874000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 4':
+
+       864,282,654      cycles:u                                                    
+       999,756,215      instructions:u            #    1.16  insn per cycle         
+
+       9.989023126 seconds time elapsed
+
+       3.506902000 seconds user
+       6.467669000 seconds sys
+
+
+5
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 5':
+
+     1,111,166,550      cycles:u                                                    
+     1,767,626,899      instructions:u            #    1.59  insn per cycle         
+
+       9.989150081 seconds time elapsed
+
+       4.010132000 seconds user
+       5.964064000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 5':
+
+     1,103,938,869      cycles:u                                                    
+     1,768,103,541      instructions:u            #    1.60  insn per cycle         
+
+       9.988544881 seconds time elapsed
+
+       3.655247000 seconds user
+       6.317156000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 5':
+
+     1,114,499,405      cycles:u                                                    
+     1,767,671,043      instructions:u            #    1.59  insn per cycle         
+
+       9.988882516 seconds time elapsed
+
+       3.595770000 seconds user
+       6.378763000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 5':
+
+     1,104,318,683      cycles:u                                                    
+     1,767,871,934      instructions:u            #    1.60  insn per cycle         
+
+       9.988974015 seconds time elapsed
+
+       3.911287000 seconds user
+       6.063158000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 5':
+
+     1,104,247,866      cycles:u                                                    
+     1,767,665,573      instructions:u            #    1.60  insn per cycle         
+
+       9.989027100 seconds time elapsed
+
+       3.950311000 seconds user
+       6.024296000 seconds sys
+
+
+5
+5
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 6':
+
+     1,583,229,283      cycles:u                                                    
+     3,257,413,160      instructions:u            #    2.06  insn per cycle         
+
+       9.989042830 seconds time elapsed
+
+       3.789566000 seconds user
+       6.185063000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 6':
+
+     1,601,242,166      cycles:u                                                    
+     3,253,640,714      instructions:u            #    2.03  insn per cycle         
+
+       9.989095311 seconds time elapsed
+
+       3.944370000 seconds user
+       6.030390000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 6':
+
+     1,595,423,647      cycles:u                                                    
+     3,256,492,253      instructions:u            #    2.04  insn per cycle         
+
+       9.988996058 seconds time elapsed
+
+       3.548841000 seconds user
+       6.425766000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 6':
+
+     1,595,797,646      cycles:u                                                    
+     3,255,721,613      instructions:u            #    2.04  insn per cycle         
+
+       9.988972487 seconds time elapsed
+
+       3.776559000 seconds user
+       6.198050000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 6':
+
+     1,594,929,050      cycles:u                                                    
+     3,256,901,895      instructions:u            #    2.04  insn per cycle         
+
+       9.989048043 seconds time elapsed
+
+       3.473942000 seconds user
+       6.500680000 seconds sys
+
+
+5
+6
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 7':
+
+     2,156,550,711      cycles:u                                                    
+     6,159,205,866      instructions:u            #    2.86  insn per cycle         
+
+       9.989050836 seconds time elapsed
+
+       3.900288000 seconds user
+       6.074129000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 7':
+
+     2,155,751,310      cycles:u                                                    
+     6,157,190,244      instructions:u            #    2.86  insn per cycle         
+
+       9.989020022 seconds time elapsed
+
+       4.071121000 seconds user
+       5.903558000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 7':
+
+     2,155,830,027      cycles:u                                                    
+     6,157,256,548      instructions:u            #    2.86  insn per cycle         
+
+       9.989062076 seconds time elapsed
+
+       4.172057000 seconds user
+       5.802565000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 7':
+
+     2,234,363,402      cycles:u                                                    
+     6,136,606,150      instructions:u            #    2.75  insn per cycle         
+
+       9.989064189 seconds time elapsed
+
+       4.201281000 seconds user
+       5.773064000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 7':
+
+     2,156,356,241      cycles:u                                                    
+     6,158,330,448      instructions:u            #    2.86  insn per cycle         
+
+       9.988980013 seconds time elapsed
+
+       4.305794000 seconds user
+       5.668775000 seconds sys
+
+
+5
+7
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 8':
+
+     3,201,981,207      cycles:u                                                    
+    11,590,031,266      instructions:u            #    3.62  insn per cycle         
+
+       9.989004212 seconds time elapsed
+
+       3.772346000 seconds user
+       6.201892000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 8':
+
+     3,229,431,561      cycles:u                                                    
+    11,560,096,122      instructions:u            #    3.58  insn per cycle         
+
+       9.989119278 seconds time elapsed
+
+       4.215911000 seconds user
+       5.758689000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 8':
+
+     3,199,956,665      cycles:u                                                    
+    11,576,871,251      instructions:u            #    3.62  insn per cycle         
+
+       9.988957449 seconds time elapsed
+
+       4.377676000 seconds user
+       5.596800000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 8':
+
+     3,200,238,097      cycles:u                                                    
+    11,580,673,383      instructions:u            #    3.62  insn per cycle         
+
+       9.989071620 seconds time elapsed
+
+       4.666284000 seconds user
+       5.308321000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 8':
+
+     3,198,911,815      cycles:u                                                    
+    11,578,399,168      instructions:u            #    3.62  insn per cycle         
+
+       9.989105002 seconds time elapsed
+
+       3.742525000 seconds user
+       6.232051000 seconds sys
+
+
+5
+8
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 9':
+
+     5,034,323,951      cycles:u                                                    
+    21,109,470,039      instructions:u            #    4.19  insn per cycle         
+
+       9.988986394 seconds time elapsed
+
+       3.992187000 seconds user
+       5.982310000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 9':
+
+     5,034,754,617      cycles:u                                                    
+    21,111,797,351      instructions:u            #    4.19  insn per cycle         
+
+       9.988971901 seconds time elapsed
+
+       3.810429000 seconds user
+       6.164168000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 9':
+
+     5,034,609,798      cycles:u                                                    
+    21,107,184,589      instructions:u            #    4.19  insn per cycle         
+
+       9.989024774 seconds time elapsed
+
+       5.080176000 seconds user
+       4.894404000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 9':
+
+     5,032,925,046      cycles:u                                                    
+    21,102,276,505      instructions:u            #    4.19  insn per cycle         
+
+       9.989019297 seconds time elapsed
+
+       4.670182000 seconds user
+       5.304413000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 9':
+
+     5,033,348,087      cycles:u                                                    
+    21,103,208,051      instructions:u            #    4.19  insn per cycle         
+
+       9.989006905 seconds time elapsed
+
+       4.825122000 seconds user
+       5.149734000 seconds sys
+
+
+5
+9
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 10':
+
+     7,947,387,253      cycles:u                                                    
+    36,231,533,894      instructions:u            #    4.56  insn per cycle         
+
+       9.988944008 seconds time elapsed
+
+       4.564368000 seconds user
+       5.410401000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 10':
+
+     7,900,974,768      cycles:u                                                    
+    36,020,704,415      instructions:u            #    4.56  insn per cycle         
+
+       9.988930889 seconds time elapsed
+
+       5.421320000 seconds user
+       4.553559000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 10':
+
+     7,953,677,223      cycles:u                                                    
+    36,256,702,546      instructions:u            #    4.56  insn per cycle         
+
+       9.989016263 seconds time elapsed
+
+       6.292266000 seconds user
+       3.682782000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 10':
+
+     7,939,559,323      cycles:u                                                    
+    36,193,007,922      instructions:u            #    4.56  insn per cycle         
+
+       9.988690440 seconds time elapsed
+
+       6.001944000 seconds user
+       3.970573000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 10':
+
+     7,953,265,729      cycles:u                                                    
+    36,253,960,490      instructions:u            #    4.56  insn per cycle         
+
+       9.988819073 seconds time elapsed
+
+       6.209282000 seconds user
+       3.765545000 seconds sys
+
+
+5
+10
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 11':
+
+    11,864,372,357      cycles:u                                                    
+    56,569,269,457      instructions:u            #    4.77  insn per cycle         
+
+       9.988918206 seconds time elapsed
+
+       7.157077000 seconds user
+       2.817829000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 11':
+
+    11,870,750,335      cycles:u                                                    
+    56,597,688,461      instructions:u            #    4.77  insn per cycle         
+
+       9.989090110 seconds time elapsed
+
+       6.603742000 seconds user
+       3.371353000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 11':
+
+    11,863,751,136      cycles:u                                                    
+    56,565,220,042      instructions:u            #    4.77  insn per cycle         
+
+       9.989018862 seconds time elapsed
+
+       7.147268000 seconds user
+       2.827898000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 11':
+
+    11,874,451,895      cycles:u                                                    
+    56,617,854,448      instructions:u            #    4.77  insn per cycle         
+
+       9.989004142 seconds time elapsed
+
+       6.443984000 seconds user
+       3.531081000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 11':
+
+    11,866,642,362      cycles:u                                                    
+    56,574,576,210      instructions:u            #    4.77  insn per cycle         
+
+       9.989012787 seconds time elapsed
+
+       7.127083000 seconds user
+       2.847942000 seconds sys
+
+
+5
+11
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 12':
+
+    16,118,422,129      cycles:u                                                    
+    78,664,440,455      instructions:u            #    4.88  insn per cycle         
+
+       9.989029385 seconds time elapsed
+
+       7.336559000 seconds user
+       2.636912000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 12':
+
+    16,131,261,702      cycles:u                                                    
+    78,728,919,664      instructions:u            #    4.88  insn per cycle         
+
+       9.989914921 seconds time elapsed
+
+       7.765264000 seconds user
+       2.210913000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 12':
+
+    16,126,263,124      cycles:u                                                    
+    78,704,613,350      instructions:u            #    4.88  insn per cycle         
+
+       9.989091565 seconds time elapsed
+
+       7.241946000 seconds user
+       2.733273000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 12':
+
+    16,098,647,936      cycles:u                                                    
+    78,570,684,503      instructions:u            #    4.88  insn per cycle         
+
+       9.989063091 seconds time elapsed
+
+       7.032570000 seconds user
+       2.938986000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 12':
+
+    16,129,465,210      cycles:u                                                    
+    78,714,499,811      instructions:u            #    4.88  insn per cycle         
+
+       9.989863269 seconds time elapsed
+
+       7.455414000 seconds user
+       2.520456000 seconds sys
+
+
+5
+12
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 13':
+
+    19,818,695,594      cycles:u                                                    
+    97,881,949,327      instructions:u            #    4.94  insn per cycle         
+
+       9.989058248 seconds time elapsed
+
+       8.471052000 seconds user
+       1.503896000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 13':
+
+    19,817,394,273      cycles:u                                                    
+    97,876,501,465      instructions:u            #    4.94  insn per cycle         
+
+       9.989203003 seconds time elapsed
+
+       8.655999000 seconds user
+       1.319173000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 13':
+
+    19,808,571,078      cycles:u                                                    
+    97,833,347,432      instructions:u            #    4.94  insn per cycle         
+
+       9.988544635 seconds time elapsed
+
+       8.664346000 seconds user
+       1.308740000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 13':
+
+    19,820,020,741      cycles:u                                                    
+    97,890,456,963      instructions:u            #    4.94  insn per cycle         
+
+       9.989297130 seconds time elapsed
+
+       8.533139000 seconds user
+       1.442033000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 13':
+
+    19,818,735,960      cycles:u                                                    
+    97,884,255,877      instructions:u            #    4.94  insn per cycle         
+
+       9.989244234 seconds time elapsed
+
+       8.569155000 seconds user
+       1.406067000 seconds sys
+
+
+5
+13
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 14':
+
+    22,438,454,227      cycles:u                                                    
+   111,443,377,421      instructions:u            #    4.97  insn per cycle         
+
+       9.989308529 seconds time elapsed
+
+       8.979725000 seconds user
+       0.995577000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 14':
+
+    22,437,861,521      cycles:u                                                    
+   111,486,948,949      instructions:u            #    4.97  insn per cycle         
+
+       9.989544069 seconds time elapsed
+
+       8.939851000 seconds user
+       1.035622000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 14':
+
+    22,438,775,793      cycles:u                                                    
+   111,491,258,771      instructions:u            #    4.97  insn per cycle         
+
+       9.989534709 seconds time elapsed
+
+       8.993826000 seconds user
+       0.981700000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 14':
+
+    22,434,133,877      cycles:u                                                    
+   111,467,890,061      instructions:u            #    4.97  insn per cycle         
+
+       9.989299189 seconds time elapsed
+
+       9.096992000 seconds user
+       0.876606000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 14':
+
+    22,438,197,609      cycles:u                                                    
+   111,489,226,696      instructions:u            #    4.97  insn per cycle         
+
+       9.989638940 seconds time elapsed
+
+       9.005080000 seconds user
+       0.970614000 seconds sys
+
+
+5
+14
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 15':
+
+    24,041,731,832      cycles:u                                                    
+   119,816,432,886      instructions:u            #    4.98  insn per cycle         
+
+       9.989348366 seconds time elapsed
+
+       9.502139000 seconds user
+       0.473360000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 15':
+
+    24,037,906,988      cycles:u                                                    
+   119,797,096,693      instructions:u            #    4.98  insn per cycle         
+
+       9.989484289 seconds time elapsed
+
+       9.514520000 seconds user
+       0.460297000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 15':
+
+    24,040,051,892      cycles:u                                                    
+   119,807,787,790      instructions:u            #    4.98  insn per cycle         
+
+       9.989474302 seconds time elapsed
+
+       9.502205000 seconds user
+       0.473319000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 15':
+
+    24,040,529,580      cycles:u                                                    
+   119,806,481,504      instructions:u            #    4.98  insn per cycle         
+
+       9.989584590 seconds time elapsed
+
+       9.545244000 seconds user
+       0.430380000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 15':
+
+    24,039,902,523      cycles:u                                                    
+   119,807,066,805      instructions:u            #    4.98  insn per cycle         
+
+       9.989609972 seconds time elapsed
+
+       9.522284000 seconds user
+       0.453383000 seconds sys
+
+
+5
+15
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 16':
+
+    24,934,223,853      cycles:u                                                    
+   124,451,174,363      instructions:u            #    4.99  insn per cycle         
+
+       9.989694548 seconds time elapsed
+
+       9.722731000 seconds user
+       0.252630000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 16':
+
+    24,934,009,554      cycles:u                                                    
+   124,450,298,542      instructions:u            #    4.99  insn per cycle         
+
+       9.989433868 seconds time elapsed
+
+       9.748772000 seconds user
+       0.226663000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 16':
+
+    24,935,080,627      cycles:u                                                    
+   124,456,110,922      instructions:u            #    4.99  insn per cycle         
+
+       9.989714191 seconds time elapsed
+
+       9.758109000 seconds user
+       0.217689000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 16':
+
+    24,934,195,557      cycles:u                                                    
+   124,451,699,821      instructions:u            #    4.99  insn per cycle         
+
+       9.989707714 seconds time elapsed
+
+       9.742025000 seconds user
+       0.233662000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 16':
+
+    24,934,986,895      cycles:u                                                    
+   124,455,649,371      instructions:u            #    4.99  insn per cycle         
+
+       9.989717296 seconds time elapsed
+
+       9.743108000 seconds user
+       0.232663000 seconds sys
+
+
+5
+16
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 17':
+
+    25,409,130,577      cycles:u                                                    
+   126,918,159,483      instructions:u            #    4.99  insn per cycle         
+
+       9.989595238 seconds time elapsed
+
+       9.848040000 seconds user
+       0.127829000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 17':
+
+    25,409,439,312      cycles:u                                                    
+   126,919,583,777      instructions:u            #    4.99  insn per cycle         
+
+       9.989573325 seconds time elapsed
+
+       9.863173000 seconds user
+       0.112851000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 17':
+
+    25,409,155,161      cycles:u                                                    
+   126,918,517,407      instructions:u            #    4.99  insn per cycle         
+
+       9.989601322 seconds time elapsed
+
+       9.861127000 seconds user
+       0.114837000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 17':
+
+    25,409,222,152      cycles:u                                                    
+   126,918,667,597      instructions:u            #    4.99  insn per cycle         
+
+       9.989776772 seconds time elapsed
+
+       9.846256000 seconds user
+       0.129818000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 17':
+
+    25,408,972,019      cycles:u                                                    
+   126,917,242,931      instructions:u            #    4.99  insn per cycle         
+
+       9.989535340 seconds time elapsed
+
+       9.875093000 seconds user
+       0.100855000 seconds sys
+
+
+5
+17
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 18':
+
+    25,651,387,107      cycles:u                                                    
+   128,176,587,315      instructions:u            #    5.00  insn per cycle         
+
+       9.989084752 seconds time elapsed
+
+       9.920392000 seconds user
+       0.054922000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 18':
+
+    25,653,468,670      cycles:u                                                    
+   128,186,938,398      instructions:u            #    5.00  insn per cycle         
+
+       9.989586431 seconds time elapsed
+
+       9.921127000 seconds user
+       0.054927000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 18':
+
+    25,645,839,037      cycles:u                                                    
+   128,148,981,844      instructions:u            #    5.00  insn per cycle         
+
+       9.988595213 seconds time elapsed
+
+       9.911397000 seconds user
+       0.061903000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 18':
+
+    25,652,220,131      cycles:u                                                    
+   128,180,850,351      instructions:u            #    5.00  insn per cycle         
+
+       9.989184471 seconds time elapsed
+
+       9.921661000 seconds user
+       0.053924000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 18':
+
+    25,649,177,603      cycles:u                                                    
+   128,165,619,533      instructions:u            #    5.00  insn per cycle         
+
+       9.989749165 seconds time elapsed
+
+       9.913119000 seconds user
+       0.062917000 seconds sys
+
+
+5
+18
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 19':
+
+    25,776,977,012      cycles:u                                                    
+   128,828,771,642      instructions:u            #    5.00  insn per cycle         
+
+       9.989653553 seconds time elapsed
+
+       9.935050000 seconds user
+       0.040945000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 19':
+
+    25,776,202,910      cycles:u                                                    
+   128,824,743,828      instructions:u            #    5.00  insn per cycle         
+
+       9.989775446 seconds time elapsed
+
+       9.937790000 seconds user
+       0.037946000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 19':
+
+    25,775,698,998      cycles:u                                                    
+   128,822,161,388      instructions:u            #    5.00  insn per cycle         
+
+       9.989119912 seconds time elapsed
+
+       9.955542000 seconds user
+       0.019973000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 19':
+
+    25,777,018,793      cycles:u                                                    
+   128,829,145,011      instructions:u            #    5.00  insn per cycle         
+
+       9.989661933 seconds time elapsed
+
+       9.945011000 seconds user
+       0.030954000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 19':
+
+    25,776,511,754      cycles:u                                                    
+   128,826,349,314      instructions:u            #    5.00  insn per cycle         
+
+       9.989612240 seconds time elapsed
+
+       9.933879000 seconds user
+       0.041944000 seconds sys
+
+
+5
+19
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 20':
+
+    25,838,919,156      cycles:u                                                    
+   129,150,368,736      instructions:u            #    5.00  insn per cycle         
+
+       9.989825763 seconds time elapsed
+
+       9.964096000 seconds user
+       0.011983000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 20':
+
+    25,838,379,306      cycles:u                                                    
+   129,147,774,813      instructions:u            #    5.00  insn per cycle         
+
+       9.989673128 seconds time elapsed
+
+       9.952878000 seconds user
+       0.022964000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 20':
+
+    25,838,854,706      cycles:u                                                    
+   129,150,307,540      instructions:u            #    5.00  insn per cycle         
+
+       9.989603092 seconds time elapsed
+
+       9.956879000 seconds user
+       0.018972000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 20':
+
+    25,839,067,999      cycles:u                                                    
+   129,151,479,266      instructions:u            #    5.00  insn per cycle         
+
+       9.989874702 seconds time elapsed
+
+       9.960162000 seconds user
+       0.015978000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 20':
+
+    25,836,646,581      cycles:u                                                    
+   129,139,516,996      instructions:u            #    5.00  insn per cycle         
+
+       9.989131830 seconds time elapsed
+
+       9.953070000 seconds user
+       0.021966000 seconds sys
+
+
+5
+20
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 21':
+
+    25,869,824,078      cycles:u                                                    
+   129,311,171,252      instructions:u            #    5.00  insn per cycle         
+
+       9.989218700 seconds time elapsed
+
+       9.966466000 seconds user
+       0.008988000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 21':
+
+    25,870,844,558      cycles:u                                                    
+   129,316,363,941      instructions:u            #    5.00  insn per cycle         
+
+       9.989763379 seconds time elapsed
+
+       9.966866000 seconds user
+       0.008987000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 21':
+
+    25,870,328,173      cycles:u                                                    
+   129,313,840,207      instructions:u            #    5.00  insn per cycle         
+
+       9.989420855 seconds time elapsed
+
+       9.961664000 seconds user
+       0.013978000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 21':
+
+    25,869,147,207      cycles:u                                                    
+   129,307,872,864      instructions:u            #    5.00  insn per cycle         
+
+       9.989522088 seconds time elapsed
+
+       9.968419000 seconds user
+       0.006990000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 21':
+
+    25,871,751,561      cycles:u                                                    
+   129,314,938,049      instructions:u            #    5.00  insn per cycle         
+
+       9.989830438 seconds time elapsed
+
+       9.969164000 seconds user
+       0.006991000 seconds sys
+
+
+5
+21
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 22':
+
+    25,893,678,022      cycles:u                                                    
+   129,434,070,126      instructions:u            #    5.00  insn per cycle         
+
+       9.989514828 seconds time elapsed
+
+       9.964033000 seconds user
+       0.011982000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 22':
+
+    25,893,659,039      cycles:u                                                    
+   129,433,887,724      instructions:u            #    5.00  insn per cycle         
+
+       9.989670808 seconds time elapsed
+
+       9.967068000 seconds user
+       0.008987000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 22':
+
+    25,893,138,595      cycles:u                                                    
+   129,431,356,893      instructions:u            #    5.00  insn per cycle         
+
+       9.989668805 seconds time elapsed
+
+       9.968811000 seconds user
+       0.006989000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 22':
+
+    25,893,028,881      cycles:u                                                    
+   129,430,820,962      instructions:u            #    5.00  insn per cycle         
+
+       9.989676115 seconds time elapsed
+
+       9.967785000 seconds user
+       0.007987000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 22':
+
+    25,893,434,481      cycles:u                                                    
+   129,432,825,464      instructions:u            #    5.00  insn per cycle         
+
+       9.989915762 seconds time elapsed
+
+       9.964979000 seconds user
+       0.010979000 seconds sys
+
+
+5
+22
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 23':
+
+    25,908,083,521      cycles:u                                                    
+   129,508,291,683      instructions:u            #    5.00  insn per cycle         
+
+       9.990097621 seconds time elapsed
+
+       9.971587000 seconds user
+       0.004994000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 23':
+
+    25,907,570,190      cycles:u                                                    
+   129,505,686,859      instructions:u            #    5.00  insn per cycle         
+
+       9.989780945 seconds time elapsed
+
+       9.968355000 seconds user
+       0.007989000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 23':
+
+    25,906,316,371      cycles:u                                                    
+   129,499,439,446      instructions:u            #    5.00  insn per cycle         
+
+       9.989290186 seconds time elapsed
+
+       9.972886000 seconds user
+       0.002996000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 23':
+
+    25,905,945,266      cycles:u                                                    
+   129,497,557,986      instructions:u            #    5.00  insn per cycle         
+
+       9.989634518 seconds time elapsed
+
+       9.973795000 seconds user
+       0.001996000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 23':
+
+    25,903,907,249      cycles:u                                                    
+   129,487,368,531      instructions:u            #    5.00  insn per cycle         
+
+       9.989148546 seconds time elapsed
+
+       9.973022000 seconds user
+       0.001997000 seconds sys
+
+
+5
+23
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 24':
+
+    25,911,975,064      cycles:u                                                    
+   129,529,102,102      instructions:u            #    5.00  insn per cycle         
+
+       9.989394260 seconds time elapsed
+
+       9.971615000 seconds user
+       0.003991000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 24':
+
+    25,911,458,261      cycles:u                                                    
+   129,526,505,670      instructions:u            #    5.00  insn per cycle         
+
+       9.989916149 seconds time elapsed
+
+       9.972414000 seconds user
+       0.002996000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 24':
+
+    25,911,110,529      cycles:u                                                    
+   129,524,796,452      instructions:u            #    5.00  insn per cycle         
+
+       9.989051398 seconds time elapsed
+
+       9.973263000 seconds user
+       0.001997000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 24':
+
+    25,913,341,526      cycles:u                                                    
+   129,535,957,280      instructions:u            #    5.00  insn per cycle         
+
+       9.989778955 seconds time elapsed
+
+       9.975074000 seconds user
+       0.000998000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 24':
+
+    25,914,177,100      cycles:u                                                    
+   129,540,038,043      instructions:u            #    5.00  insn per cycle         
+
+       9.990091881 seconds time elapsed
+
+       9.974391000 seconds user
+       0.001997000 seconds sys
+
+
+5
+24
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 25':
+
+    25,916,971,772      cycles:u                                                    
+   129,554,777,093      instructions:u            #    5.00  insn per cycle         
+
+       9.989842608 seconds time elapsed
+
+       9.976205000 seconds user
+       0.000000000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 25':
+
+    25,918,062,662      cycles:u                                                    
+   129,560,237,186      instructions:u            #    5.00  insn per cycle         
+
+       9.990024314 seconds time elapsed
+
+       9.975649000 seconds user
+       0.000998000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 25':
+
+    25,918,331,218      cycles:u                                                    
+   129,561,608,303      instructions:u            #    5.00  insn per cycle         
+
+       9.989917482 seconds time elapsed
+
+       9.973726000 seconds user
+       0.002996000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 25':
+
+    25,917,856,718      cycles:u                                                    
+   129,559,022,787      instructions:u            #    5.00  insn per cycle         
+
+       9.989945346 seconds time elapsed
+
+       9.974586000 seconds user
+       0.001997000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 25':
+
+    25,918,070,174      cycles:u                                                    
+   129,560,265,463      instructions:u            #    5.00  insn per cycle         
+
+       9.989727727 seconds time elapsed
+
+       9.974619000 seconds user
+       0.001997000 seconds sys
+
+
+5
+25
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 26':
+
+    25,918,855,774      cycles:u                                                    
+   129,564,525,142      instructions:u            #    5.00  insn per cycle         
+
+       9.989848613 seconds time elapsed
+
+       9.976343000 seconds user
+       0.000000000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 26':
+
+    25,918,658,248      cycles:u                                                    
+   129,563,544,090      instructions:u            #    5.00  insn per cycle         
+
+       9.989745615 seconds time elapsed
+
+       9.976240000 seconds user
+       0.000000000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 26':
+
+    25,920,016,486      cycles:u                                                    
+   129,570,338,102      instructions:u            #    5.00  insn per cycle         
+
+       9.989871613 seconds time elapsed
+
+       9.974790000 seconds user
+       0.001997000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 26':
+
+    25,920,484,526      cycles:u                                                    
+   129,572,674,625      instructions:u            #    5.00  insn per cycle         
+
+       9.989931990 seconds time elapsed
+
+       9.976939000 seconds user
+       0.000000000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 26':
+
+    25,919,805,817      cycles:u                                                    
+   129,569,291,445      instructions:u            #    5.00  insn per cycle         
+
+       9.989828804 seconds time elapsed
+
+       9.975713000 seconds user
+       0.000998000 seconds sys
+
+
+5
+26
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 27':
+
+    25,919,261,216      cycles:u                                                    
+   129,566,723,696      instructions:u            #    5.00  insn per cycle         
+
+       9.989397043 seconds time elapsed
+
+       9.976204000 seconds user
+       0.000000000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 27':
+
+    25,917,230,181      cycles:u                                                    
+   129,556,572,485      instructions:u            #    5.00  insn per cycle         
+
+       9.989159536 seconds time elapsed
+
+       9.974440000 seconds user
+       0.000998000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 27':
+
+    25,917,627,266      cycles:u                                                    
+   129,558,571,653      instructions:u            #    5.00  insn per cycle         
+
+       9.989205007 seconds time elapsed
+
+       9.974571000 seconds user
+       0.000998000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 27':
+
+    25,919,959,027      cycles:u                                                    
+   129,570,206,081      instructions:u            #    5.00  insn per cycle         
+
+       9.989695786 seconds time elapsed
+
+       9.974463000 seconds user
+       0.001996000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 27':
+
+    25,920,205,079      cycles:u                                                    
+   129,571,469,114      instructions:u            #    5.00  insn per cycle         
+
+       9.989606754 seconds time elapsed
+
+       9.976514000 seconds user
+       0.000000000 seconds sys
+
+
+5
+27
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 28':
+
+    25,920,700,560      cycles:u                                                    
+   129,574,012,011      instructions:u            #    5.00  insn per cycle         
+
+       9.989817674 seconds time elapsed
+
+       9.975579000 seconds user
+       0.000998000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 28':
+
+    25,919,830,375      cycles:u                                                    
+   129,569,670,149      instructions:u            #    5.00  insn per cycle         
+
+       9.989728697 seconds time elapsed
+
+       9.976229000 seconds user
+       0.000000000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 28':
+
+    25,921,006,755      cycles:u                                                    
+   129,575,546,207      instructions:u            #    5.00  insn per cycle         
+
+       9.989842279 seconds time elapsed
+
+       9.974711000 seconds user
+       0.001997000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 28':
+
+    25,919,945,884      cycles:u                                                    
+   129,570,251,375      instructions:u            #    5.00  insn per cycle         
+
+       9.989667293 seconds time elapsed
+
+       9.975293000 seconds user
+       0.000996000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 28':
+
+    25,919,538,133      cycles:u                                                    
+   129,568,200,515      instructions:u            #    5.00  insn per cycle         
+
+       9.989861054 seconds time elapsed
+
+       9.975139000 seconds user
+       0.000996000 seconds sys
+
+
+5
+28
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 29':
+
+    25,918,466,267      cycles:u                                                    
+   129,562,905,962      instructions:u            #    5.00  insn per cycle         
+
+       9.989174163 seconds time elapsed
+
+       9.974632000 seconds user
+       0.000998000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 29':
+
+    25,920,349,397      cycles:u                                                    
+   129,572,323,553      instructions:u            #    5.00  insn per cycle         
+
+       9.989935806 seconds time elapsed
+
+       9.975355000 seconds user
+       0.000998000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 29':
+
+    25,920,046,652      cycles:u                                                    
+   129,570,811,519      instructions:u            #    5.00  insn per cycle         
+
+       9.989627858 seconds time elapsed
+
+       9.975246000 seconds user
+       0.000998000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 29':
+
+    25,919,992,769      cycles:u                                                    
+   129,570,463,108      instructions:u            #    5.00  insn per cycle         
+
+       9.989902355 seconds time elapsed
+
+       9.976235000 seconds user
+       0.000000000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 29':
+
+    25,918,020,088      cycles:u                                                    
+   129,560,684,757      instructions:u            #    5.00  insn per cycle         
+
+       9.989045364 seconds time elapsed
+
+       9.974467000 seconds user
+       0.000998000 seconds sys
+
+
+5
+29
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 30':
+
+    25,919,610,428      cycles:u                                                    
+   129,568,641,361      instructions:u            #    5.00  insn per cycle         
+
+       9.989658286 seconds time elapsed
+
+       9.976033000 seconds user
+       0.000000000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 30':
+
+    25,919,950,032      cycles:u                                                    
+   129,570,331,856      instructions:u            #    5.00  insn per cycle         
+
+       9.989868591 seconds time elapsed
+
+       9.975149000 seconds user
+       0.000998000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 30':
+
+    25,919,364,002      cycles:u                                                    
+   129,567,425,116      instructions:u            #    5.00  insn per cycle         
+
+       9.989322922 seconds time elapsed
+
+       9.975920000 seconds user
+       0.000000000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 30':
+
+    25,920,769,373      cycles:u                                                    
+   129,574,424,926      instructions:u            #    5.00  insn per cycle         
+
+       9.989721547 seconds time elapsed
+
+       9.975492000 seconds user
+       0.000998000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 30':
+
+    25,921,485,713      cycles:u                                                    
+   129,578,035,975      instructions:u            #    5.00  insn per cycle         
+
+       9.989827637 seconds time elapsed
+
+       9.975729000 seconds user
+       0.000998000 seconds sys
+
+
+5
+30
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 31':
+
+    25,921,284,351      cycles:u                                                    
+   129,577,018,332      instructions:u            #    5.00  insn per cycle         
+
+       9.989783989 seconds time elapsed
+
+       9.976640000 seconds user
+       0.000000000 seconds sys
+
+
+1
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 31':
+
+    25,921,310,825      cycles:u                                                    
+   129,577,142,572      instructions:u            #    5.00  insn per cycle         
+
+       9.989860463 seconds time elapsed
+
+       9.976659000 seconds user
+       0.000000000 seconds sys
+
+
+2
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 31':
+
+    25,921,849,366      cycles:u                                                    
+   129,579,869,843      instructions:u            #    5.00  insn per cycle         
+
+       9.989954208 seconds time elapsed
+
+       9.976846000 seconds user
+       0.000000000 seconds sys
+
+
+3
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 31':
+
+    25,922,026,654      cycles:u                                                    
+   129,580,650,176      instructions:u            #    5.00  insn per cycle         
+
+       9.990013958 seconds time elapsed
+
+       9.975897000 seconds user
+       0.000998000 seconds sys
+
+
+4
+./unroll_write_reg: Interrupt
+
+ Performance counter stats for './unroll_write_reg 31':
+
+    25,921,420,916      cycles:u                                                    
+   129,577,713,009      instructions:u            #    5.00  insn per cycle         
+
+       9.989765104 seconds time elapsed
+
+       9.976680000 seconds user
+       0.000000000 seconds sys
+
+
+5
+31
