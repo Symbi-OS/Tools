@@ -3,10 +3,10 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <liburing.h>
+#include <string.h>
+
 
 #define QUEUE_DEPTH 1
-
-
 
 int get_completion_and_print(struct io_uring *ring){
 	struct io_uring_cqe *cqe;
@@ -30,6 +30,13 @@ int submit_write_request(char* buffer, unsigned length, struct io_uring* ring, i
 
 	struct io_uring_sqe *sqe = io_uring_get_sqe(ring);
 
+	if (!sqe) {
+        fprintf(stderr, "Could not get SQE.\n");
+        return 1;
+    }	
+
+//sqe->flags |= IOSQE_FIXED_FILE;
+
 	io_uring_prep_write(sqe, fd, buffer, length, 0);
 
 	void* point = (void*) 7; 
@@ -47,9 +54,21 @@ int write_io(char* buffer, int length, int fd) {
 
 	struct io_uring ring;
 
-	io_uring_queue_init(QUEUE_DEPTH, &ring, 0);	
+	struct io_uring_params params;
 
-	int ret = submit_write_request(buffer, length, &ring, fd);
+	memset(&params, 0, sizeof(params));
+    params.flags |= IORING_SETUP_SQPOLL;
+    params.sq_thread_idle = 2000;
+
+
+	int ret = io_uring_queue_init_params(QUEUE_DEPTH, &ring, &params);
+
+	if (ret) {
+        fprintf(stderr, "Unable to setup io_uring: %s\n", strerror(-ret));
+        return 1;
+    }	
+
+	ret = submit_write_request(buffer, length, &ring, fd);
 
 	get_completion_and_print(&ring); 
 
@@ -64,15 +83,6 @@ int write_io(char* buffer, int length, int fd) {
 
 int main(int argc, char *argv[]){
 
-    if(argc != 2){
-        printf("usage ./unroll <app_work>\n");
-        exit(1);
-    }
-
-    int work_pwr_2 = atoi(argv[1]);
-    int work_total = 1 << work_pwr_2;
-
-
 	int fd = open("write_to.txt", O_WRONLY | O_APPEND | O_CREAT,  0644);
 
 
@@ -86,24 +96,6 @@ int main(int argc, char *argv[]){
 	write_io("Hello", 6, fd);
 
 	close(fd); 
-
-
-	/*
-
-    //int stop = (1 << work_total);
-    int i = 0;  
-    while(i< work_total){
-       /* // app work
-        register int work_ctr = work_total;
-        while (work_ctr--) {
-            asm("nop");
-        }*/
-	//printf("Test"); 
-        // system work
- /*       write_io("Hello", 6, fd);
-        i++;
-    }*/
-
 
 	
     return 0; 
