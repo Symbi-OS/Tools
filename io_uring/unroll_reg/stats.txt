@@ -1,0 +1,403 @@
+
+ Performance counter stats for './synch_write 1':
+
+           192,379      cycles:u                                                    
+           154,354      instructions:u            #    0.80  insn per cycle         
+
+       0.000594949 seconds time elapsed
+
+       0.000000000 seconds user
+       0.000625000 seconds sys
+
+
+1
+
+ Performance counter stats for './synch_write 2':
+
+           183,400      cycles:u                                                    
+           154,946      instructions:u            #    0.84  insn per cycle         
+
+       0.000536717 seconds time elapsed
+
+       0.000554000 seconds user
+       0.000000000 seconds sys
+
+
+2
+
+ Performance counter stats for './synch_write 3':
+
+           204,528      cycles:u                                                    
+           170,886      instructions:u            #    0.84  insn per cycle         
+
+       0.000657323 seconds time elapsed
+
+       0.000683000 seconds user
+       0.000000000 seconds sys
+
+
+3
+
+ Performance counter stats for './synch_write 4':
+
+         5,314,060      cycles:u                                                    
+         7,035,568      instructions:u            #    1.32  insn per cycle         
+
+       0.035675271 seconds time elapsed
+
+       0.002969000 seconds user
+       0.032652000 seconds sys
+
+
+4
+
+ Performance counter stats for './synch_write 5':
+
+           180,495      cycles:u                                                    
+           154,549      instructions:u            #    0.86  insn per cycle         
+
+       0.000513249 seconds time elapsed
+
+       0.000545000 seconds user
+       0.000000000 seconds sys
+
+
+5
+
+ Performance counter stats for './synch_write 6':
+
+           184,881      cycles:u                                                    
+           154,870      instructions:u            #    0.84  insn per cycle         
+
+       0.000523356 seconds time elapsed
+
+       0.000000000 seconds user
+       0.000540000 seconds sys
+
+
+6
+
+ Performance counter stats for './synch_write 7':
+
+           182,939      cycles:u                                                    
+           155,510      instructions:u            #    0.85  insn per cycle         
+
+       0.000514961 seconds time elapsed
+
+       0.000000000 seconds user
+       0.000540000 seconds sys
+
+
+7
+
+ Performance counter stats for './synch_write 8':
+
+           181,841      cycles:u                                                    
+           156,790      instructions:u            #    0.86  insn per cycle         
+
+       0.000534527 seconds time elapsed
+
+       0.000000000 seconds user
+       0.000558000 seconds sys
+
+
+8
+
+ Performance counter stats for './synch_write 9':
+
+           184,026      cycles:u                                                    
+           159,350      instructions:u            #    0.87  insn per cycle         
+
+       0.000517784 seconds time elapsed
+
+       0.000542000 seconds user
+       0.000000000 seconds sys
+
+
+9
+
+ Performance counter stats for './synch_write 10':
+
+           187,437      cycles:u                                                    
+           164,489      instructions:u            #    0.88  insn per cycle         
+
+       0.000524067 seconds time elapsed
+
+       0.000000000 seconds user
+       0.000550000 seconds sys
+
+
+10
+
+ Performance counter stats for './synch_write 11':
+
+           187,090      cycles:u                                                    
+           174,728      instructions:u            #    0.93  insn per cycle         
+
+       0.000511630 seconds time elapsed
+
+       0.000000000 seconds user
+       0.000535000 seconds sys
+
+
+11
+
+ Performance counter stats for './synch_write 12':
+
+           190,754      cycles:u                                                    
+           195,209      instructions:u            #    1.02  insn per cycle         
+
+       0.000526142 seconds time elapsed
+
+       0.000000000 seconds user
+       0.000549000 seconds sys
+
+
+12
+
+ Performance counter stats for './synch_write 13':
+
+           198,942      cycles:u                                                    
+           236,168      instructions:u            #    1.19  insn per cycle         
+
+       0.000519781 seconds time elapsed
+
+       0.000550000 seconds user
+       0.000000000 seconds sys
+
+
+13
+
+ Performance counter stats for './synch_write 14':
+
+           215,871      cycles:u                                                    
+           318,088      instructions:u            #    1.47  insn per cycle         
+
+       0.000528205 seconds time elapsed
+
+       0.000557000 seconds user
+       0.000000000 seconds sys
+
+
+14
+
+ Performance counter stats for './synch_write 15':
+
+           247,859      cycles:u                                                    
+           481,928      instructions:u            #    1.94  insn per cycle         
+
+       0.000540207 seconds time elapsed
+
+       0.000571000 seconds user
+       0.000000000 seconds sys
+
+
+15
+
+ Performance counter stats for './synch_write 16':
+
+           316,287      cycles:u                                                    
+           809,609      instructions:u            #    2.56  insn per cycle         
+
+       0.000573155 seconds time elapsed
+
+       0.000000000 seconds user
+       0.000603000 seconds sys
+
+
+16
+
+ Performance counter stats for './synch_write 17':
+
+           446,975      cycles:u                                                    
+         1,464,969      instructions:u            #    3.28  insn per cycle         
+
+       0.000623518 seconds time elapsed
+
+       0.000651000 seconds user
+       0.000000000 seconds sys
+
+
+17
+
+ Performance counter stats for './synch_write 18':
+
+           706,589      cycles:u                                                    
+         2,775,689      instructions:u            #    3.93  insn per cycle         
+
+       0.000729071 seconds time elapsed
+
+       0.000757000 seconds user
+       0.000000000 seconds sys
+
+
+18
+
+ Performance counter stats for './synch_write 19':
+
+         1,231,088      cycles:u                                                    
+         5,397,129      instructions:u            #    4.38  insn per cycle         
+
+       0.000942067 seconds time elapsed
+
+       0.000966000 seconds user
+       0.000000000 seconds sys
+
+
+19
+
+ Performance counter stats for './synch_write 20':
+
+         2,281,209      cycles:u                                                    
+        10,640,010      instructions:u            #    4.66  insn per cycle         
+
+       0.001360206 seconds time elapsed
+
+       0.001382000 seconds user
+       0.000000000 seconds sys
+
+
+20
+
+ Performance counter stats for './synch_write 21':
+
+         4,380,141      cycles:u                                                    
+        21,125,771      instructions:u            #    4.82  insn per cycle         
+
+       0.002204397 seconds time elapsed
+
+       0.002220000 seconds user
+       0.000000000 seconds sys
+
+
+21
+
+ Performance counter stats for './synch_write 22':
+
+         8,572,176      cycles:u                                                    
+        42,097,291      instructions:u            #    4.91  insn per cycle         
+
+       0.003881183 seconds time elapsed
+
+       0.002923000 seconds user
+       0.000975000 seconds sys
+
+
+22
+
+ Performance counter stats for './synch_write 23':
+
+        16,963,059      cycles:u                                                    
+        84,040,335      instructions:u            #    4.95  insn per cycle         
+
+       0.007253223 seconds time elapsed
+
+       0.007265000 seconds user
+       0.000000000 seconds sys
+
+
+23
+
+ Performance counter stats for './synch_write 24':
+
+        33,748,121      cycles:u                                                    
+       167,926,420      instructions:u            #    4.98  insn per cycle         
+
+       0.013981162 seconds time elapsed
+
+       0.012976000 seconds user
+       0.000996000 seconds sys
+
+
+24
+
+ Performance counter stats for './synch_write 25':
+
+        67,307,956      cycles:u                                                    
+       335,698,596      instructions:u            #    4.99  insn per cycle         
+
+       0.027434876 seconds time elapsed
+
+       0.027402000 seconds user
+       0.000000000 seconds sys
+
+
+25
+
+ Performance counter stats for './synch_write 26':
+
+       134,430,947      cycles:u                                                    
+       671,242,943      instructions:u            #    4.99  insn per cycle         
+
+       0.054356182 seconds time elapsed
+
+       0.053283000 seconds user
+       0.000986000 seconds sys
+
+
+26
+
+ Performance counter stats for './synch_write 27':
+
+       268,681,317      cycles:u                                                    
+     1,342,331,636      instructions:u            #    5.00  insn per cycle         
+
+       0.108136405 seconds time elapsed
+
+       0.107962000 seconds user
+       0.000000000 seconds sys
+
+
+27
+
+ Performance counter stats for './synch_write 28':
+
+       537,183,445      cycles:u                                                    
+     2,684,509,023      instructions:u            #    5.00  insn per cycle         
+
+       0.215773747 seconds time elapsed
+
+       0.215389000 seconds user
+       0.000000000 seconds sys
+
+
+28
+
+ Performance counter stats for './synch_write 29':
+
+     1,074,197,545      cycles:u                                                    
+     5,368,863,801      instructions:u            #    5.00  insn per cycle         
+
+       0.430985588 seconds time elapsed
+
+       0.430267000 seconds user
+       0.000000000 seconds sys
+
+
+29
+
+ Performance counter stats for './synch_write 30':
+
+     2,148,311,740      cycles:u                                                    
+    10,737,573,353      instructions:u            #    5.00  insn per cycle         
+
+       0.861461174 seconds time elapsed
+
+       0.860083000 seconds user
+       0.000000000 seconds sys
+
+
+30
+
+ Performance counter stats for './synch_write 31':
+
+     4,296,322,569      cycles:u                                                    
+    21,474,992,452      instructions:u            #    5.00  insn per cycle         
+
+       1.722171762 seconds time elapsed
+
+       1.719420000 seconds user
+       0.000000000 seconds sys
+
+
+31
