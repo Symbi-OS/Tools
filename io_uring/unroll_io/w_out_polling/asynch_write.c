@@ -6,8 +6,7 @@
 
 #define QUEUE_DEPTH 1
 
-int get_completion_and_print(struct io_uring *ring){
-	struct io_uring_cqe *cqe;
+int get_completion_and_print(struct io_uring *ring, struct io_uring_cqe *cqe){
 
 	int ret = io_uring_wait_cqe(ring, &cqe);
 
@@ -20,9 +19,7 @@ int get_completion_and_print(struct io_uring *ring){
 }
 
 
-int submit_write_request(char* buffer, unsigned length, struct io_uring* ring, int fd){
-
-	struct io_uring_sqe *sqe = io_uring_get_sqe(ring);
+int submit_write_request(char* buffer, unsigned length, struct io_uring* ring, int fd,  struct io_uring_sqe *sqe){
 
 	io_uring_prep_write(sqe, fd, buffer, length, 0);
 
@@ -35,25 +32,20 @@ int submit_write_request(char* buffer, unsigned length, struct io_uring* ring, i
     return 0;
 }
 
-int write_io(char* buffer, int length, int fd) {
 
-	struct io_uring ring;
+int write_io(char* buffer, int length, int fd, struct io_uring ring, struct io_uring_cqe *cqe,  struct io_uring_sqe *sqe) {
 
-	io_uring_queue_init(QUEUE_DEPTH, &ring, 0);	
+	submit_write_request(buffer, length, &ring, fd, sqe);
 
-	int ret = submit_write_request(buffer, length, &ring, fd);
-
-	get_completion_and_print(&ring); 
-
-	io_uring_queue_exit(&ring);
+	get_completion_and_print(&ring, cqe); 
 
 	return 0;
-
 }
 
 int main(int argc, char *argv[]){
 
-    if(argc != 2){
+
+	if(argc != 2){
         printf("usage ./unroll <app_work>\n");
         exit(1);
     }
@@ -62,28 +54,32 @@ int main(int argc, char *argv[]){
     int work_total = 1 << work_pwr_2;
 
 
+	struct io_uring ring;
+
+	struct io_uring_cqe *cqe;
+
+    io_uring_queue_init(QUEUE_DEPTH, &ring, 0); 
+
+	struct io_uring_sqe *sqe = io_uring_get_sqe(&ring);
+
 	int fd = open("write_to.txt", O_WRONLY | O_APPEND | O_CREAT,  0644);
     if (fd < 0) {
         perror("open");
         return 1;
     }
-	
-//    int i = 0;  
 
-//	int loop_duration = (1 << work_total) + 1; 
-
-    //while(i< loop_duration){
 	while(1){
-        // app work
+	// app work
         register int work_ctr = work_total;
         while (work_ctr--) {
             asm("nop");
         }
-        // system work
-        write_io("Hello\n", 6, fd);
-       // i++;
-    }
+	// system work
+    	write_io("Hello\n", 6, fd, ring, cqe, sqe);
+	}
+	io_uring_queue_exit(&ring);
+
 	close(fd);
-	
+
     return 0; 
 }
