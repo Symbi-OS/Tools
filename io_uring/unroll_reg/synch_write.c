@@ -12,20 +12,15 @@ int main(int argc, char *argv[]){
 	int fd = open("write_to.txt", O_WRONLY | O_APPEND | O_CREAT, 0644);
 	int work_pwr_2 = atoi(argv[1]);
 	int work_total = 1 << work_pwr_2;
-	int i = 0;
 
-	int loop_duration = (1<< work_total) + 1; 
-
-    while(i < loop_duration){
-
+    while(1){
         // app work
         register int work_ctr = work_total; 
         while(work_ctr --){
             asm("nop");
         }
         // system work
-		write(fd,"Hello",6);
-		i++; 
+		write(fd,"Hello\n",6);
     } 
     return 0;
 }
