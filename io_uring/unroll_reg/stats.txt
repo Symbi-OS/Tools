@@ -1,0 +1,434 @@
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 1':
+
+     1,022,777,024      cycles:u                                                    
+       610,571,384      instructions:u            #    0.60  insn per cycle         
+
+       9.964700139 seconds time elapsed
+
+       0.634917000 seconds user
+       9.312249000 seconds sys
+
+
+1
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 2':
+
+     1,041,983,538      cycles:u                                                    
+       790,688,472      instructions:u            #    0.76  insn per cycle         
+
+       9.989438549 seconds time elapsed
+
+       0.719749000 seconds user
+       9.251908000 seconds sys
+
+
+2
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 3':
+
+     1,213,561,251      cycles:u                                                    
+     1,157,106,469      instructions:u            #    0.95  insn per cycle         
+
+       9.989630948 seconds time elapsed
+
+       0.728677000 seconds user
+       9.243199000 seconds sys
+
+
+3
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 4':
+
+     1,458,338,973      cycles:u                                                    
+     1,884,111,368      instructions:u            #    1.29  insn per cycle         
+
+       9.989488279 seconds time elapsed
+
+       0.836548000 seconds user
+       9.135220000 seconds sys
+
+
+4
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 5':
+
+     1,972,213,048      cycles:u                                                    
+     3,289,014,428      instructions:u            #    1.67  insn per cycle         
+
+       9.989422476 seconds time elapsed
+
+       1.000157000 seconds user
+       8.971278000 seconds sys
+
+
+5
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 6':
+
+     2,938,328,547      cycles:u                                                    
+     5,939,107,938      instructions:u            #    2.02  insn per cycle         
+
+       9.989593094 seconds time elapsed
+
+       1.354634000 seconds user
+       8.617038000 seconds sys
+
+
+6
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 7':
+
+     3,884,717,806      cycles:u                                                    
+    11,041,194,823      instructions:u            #    2.84  insn per cycle         
+
+       9.989630297 seconds time elapsed
+
+       1.725023000 seconds user
+       8.246718000 seconds sys
+
+
+7
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 8':
+
+     5,545,338,375      cycles:u                                                    
+    19,994,192,493      instructions:u            #    3.61  insn per cycle         
+
+       9.989629053 seconds time elapsed
+
+       2.405639000 seconds user
+       7.566271000 seconds sys
+
+
+8
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 9':
+
+     8,184,883,443      cycles:u                                                    
+    34,245,731,286      instructions:u            #    4.18  insn per cycle         
+
+       9.989580640 seconds time elapsed
+
+       3.488005000 seconds user
+       6.483916000 seconds sys
+
+
+9
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 10':
+
+    11,757,082,591      cycles:u                                                    
+    53,530,725,179      instructions:u            #    4.55  insn per cycle         
+
+       9.989592047 seconds time elapsed
+
+       4.811293000 seconds user
+       5.160564000 seconds sys
+
+
+10
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 11':
+
+    15,711,451,883      cycles:u                                                    
+    74,839,747,755      instructions:u            #    4.76  insn per cycle         
+
+       9.989519910 seconds time elapsed
+
+       6.330215000 seconds user
+       3.641786000 seconds sys
+
+
+11
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 12':
+
+    19,147,841,643      cycles:u                                                    
+    93,322,044,538      instructions:u            #    4.87  insn per cycle         
+
+       9.989442169 seconds time elapsed
+
+       7.745808000 seconds user
+       2.226212000 seconds sys
+
+
+12
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 13':
+
+    21,597,880,755      cycles:u                                                    
+   106,498,371,830      instructions:u            #    4.93  insn per cycle         
+
+       9.989691404 seconds time elapsed
+
+       8.714238000 seconds user
+       1.257890000 seconds sys
+
+
+13
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 14':
+
+    23,129,706,449      cycles:u                                                    
+   114,713,996,311      instructions:u            #    4.96  insn per cycle         
+
+       9.989994076 seconds time elapsed
+
+       9.274751000 seconds user
+       0.697771000 seconds sys
+
+
+14
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 15':
+
+    23,986,691,873      cycles:u                                                    
+   119,285,778,728      instructions:u            #    4.97  insn per cycle         
+
+       9.990261439 seconds time elapsed
+
+       9.648532000 seconds user
+       0.324435000 seconds sys
+
+
+15
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 16':
+
+    24,440,024,506      cycles:u                                                    
+   121,752,271,900      instructions:u            #    4.98  insn per cycle         
+
+       9.990745838 seconds time elapsed
+
+       9.770572000 seconds user
+       0.202658000 seconds sys
+
+
+16
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 17':
+
+    24,673,342,842      cycles:u                                                    
+   122,894,126,655      instructions:u            #    4.98  insn per cycle         
+
+       9.990946813 seconds time elapsed
+
+       9.870729000 seconds user
+       0.102826000 seconds sys
+
+
+17
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 18':
+
+    24,793,361,607      cycles:u                                                    
+   123,647,634,258      instructions:u            #    4.99  insn per cycle         
+
+       9.991008509 seconds time elapsed
+
+       9.931775000 seconds user
+       0.041928000 seconds sys
+
+
+18
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 19':
+
+    24,851,787,544      cycles:u                                                    
+   123,954,060,568      instructions:u            #    4.99  insn per cycle         
+
+       9.991090611 seconds time elapsed
+
+       9.950770000 seconds user
+       0.022960000 seconds sys
+
+
+19
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 20':
+
+    24,883,689,106      cycles:u                                                    
+   123,932,535,578      instructions:u            #    4.98  insn per cycle         
+
+       9.991081581 seconds time elapsed
+
+       9.952799000 seconds user
+       0.020963000 seconds sys
+
+
+20
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 21':
+
+    24,899,689,295      cycles:u                                                    
+   124,060,603,968      instructions:u            #    4.98  insn per cycle         
+
+       9.991167935 seconds time elapsed
+
+       9.966975000 seconds user
+       0.006986000 seconds sys
+
+
+21
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 22':
+
+    24,912,205,897      cycles:u                                                    
+   124,073,948,952      instructions:u            #    4.98  insn per cycle         
+
+       9.991242538 seconds time elapsed
+
+       9.968939000 seconds user
+       0.004991000 seconds sys
+
+
+22
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 23':
+
+    24,920,126,962      cycles:u                                                    
+   124,037,330,396      instructions:u            #    4.98  insn per cycle         
+
+       9.991223675 seconds time elapsed
+
+       9.970989000 seconds user
+       0.002995000 seconds sys
+
+
+23
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 24':
+
+    24,923,838,915      cycles:u                                                    
+   124,298,893,498      instructions:u            #    4.99  insn per cycle         
+
+       9.991233189 seconds time elapsed
+
+       9.971927000 seconds user
+       0.001996000 seconds sys
+
+
+24
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 25':
+
+    24,925,668,839      cycles:u                                                    
+   124,295,905,435      instructions:u            #    4.99  insn per cycle         
+
+       9.991197871 seconds time elapsed
+
+       9.971872000 seconds user
+       0.001996000 seconds sys
+
+
+25
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 26':
+
+    24,926,249,177      cycles:u                                                    
+   124,299,385,122      instructions:u            #    4.99  insn per cycle         
+
+       9.991000692 seconds time elapsed
+
+       9.973674000 seconds user
+       0.000000000 seconds sys
+
+
+26
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 27':
+
+    24,926,881,700      cycles:u                                                    
+   124,353,852,441      instructions:u            #    4.99  insn per cycle         
+
+       9.991125591 seconds time elapsed
+
+       9.972757000 seconds user
+       0.000998000 seconds sys
+
+
+27
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 28':
+
+    24,927,375,139      cycles:u                                                    
+   124,340,776,003      instructions:u            #    4.99  insn per cycle         
+
+       9.991248184 seconds time elapsed
+
+       9.973907000 seconds user
+       0.000000000 seconds sys
+
+
+28
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 29':
+
+    24,927,450,127      cycles:u                                                    
+   124,322,715,972      instructions:u            #    4.99  insn per cycle         
+
+       9.991188908 seconds time elapsed
+
+       9.973849000 seconds user
+       0.000000000 seconds sys
+
+
+29
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 30':
+
+    24,926,715,989      cycles:u                                                    
+   124,394,775,185      instructions:u            #    4.99  insn per cycle         
+
+       9.991160556 seconds time elapsed
+
+       9.973549000 seconds user
+       0.000000000 seconds sys
+
+
+30
+./synch_write: Interrupt
+
+ Performance counter stats for './synch_write 31':
+
+    24,927,783,579      cycles:u                                                    
+   124,382,319,589      instructions:u            #    4.99  insn per cycle         
+
+       9.991249434 seconds time elapsed
+
+       9.972971000 seconds user
+       0.000998000 seconds sys
+
+
+31

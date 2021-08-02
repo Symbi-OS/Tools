@@ -1,0 +1,10 @@
+
+#!/usr/bin/env bash
+
+i=1
+while [ $i -le 31 ]
+do
+  timeout -s SIGINT 10 perf stat -e cycles,instructions ./asynch_write $i  &>> stats.txt
+  echo $i &>> stats.txt
+  i=$(( $i + 1 ))
+done

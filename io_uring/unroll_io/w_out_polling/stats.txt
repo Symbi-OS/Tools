@@ -1,0 +1,434 @@
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 1':
+
+    12,384,474,220      cycles:u                                                    
+    20,727,592,320      instructions:u            #    1.67  insn per cycle         
+
+       9.966567951 seconds time elapsed
+
+       5.447724000 seconds user
+       4.502340000 seconds sys
+
+
+1
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 2':
+
+    12,422,749,817      cycles:u                                                    
+    21,475,487,002      instructions:u            #    1.73  insn per cycle         
+
+       9.990913114 seconds time elapsed
+
+       5.566102000 seconds user
+       4.407215000 seconds sys
+
+
+2
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 3':
+
+    12,766,837,962      cycles:u                                                    
+    22,085,325,245      instructions:u            #    1.73  insn per cycle         
+
+       9.991208275 seconds time elapsed
+
+       5.618117000 seconds user
+       4.355361000 seconds sys
+
+
+3
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 4':
+
+    12,919,473,456      cycles:u                                                    
+    24,014,305,631      instructions:u            #    1.86  insn per cycle         
+
+       9.991115365 seconds time elapsed
+
+       5.654751000 seconds user
+       4.318140000 seconds sys
+
+
+4
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 5':
+
+    13,399,744,635      cycles:u                                                    
+    27,250,853,557      instructions:u            #    2.03  insn per cycle         
+
+       9.991191968 seconds time elapsed
+
+       5.820837000 seconds user
+       4.152723000 seconds sys
+
+
+5
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 6':
+
+    14,959,169,757      cycles:u                                                    
+    30,632,821,219      instructions:u            #    2.05  insn per cycle         
+
+       9.991165250 seconds time elapsed
+
+       6.400127000 seconds user
+       3.573381000 seconds sys
+
+
+6
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 7':
+
+    15,831,307,321      cycles:u                                                    
+    41,128,513,305      instructions:u            #    2.60  insn per cycle         
+
+       9.991184004 seconds time elapsed
+
+       6.749140000 seconds user
+       3.224360000 seconds sys
+
+
+7
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 8':
+
+    17,399,878,115      cycles:u                                                    
+    55,680,279,453      instructions:u            #    3.20  insn per cycle         
+
+       9.991058471 seconds time elapsed
+
+       7.287570000 seconds user
+       2.685068000 seconds sys
+
+
+8
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 9':
+
+    19,336,573,934      cycles:u                                                    
+    73,433,523,320      instructions:u            #    3.80  insn per cycle         
+
+       9.990952509 seconds time elapsed
+
+       7.955648000 seconds user
+       2.017358000 seconds sys
+
+
+9
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 10':
+
+    21,242,348,922      cycles:u                                                    
+    90,863,749,382      instructions:u            #    4.28  insn per cycle         
+
+       9.990860598 seconds time elapsed
+
+       8.642544000 seconds user
+       1.330615000 seconds sys
+
+
+10
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 11':
+
+    22,733,360,526      cycles:u                                                    
+   104,500,978,957      instructions:u            #    4.60  insn per cycle         
+
+       9.991131441 seconds time elapsed
+
+       9.185793000 seconds user
+       0.787611000 seconds sys
+
+
+11
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 12':
+
+    23,715,521,294      cycles:u                                                    
+   113,534,174,711      instructions:u            #    4.79  insn per cycle         
+
+       9.991199273 seconds time elapsed
+
+       9.569326000 seconds user
+       0.404250000 seconds sys
+
+
+12
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 13':
+
+    24,288,315,328      cycles:u                                                    
+   118,551,596,105      instructions:u            #    4.88  insn per cycle         
+
+       9.989763391 seconds time elapsed
+
+       9.738668000 seconds user
+       0.234601000 seconds sys
+
+
+13
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 14':
+
+    24,597,156,410      cycles:u                                                    
+   121,587,721,761      instructions:u            #    4.94  insn per cycle         
+
+       9.990999498 seconds time elapsed
+
+       9.851467000 seconds user
+       0.121787000 seconds sys
+
+
+14
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 15':
+
+    24,759,173,024      cycles:u                                                    
+   123,048,374,181      instructions:u            #    4.97  insn per cycle         
+
+       9.991134173 seconds time elapsed
+
+       9.908507000 seconds user
+       0.064886000 seconds sys
+
+
+15
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 16':
+
+    24,842,625,744      cycles:u                                                    
+   123,826,686,084      instructions:u            #    4.98  insn per cycle         
+
+       9.991222235 seconds time elapsed
+
+       9.939572000 seconds user
+       0.033941000 seconds sys
+
+
+16
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 17':
+
+    24,886,213,444      cycles:u                                                    
+   124,213,599,344      instructions:u            #    4.99  insn per cycle         
+
+       9.990720029 seconds time elapsed
+
+       9.959272000 seconds user
+       0.014977000 seconds sys
+
+
+17
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 18':
+
+    24,905,205,373      cycles:u                                                    
+   124,398,556,577      instructions:u            #    4.99  insn per cycle         
+
+       9.991068829 seconds time elapsed
+
+       9.967523000 seconds user
+       0.005989000 seconds sys
+
+
+18
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 19':
+
+    24,916,114,403      cycles:u                                                    
+   124,497,449,230      instructions:u            #    5.00  insn per cycle         
+
+       9.991243463 seconds time elapsed
+
+       9.969702000 seconds user
+       0.003992000 seconds sys
+
+
+19
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 20':
+
+    24,921,535,819      cycles:u                                                    
+   124,548,347,606      instructions:u            #    5.00  insn per cycle         
+
+       9.991232995 seconds time elapsed
+
+       9.970779000 seconds user
+       0.002995000 seconds sys
+
+
+20
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 21':
+
+    24,923,738,700      cycles:u                                                    
+   124,571,369,175      instructions:u            #    5.00  insn per cycle         
+
+       9.991279427 seconds time elapsed
+
+       9.973605000 seconds user
+       0.000000000 seconds sys
+
+
+21
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 22':
+
+    24,924,971,147      cycles:u                                                    
+   124,584,244,472      instructions:u            #    5.00  insn per cycle         
+
+       9.991171532 seconds time elapsed
+
+       9.972493000 seconds user
+       0.000998000 seconds sys
+
+
+22
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 23':
+
+    24,925,805,936      cycles:u                                                    
+   124,591,493,647      instructions:u            #    5.00  insn per cycle         
+
+       9.991198469 seconds time elapsed
+
+       9.971540000 seconds user
+       0.001996000 seconds sys
+
+
+23
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 24':
+
+    24,925,928,275      cycles:u                                                    
+   124,594,198,112      instructions:u            #    5.00  insn per cycle         
+
+       9.991202519 seconds time elapsed
+
+       9.973445000 seconds user
+       0.000000000 seconds sys
+
+
+24
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 25':
+
+    24,926,844,265      cycles:u                                                    
+   124,601,017,167      instructions:u            #    5.00  insn per cycle         
+
+       9.991243807 seconds time elapsed
+
+       9.973618000 seconds user
+       0.000000000 seconds sys
+
+
+25
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 26':
+
+    24,926,651,804      cycles:u                                                    
+   124,599,790,809      instructions:u            #    5.00  insn per cycle         
+
+       9.991211679 seconds time elapsed
+
+       9.973523000 seconds user
+       0.000000000 seconds sys
+
+
+26
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 27':
+
+    24,926,422,901      cycles:u                                                    
+   124,598,821,818      instructions:u            #    5.00  insn per cycle         
+
+       9.991313291 seconds time elapsed
+
+       9.972502000 seconds user
+       0.000995000 seconds sys
+
+
+27
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 28':
+
+    24,925,653,392      cycles:u                                                    
+   124,593,450,894      instructions:u            #    5.00  insn per cycle         
+
+       9.990823678 seconds time elapsed
+
+       9.973174000 seconds user
+       0.000000000 seconds sys
+
+
+28
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 29':
+
+    24,925,941,156      cycles:u                                                    
+   124,594,912,462      instructions:u            #    5.00  insn per cycle         
+
+       9.991064621 seconds time elapsed
+
+       9.972311000 seconds user
+       0.000998000 seconds sys
+
+
+29
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 30':
+
+    24,925,786,889      cycles:u                                                    
+   124,594,967,231      instructions:u            #    5.00  insn per cycle         
+
+       9.991092771 seconds time elapsed
+
+       9.972234000 seconds user
+       0.000996000 seconds sys
+
+
+30
+./asynch_write: Interrupt
+
+ Performance counter stats for './asynch_write 31':
+
+    24,925,903,562      cycles:u                                                    
+   124,594,539,423      instructions:u            #    5.00  insn per cycle         
+
+       9.991228540 seconds time elapsed
+
+       9.973374000 seconds user
+       0.000000000 seconds sys
+
+
+31

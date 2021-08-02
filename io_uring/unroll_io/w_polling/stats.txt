@@ -1,0 +1,434 @@
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 1':
+
+     5,196,590,547      cycles                                                      
+     5,488,325,892      instructions              #    1.06  insn per cycle         
+
+       9.977373788 seconds time elapsed
+
+       0.490648000 seconds user
+       5.169991000 seconds sys
+
+
+1
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 2':
+
+     5,443,717,997      cycles                                                      
+     5,460,828,811      instructions              #    1.00  insn per cycle         
+
+       9.990191053 seconds time elapsed
+
+       0.472045000 seconds user
+       5.196809000 seconds sys
+
+
+2
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 3':
+
+     4,900,164,304      cycles                                                      
+     5,523,689,456      instructions              #    1.13  insn per cycle         
+
+       9.990507627 seconds time elapsed
+
+       0.548874000 seconds user
+       4.973635000 seconds sys
+
+
+3
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 4':
+
+     5,075,713,168      cycles                                                      
+     5,596,970,432      instructions              #    1.10  insn per cycle         
+
+       9.990673789 seconds time elapsed
+
+       0.602920000 seconds user
+       5.020844000 seconds sys
+
+
+4
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 5':
+
+     5,334,841,819      cycles                                                      
+     5,643,795,864      instructions              #    1.06  insn per cycle         
+
+       9.990578368 seconds time elapsed
+
+       0.609917000 seconds user
+       5.082828000 seconds sys
+
+
+5
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 6':
+
+     5,189,247,541      cycles                                                      
+     5,858,053,868      instructions              #    1.13  insn per cycle         
+
+       9.990794223 seconds time elapsed
+
+       0.641868000 seconds user
+       4.966673000 seconds sys
+
+
+6
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 7':
+
+     5,381,524,581      cycles                                                      
+     6,268,365,129      instructions              #    1.16  insn per cycle         
+
+       9.990687627 seconds time elapsed
+
+       0.739052000 seconds user
+       4.900893000 seconds sys
+
+
+7
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 8':
+
+     5,459,538,608      cycles                                                      
+     7,215,794,170      instructions              #    1.32  insn per cycle         
+
+       9.990786913 seconds time elapsed
+
+       0.850607000 seconds user
+       4.799126000 seconds sys
+
+
+8
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 9':
+
+     5,754,015,061      cycles                                                      
+     8,763,737,542      instructions              #    1.52  insn per cycle         
+
+       9.990841215 seconds time elapsed
+
+       1.037554000 seconds user
+       4.751288000 seconds sys
+
+
+9
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 10':
+
+     6,123,872,450      cycles                                                      
+    11,868,400,688      instructions              #    1.94  insn per cycle         
+
+       9.990885110 seconds time elapsed
+
+       1.298587000 seconds user
+       4.456494000 seconds sys
+
+
+10
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 11':
+
+     7,327,156,836      cycles                                                      
+    17,880,112,805      instructions              #    2.44  insn per cycle         
+
+       9.990503235 seconds time elapsed
+
+       1.826603000 seconds user
+       4.275689000 seconds sys
+
+
+11
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 12':
+
+     8,915,802,025      cycles                                                      
+    27,618,662,553      instructions              #    3.10  insn per cycle         
+
+       9.990470561 seconds time elapsed
+
+       2.703098000 seconds user
+       3.669304000 seconds sys
+
+
+12
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 13':
+
+    11,346,643,377      cycles                                                      
+    42,879,541,539      instructions              #    3.78  insn per cycle         
+
+       9.990929291 seconds time elapsed
+
+       4.000435000 seconds user
+       2.896166000 seconds sys
+
+
+13
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 14':
+
+    14,732,115,686      cycles                                                      
+    62,457,494,052      instructions              #    4.24  insn per cycle         
+
+       9.990843719 seconds time elapsed
+
+       5.723221000 seconds user
+       1.943017000 seconds sys
+
+
+14
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 15':
+
+    18,085,193,723      cycles                                                      
+    83,041,770,987      instructions              #    4.59  insn per cycle         
+
+       9.991033386 seconds time elapsed
+
+       7.083527000 seconds user
+       1.351710000 seconds sys
+
+
+15
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 16':
+
+    20,711,903,877      cycles                                                      
+    98,886,728,040      instructions              #    4.77  insn per cycle         
+
+       9.991116930 seconds time elapsed
+
+       8.177626000 seconds user
+       0.832258000 seconds sys
+
+
+16
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 17':
+
+    22,543,288,481      cycles                                                      
+   110,053,856,771      instructions              #    4.88  insn per cycle         
+
+       9.991224306 seconds time elapsed
+
+       8.978255000 seconds user
+       0.440169000 seconds sys
+
+
+17
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 18':
+
+    23,648,778,298      cycles                                                      
+   116,711,789,239      instructions              #    4.94  insn per cycle         
+
+       9.991270590 seconds time elapsed
+
+       9.420857000 seconds user
+       0.243358000 seconds sys
+
+
+18
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 19':
+
+    24,262,426,060      cycles                                                      
+   120,384,828,981      instructions              #    4.96  insn per cycle         
+
+       9.991333383 seconds time elapsed
+
+       9.709408000 seconds user
+       0.091620000 seconds sys
+
+
+19
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 20':
+
+    24,591,585,020      cycles                                                      
+   122,311,957,825      instructions              #    4.97  insn per cycle         
+
+       9.991331937 seconds time elapsed
+
+       9.827227000 seconds user
+       0.047901000 seconds sys
+
+
+20
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 21':
+
+    24,763,431,229      cycles                                                      
+   123,349,807,160      instructions              #    4.98  insn per cycle         
+
+       9.991354322 seconds time elapsed
+
+       9.881234000 seconds user
+       0.032991000 seconds sys
+
+
+21
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 22':
+
+    24,843,999,163      cycles                                                      
+   123,867,379,124      instructions              #    4.99  insn per cycle         
+
+       9.991383017 seconds time elapsed
+
+       9.916990000 seconds user
+       0.016968000 seconds sys
+
+
+22
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 23':
+
+    24,895,352,603      cycles                                                      
+   124,183,982,961      instructions              #    4.99  insn per cycle         
+
+       9.991398884 seconds time elapsed
+
+       9.943360000 seconds user
+       0.004997000 seconds sys
+
+
+23
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 24':
+
+    24,862,658,157      cycles                                                      
+   121,141,662,370      instructions              #    4.87  insn per cycle         
+
+       9.991375867 seconds time elapsed
+
+       9.929166000 seconds user
+       0.002996000 seconds sys
+
+
+24
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 25':
+
+    24,938,885,426      cycles                                                      
+   124,444,820,074      instructions              #    4.99  insn per cycle         
+
+       9.991413322 seconds time elapsed
+
+       9.959169000 seconds user
+       0.001997000 seconds sys
+
+
+25
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 26':
+
+    24,947,418,387      cycles                                                      
+   124,493,337,982      instructions              #    4.99  insn per cycle         
+
+       9.991379625 seconds time elapsed
+
+       9.961607000 seconds user
+       0.001997000 seconds sys
+
+
+26
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 27':
+
+    24,930,171,644      cycles                                                      
+   124,415,112,393      instructions              #    4.99  insn per cycle         
+
+       9.991354594 seconds time elapsed
+
+       9.956532000 seconds user
+       0.000000000 seconds sys
+
+
+27
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 28':
+
+    24,920,988,170      cycles                                                      
+   124,369,200,110      instructions              #    4.99  insn per cycle         
+
+       9.991403719 seconds time elapsed
+
+       9.951627000 seconds user
+       0.000997000 seconds sys
+
+
+28
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 29':
+
+    24,936,949,250      cycles                                                      
+   124,447,339,542      instructions              #    4.99  insn per cycle         
+
+       9.990822650 seconds time elapsed
+
+       9.957931000 seconds user
+       0.000998000 seconds sys
+
+
+29
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 30':
+
+    24,909,416,566      cycles                                                      
+   121,730,836,260      instructions              #    4.89  insn per cycle         
+
+       9.991188024 seconds time elapsed
+
+       9.946949000 seconds user
+       0.000995000 seconds sys
+
+
+30
+./asynch_poll_write: Interrupt
+
+ Performance counter stats for './asynch_poll_write 31':
+
+    24,936,466,499      cycles                                                      
+   124,446,068,251      instructions              #    4.99  insn per cycle         
+
+       9.991251020 seconds time elapsed
+
+       9.958666000 seconds user
+       0.000000000 seconds sys
+
+
+31
