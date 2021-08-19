@@ -24,7 +24,8 @@ int bench_time_internal(){
   clock_t start, end;
   double cpu_time_used;
 
-  int (*getppid_elevated)() = ( int(*)() ) 0xffffffff8107f460;
+  /* int (*getppid_elevated)() = ( int(*)() ) 0xffffffff8107f460; */
+  int (*getppid_elevated)() = ( int(*)() ) 0xffffffff810f62b0;
   start = clock();
   /* Do the work. */
   int i;
@@ -50,11 +51,12 @@ int main(){
   /*   ffffffff8107f460 T __x64_sys_getppid */
   int (*getppid_elevated)() = ( int(*)() ) 0xffffffff810f62b0;
 
-  /* sym_elevate(); */
+  sym_elevate();
+
   /* int ppid=getppid_elevated(); */
 
   /* bench_time(); */
-  /* bench_time_internal(); */
+  bench_time_internal();
 
   /* sym_lower(); */
 

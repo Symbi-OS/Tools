@@ -14,6 +14,7 @@ write_syscall_loop_static: write_syscall_loop.c ../lib_constructors/elevate.c
 write_syscall_loop_dynamic: write_syscall_loop.c
 	$(CC) $(MY_CC_FLAGS) -o $@ $< #-I ~/kallsymlib -L ~/kallsymlib -lkallsym
 
+
 #-I../../linux/arch/x86/include/generated  -I../../linux/include -I../../linux/arch/x86/include/uapi -I../../linux/arch/x86/include/generated/uapi -I../../linux/include/uapi -I../../linux/include/generated/uapi -I../../linux/include
 
 
@@ -71,6 +72,9 @@ mmaptest_symbiote: mmaptest.c
 
 getppid_static: getppid.c
 	$(CC) $(CC_FLAGS) -o $@ $^ ../include/sym_lib.c
+
+getppid_static_mt: getppid_mt.c
+	$(CC) -DPINGPONG -DNOPINNING $(CC_FLAGS) -o $@ $^ -lpthread ../include/sym_lib.c
 
 getppid_dynamic: getppid_dynamic.c
 	$(CC) $(CC_FLAGS_DYNAMIC) -o $@ $^
