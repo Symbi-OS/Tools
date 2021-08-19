@@ -23,7 +23,7 @@ int main(int argc , char *argv[])
 	struct sockaddr_in server;
 	char message[1000] , server_reply[2000];
 
-  int runs = 1<<30;
+  int runs = 1<<17;
 
 	//Create socket
 	sock = socket(AF_INET , SOCK_STREAM , 0);
@@ -33,7 +33,7 @@ int main(int argc , char *argv[])
 	}
 	puts("Socket created");
 
-	server.sin_addr.s_addr = inet_addr("127.0.0.1");
+	server.sin_addr.s_addr = inet_addr("192.168.122.47");
 	server.sin_family = AF_INET;
 	server.sin_port = htons( 8888 );
 

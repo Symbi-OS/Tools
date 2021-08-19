@@ -122,6 +122,7 @@ void store_idt_desc(struct gdtr *location) {
 }
 
 unsigned char my_idt [1<<12] __attribute__ ((aligned (1<<12) ));
+
 void set_idtr(){
   struct gdtr idtr = {0xfff,(unsigned long)my_idt};
   printf("We will set the idtr with \n");

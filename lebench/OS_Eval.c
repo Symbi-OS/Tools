@@ -827,84 +827,104 @@ void context_switch_test(struct timespec *diffTime) {
 	if (retval == -1) printf("[error] failed to get affinity.\n");
 	prio = getpriority(PRIO_PROCESS, 0);
 	if (prio == -1) printf("[error] failed to get priority.\n");
-	
-	int forkId = fork();
-	if (forkId > 0) { // is parent
-    // The parent wants fds1[1] the write end of fds1
-    // Allows parent to send bytes to child who holds fds1[0] the read end of the pipe fds1
-    // This is how the parent can send bytes to the child.
 
-    // The parent wants fds2[0] the read end of fds2
-		retval = close(fds1[0]);
-		if (retval != 0) printf("[error] failed to close fd1.\n");
-		retval = close(fds2[1]);
-		if (retval != 0) printf("[error] failed to close fd2.\n");
+  int forkId = fork();
 
-		cpu_set_t set;
-		CPU_ZERO(&set);
-		CPU_SET(0, &set);
-		retval = sched_setaffinity(getpid(), sizeof(set), &set);
-		if (retval == -1) printf("[error] failed to set processor affinity.\n");
-		retval = setpriority(PRIO_PROCESS, 0, -20); 
-		if (retval == -1) printf("[error] failed to set process priority.\n");
-
-		read(fds2[0], &r, 1); 		
-
-		clock_gettime(CLOCK_MONOTONIC, &startTime);
-		for (int i = 0; i < iter; i++) {
-			write(fds1[1], &w, 1);		
-			read(fds2[0], &r, 1); 
-		}
-		clock_gettime(CLOCK_MONOTONIC, &endTime);
-		int status;
-        	wait(&status);
-		
-		close(fds1[1]);
-		close(fds2[0]);
+  if (forkId > 0) {
+    printf("Parent done fork, elevating\n");
+    /* touch_stack(); */
+    sym_elevate();
+  }
 
 
-	} else if (forkId == 0){
-	
-		retval = close(fds1[1]);
-		if (retval != 0) printf("[error] failed to close fd1.\n");
-		retval = close(fds2[0]);
-		if (retval != 0) printf("[error] failed to close fd2.\n");
+  if (forkId > 0) { // is parent
+      // The parent wants fds1[1] the write end of fds1
+      // Allows parent to send bytes to child who holds fds1[0] the read end of
+      // the pipe fds1 This is how the parent can send bytes to the child.
+    /* sym_elevate(); */
 
-		cpu_set_t set;
-		CPU_ZERO(&set);
-		CPU_SET(0, &set);
-		retval = sched_setaffinity(getpid(), sizeof(set), &set);
-		if (retval == -1) printf("[error] failed to set processor affinity.\n");
-		retval = setpriority(PRIO_PROCESS, 0, -20); 
-		if (retval == -1) printf("[error] failed to set process priority.\n");
+      // The parent wants fds2[0] the read end of fds2
+      retval = close(fds1[0]);
+      if (retval != 0)
+        printf("[error] failed to close fd1.\n");
+      retval = close(fds2[1]);
+      if (retval != 0)
+        printf("[error] failed to close fd2.\n");
 
-		write(fds2[1], &w, 1);		
-		for (int i = 0; i < iter; i++) {
-			read(fds1[0], &r, 1);		
-			write(fds2[1], &w, 1);		
-		}
-			
-        	kill(getpid(), SIGINT);
-		printf("[error] unable to kill child process\n");
-		return;
-	} else {
-		printf("[error] failed to fork.\n");
-	}
+      cpu_set_t set;
+      CPU_ZERO(&set);
+      CPU_SET(0, &set);
+      retval = sched_setaffinity(getpid(), sizeof(set), &set);
+      if (retval == -1)
+        printf("[error] failed to set processor affinity.\n");
+      retval = setpriority(PRIO_PROCESS, 0, -20);
+      if (retval == -1)
+        printf("[error] failed to set process priority.\n");
 
-	retval = sched_setaffinity(getpid(), sizeof(cpuset), &cpuset);
-	if (retval == -1) printf("[error] failed to restore affinity.\n");
-	retval = setpriority(PRIO_PROCESS, 0, prio);
-	if (retval == -1) printf("[error] failed to restore priority.\n");
+      read(fds2[0], &r, 1);
 
-	struct timespec sum;
-	sum.tv_sec = 0;
-	sum.tv_nsec = 0;
-	add_diff_to_sum(&sum, endTime, startTime);
-	struct timespec *diff = calc_average(&sum, iter);
-	diffTime->tv_sec = diff->tv_sec;
-	diffTime->tv_nsec = diff->tv_nsec;
-	free(diff);
-}
+      clock_gettime(CLOCK_MONOTONIC, &startTime);
+      for (int i = 0; i < iter; i++) {
+        write(fds1[1], &w, 1);
+        read(fds2[0], &r, 1);
+      }
+      clock_gettime(CLOCK_MONOTONIC, &endTime);
+      int status;
+      wait(&status);
+
+      close(fds1[1]);
+      close(fds2[0]);
+
+      sym_lower();
+
+  } else if (forkId == 0) {
+
+      retval = close(fds1[1]);
+      if (retval != 0)
+        printf("[error] failed to close fd1.\n");
+      retval = close(fds2[0]);
+      if (retval != 0)
+        printf("[error] failed to close fd2.\n");
+
+      cpu_set_t set;
+      CPU_ZERO(&set);
+      CPU_SET(0, &set);
+      retval = sched_setaffinity(getpid(), sizeof(set), &set);
+      if (retval == -1)
+        printf("[error] failed to set processor affinity.\n");
+      retval = setpriority(PRIO_PROCESS, 0, -20);
+      if (retval == -1)
+        printf("[error] failed to set process priority.\n");
+
+      write(fds2[1], &w, 1);
+      for (int i = 0; i < iter; i++) {
+        read(fds1[0], &r, 1);
+        write(fds2[1], &w, 1);
+      }
+
+      kill(getpid(), SIGINT);
+      printf("[error] unable to kill child process\n");
+      return;
+    } else {
+      printf("[error] failed to fork.\n");
+    }
+
+    retval = sched_setaffinity(getpid(), sizeof(cpuset), &cpuset);
+    if (retval == -1)
+      printf("[error] failed to restore affinity.\n");
+    retval = setpriority(PRIO_PROCESS, 0, prio);
+    if (retval == -1)
+      printf("[error] failed to restore priority.\n");
+
+    struct timespec sum;
+    sum.tv_sec = 0;
+    sum.tv_nsec = 0;
+    add_diff_to_sum(&sum, endTime, startTime);
+    struct timespec *diff = calc_average(&sum, iter);
+    diffTime->tv_sec = diff->tv_sec;
+    diffTime->tv_nsec = diff->tv_nsec;
+    free(diff);
+  }
 
 int msg_size = -1;
 int curr_iter_limit = -1;
@@ -1204,9 +1224,14 @@ int main(int argc, char *argv[])
 	/*****************************************/
 
   /* This is barfing under symbiosis. Solve with per process flag? */
-	/* info.iter = BASE_ITER * 10; */
-	/* info.name = "context switch"; */
-	/* one_line_test(fp, copy, context_switch_test, &info); */
+  /* This has a fork. */
+
+  sym_lower();
+
+	info.iter = BASE_ITER * 10;
+	info.name = "context switch";
+	one_line_test(fp, copy, context_switch_test, &info);
+  return 0;
 
 
 	/*****************************************/
@@ -1249,9 +1274,9 @@ int main(int argc, char *argv[])
 	/* two_line_test(fp, copy, forkTest, &info); */
 
   // No good with symbiosis
-	info.iter = BASE_ITER * 5;
-	info.name = "thr create";
-	two_line_test(fp, copy, threadTest, &info);
+	/* info.iter = BASE_ITER * 5; */
+	/* info.name = "thr create"; */
+	/* two_line_test(fp, copy, threadTest, &info); */
 
 
 	/* int page_count = 6000; */

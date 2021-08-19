@@ -23,6 +23,15 @@ write_syscall_loop_dynamic: write_syscall_loop.c
 #$(MY_INCLUDES)
 
 
+app_user_sys: app_sys_loop.c
+	gcc -DUSER -DSYSTEM -static $< -o $@
+
+app_user: app_sys_loop.c
+	gcc -DUSER -static $< -o $@
+
+app_sys: app_sys_loop.c
+	gcc -DSYSTEM -static $< -o $@
+
 
 
 # write_syscall_dynamic: write_syscall.c
@@ -34,15 +43,31 @@ write_syscall_loop_dynamic: write_syscall_loop.c
 read_syscall_static: read_syscall_static.c
 	$(CC) $(CC_FLAGS) -o $@ $^ ../include/sym_lib.c
 
+while1_symbiote: while1.c ../lib_constructors/elevate.c
+	$(CC) $(CC_FLAGS) -o $@ $^ -I ../lib_constructors/
+
+while1_linux: while1.c
+	$(CC) $(CC_FLAGS) -o $@ $<
+
 fork: fork.c ../lib_constructors/elevate.c
 	$(CC) $(CC_FLAGS) -o $@ $^ -I ../lib_constructors/
 	cp fork ../app
+
+fork_linux: fork.c 
+	$(CC) $(CC_FLAGS) -o $@ $< -DLINUX
 
 stack_starvation: stack_starvation.c ../include/sym_lib.c
 	$(CC) $(CC_FLAGS) -o $@ $^ -I ../include/
 
 # getppid: getppid.c  ../lib_constructors/elevate.c
 # 	$(CC) $(CC_FLAGS_DYNAMIC) -o $@ $^ -I ../lib_constructors
+
+mmaptest_linux: mmaptest.c
+	gcc -g -O1 -o $@ $<
+
+mmaptest_symbiote: mmaptest.c
+	$(CC) $(CC_FLAGS) -o $@ $^ ../lib_constructors/elevate.c
+# gcc -g -O1 -o $@ $<
 
 getppid_static: getppid.c
 	$(CC) $(CC_FLAGS) -o $@ $^ ../include/sym_lib.c

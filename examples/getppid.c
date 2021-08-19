@@ -50,15 +50,15 @@ int main(){
   /*   ffffffff8107f460 T __x64_sys_getppid */
   int (*getppid_elevated)() = ( int(*)() ) 0xffffffff810f62b0;
 
-  sym_elevate();
-  int ppid=getppid_elevated();
+  /* sym_elevate(); */
+  /* int ppid=getppid_elevated(); */
 
   /* bench_time(); */
   /* bench_time_internal(); */
 
-  sym_lower();
+  /* sym_lower(); */
 
-  printf("elevated ppid is %d \n", ppid);
+  /* printf("elevated ppid is %d \n", ppid); */
   printf("ppid is %d \n", getppid());
   return 0;
 }
