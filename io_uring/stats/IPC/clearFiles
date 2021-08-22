@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+:> io_poll.txt
+:> io.txt
+:> reg.txt

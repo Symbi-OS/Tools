@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+if [[ $# -eq 0 ]] ; then
+    echo "Must pass in file heading or 'all'"
+    exit 1
+fi
+
+input=$1
+:> write_to.txt
+if [[ "$input" = "all" ]]
+then
+  declare -a arr=("reg" "io" "batch_io" "io_poll" "batch_io_poll")
+else
+  declare -a arr=("$input")
+fi
+
+for file in "${arr[@]}"
+do
+  for i in $(seq 1 30)
+  do
+    for j in $(seq 1 5)
+    do 
+      ./programs/throughput/${file} $i $j
+    done
+  done
+  :> write_to.txt
+done
+
+
