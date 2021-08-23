@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+if [[ $# -eq 0 ]] ; then
+    echo "Must pass in file heading or 'all'"
+    exit 1
+fi
+
+input=$1
+:> write_to.txt
+
+if [[ "$input" = "all" ]]
+then
+  declare -a arr=("reg" "io" "batch_io" "batch_io_poll" "io_poll")
+else
+  declare -a arr=("$input")
+fi
+
+
+for file in "${arr[@]}"
+do
+  if [[ "$filet" = "io_poll" ]] ; then #for whatever reason, cannot record with specified frequency for io_poll 
+    perf record -g ./programs/flamegraphs/${file} 10
+  else
+    perf record -F 49999 -g ./programs/flamegraphs/${file} 10
+  fi
+  mv perf.data FlameGraph
+  cd FlameGraph
+  perf script | ./stackcollapse-perf.pl > out.perf-folded
+  ./flamegraph.pl out.perf-folded > ${file}.svg
+  cd ..
+  mv FlameGraph/${file}.svg stats/flamegraphs/
+  mv FlameGraph/perf.data stats/flamegraphs/${file}.data
+  mv FlameGraph/out.perf-folded stats/flamegraphs/${file}_out.perf-folded
+  :> write_to.txt
+done
+
+

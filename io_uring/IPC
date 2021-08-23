@@ -18,9 +18,9 @@ fi
 
 for file in "${arr[@]}"
 do
-  for i in $(seq 1 2)
+  for i in $(seq 1 30)
   do
-    for j in $(seq 1 2)
+    for j in $(seq 1 5)
     do 
       echo -n $i,$j, >> ./stats/IPC/${file}.txt 
       grep 'ins' <(timeout -s SIGINT 10 perf stat ./programs/IPC/${file} $i 2>&1 ) | cut -d '#' -f 2 | awk '{printf $1}' >> ./stats/IPC/${file}.txt

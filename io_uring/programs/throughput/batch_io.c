@@ -7,7 +7,7 @@
 
 #define BUF_SIZE    512
 #define FILE_NAME1  "write_to.txt"
-#define STR1        "What is this life if, full of care,\n"
+#define STR1        "Hello\n"
 
 int main(int argc, char *argv[]) {
   	if(argc != 3){

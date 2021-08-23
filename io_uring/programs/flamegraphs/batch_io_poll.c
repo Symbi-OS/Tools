@@ -10,13 +10,12 @@
 #define STR1        "Hello\n"
 
 int main(int argc, char *argv[]) {
-  	if(argc != 3){
+  	if(argc != 2){
         printf("usage ./unroll <app_work>\n");
         exit(1);
     }
 
     int work_pwr_2 = atoi(argv[1]);
-	int iter_number = atoi(argv[2]);
     int work_total = 1 << work_pwr_2;
 
 
@@ -70,7 +69,6 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-	clock_t start = clock(); 
 	if(work_pwr_2 < 15){
     	for(int i = 0; i < work_total; i++){
  			sqe = io_uring_get_sqe(&ring);
@@ -100,7 +98,6 @@ int main(int argc, char *argv[]) {
     	}
 	}
 	else{
-	clock_t start = clock();
 	int loop_time = work_total/(1<<15);
 
 	int inner_loop_time = 1<<15; 
@@ -136,18 +133,9 @@ int main(int argc, char *argv[]) {
 			}
 	}
 	}
-	clock_t end = clock();
-
-	double cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-
-	FILE *fptr = fopen("stats/throughput/batch_io_poll.txt", "a");
-
-	fprintf(fptr,"%d,%d,%f\n",  work_pwr_2, iter_number, cpu_time_used);
-
-	fclose(fptr);
-
 
     io_uring_queue_exit(&ring);
+	close(fd);
     return 0;
 	
 }

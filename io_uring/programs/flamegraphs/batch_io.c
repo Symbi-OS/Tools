@@ -10,39 +10,25 @@
 #define STR1        "Hello\n"
 
 int main(int argc, char *argv[]) {
-  	if(argc != 3){
+  	if(argc != 2){
         printf("usage ./unroll <app_work>\n");
         exit(1);
     }
 
     int work_pwr_2 = atoi(argv[1]);
-	int iter_number = atoi(argv[2]);
     int work_total = 1 << work_pwr_2;
 
-
 	struct io_uring ring;
-    struct io_uring_params params;
-
-    if (geteuid()) {
-        fprintf(stderr, "You need root privileges to run this program.\n");
-        return 1;
-    }
-
-    /*memset(&params, 0, sizeof(params));
-    params.flags |= IORING_SETUP_SQPOLL;
-    params.sq_thread_idle = 500;*/
 
 	int queue_depth;
-	if(work_pwr_2 < 15){
+	if(work_pwr_2 < 9){
 		queue_depth = work_total;
 	}
 	else {
-		queue_depth = 1 << 15; 
+		queue_depth = 1 << 9; 
 	}
 
-	int ret = io_uring_queue_init(queue_depth, &ring, IORING_SETUP_SQPOLL);
-	//int ret = io_uring_queue_init_params(queue_depth, &ring, &params);
-
+	int ret = io_uring_queue_init(queue_depth, &ring, 0);
     if (ret) {
         fprintf(stderr, "Unable to setup io_uring: %s\n", strerror(-ret));
         return 1;
@@ -64,22 +50,20 @@ int main(int argc, char *argv[]) {
     memset(buff1, 0, BUF_SIZE);
     strncpy(buff1, STR1, str1_sz);
 
-    ret = io_uring_register_files(&ring, &fd, 1);
-    if(ret) {
-	fprintf(stderr, "Error registering buffers: %s", strerror(-ret));
-        return 1;
-    }
-
 	clock_t start = clock(); 
-	if(work_pwr_2 < 15){
+	if(work_pwr_2 < 9){
     	for(int i = 0; i < work_total; i++){
  			sqe = io_uring_get_sqe(&ring);
     		if (!sqe) {
         		fprintf(stderr, "Could not get SQE.\n");
         		return 1;
     		}
-    		io_uring_prep_write(sqe, 0, buff1, str1_sz, 0);
-    		sqe->flags |= IOSQE_FIXED_FILE;
+    		io_uring_prep_write(sqe, fd, buff1, str1_sz, 0);
+
+			void* point = (void*) 7; 
+    
+    		io_uring_sqe_set_data(sqe, point);
+
     	}
 
     	io_uring_submit(&ring);
@@ -100,10 +84,9 @@ int main(int argc, char *argv[]) {
     	}
 	}
 	else{
-	clock_t start = clock();
-	int loop_time = work_total/(1<<15);
+	int loop_time = work_total/(1<<9);
 
-	int inner_loop_time = 1<<15; 
+	int inner_loop_time = 1<<9; 
 	for(int j = 0; j < loop_time; j++){
 
 		for(int i = 0; i < inner_loop_time; i++){
@@ -112,8 +95,12 @@ int main(int argc, char *argv[]) {
             	fprintf(stderr, "Could not get SQE.\n");
             	return 1;
         	}
-        	io_uring_prep_write(sqe, 0, buff1, str1_sz, 0);
-        	sqe->flags |= IOSQE_FIXED_FILE;
+			io_uring_prep_write(sqe, fd, buff1, str1_sz, 0);
+
+            void* point = (void*) 7; 
+    
+            io_uring_sqe_set_data(sqe, point);
+
         }
 
         io_uring_submit(&ring);
@@ -132,22 +119,13 @@ int main(int argc, char *argv[]) {
 //          printf("Result of the operation: %d\n", cqe->res);
             io_uring_cqe_seen(&ring, cqe);
 
-
-			}
+		}
 	}
+
 	}
-	clock_t end = clock();
-
-	double cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-
-	FILE *fptr = fopen("stats/throughput/batch_io_poll.txt", "a");
-
-	fprintf(fptr,"%d,%d,%f\n",  work_pwr_2, iter_number, cpu_time_used);
-
-	fclose(fptr);
-
 
     io_uring_queue_exit(&ring);
+	close(fd);
     return 0;
 	
 }

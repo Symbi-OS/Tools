@@ -16,11 +16,11 @@ fi
 
 for file in "${arr[@]}"
 do
-  for i in $(seq 1 30)
+  for i in $(seq 23 30)
   do
     for j in $(seq 1 5)
-    do 
-      ./programs/throughput/${file} $i $j
+    do
+      ./programs/throughput/${file} $i 1
     done
   done
   :> write_to.txt
