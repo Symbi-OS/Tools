@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+
+:> batch_io_poll.txt
+:> batch_io.txt
+:> io_poll.txt
+:> io.txt
+:> reg.txt

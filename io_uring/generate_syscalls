@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+if [[ $# -eq 0 ]] ; then
+    echo "Must pass in file heading or 'all'"
+    exit 1
+fi
+
+input=$1
+
+:> write_to.txt
+
+if [[ "$input" = "all" ]]
+then
+  #declare -a arr=("reg" "io" "batch_io" "batch_io_poll" "io_poll")
+  declare -a arr=("io" "batch_io" "batch_io_poll" "io_poll")
+else
+  declare -a arr=("$input")
+fi
+
+for file in "${arr[@]}"
+do
+  for i in $(seq 1 27)
+  do
+    echo -n $i, >> ./stats/syscalls/${file}.txt
+    strace -c ./programs/flamegraphs/${file} $i 2>&1 | tail -1 |  awk '{print $4}' >> ./stats/syscalls/${file}.txt
+  done
+  :> write_to.txt
+done
+
+
