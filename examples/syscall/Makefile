@@ -14,6 +14,14 @@ sym_sys: sym_sys.c
 run:
 	taskset -c 0 ./sym_sys
 
+cp_to_disk: ./sym_sys
+# create tmp dir
+	mkdir ./mt
+	sudo mount -o loop=/dev/loop0 ~tommyunger/ukl/min-initrd/min-initrd.d/root ./mt
+	sudo cp sym_sys ./mt
+	sleep 1
+	sudo umount ./mt
+	rm -d ./mt
+
 clean:
 	-rm sym_sys
-
