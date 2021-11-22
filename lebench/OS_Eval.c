@@ -381,7 +381,7 @@ void two_line_test(FILE *fp, FILE *copy, void (*f)(struct timespec*,struct times
 		timeArrayChild[i].tv_nsec = 0;
 		(*f)(&timeArrayChild[i],&timeArrayParent[i]);
 	}
- printf("Got here\n");
+ /* printf("Got here\n"); */
 
 	struct timespec *sumParent = calc_sum2(timeArrayParent, runs);
 	struct timespec *sumChild = calc_sum2(timeArrayChild, runs);
@@ -397,7 +397,7 @@ void two_line_test(FILE *fp, FILE *copy, void (*f)(struct timespec*,struct times
 	kbests[0] = kbestParent;
 	kbests[1] = kbestChild;
 
-  printf("Got here\n");
+  /* printf("Got here\n"); */
 	char ch;
 	if(!isFirstIteration)
 	{
@@ -831,9 +831,9 @@ void context_switch_test(struct timespec *diffTime) {
   int forkId = fork();
 
   if (forkId > 0) {
-    printf("Parent done fork, elevating\n");
+    /* printf("Parent done fork, elevating\n"); */
     /* touch_stack(); */
-    sym_elevate();
+    /* sym_elevate(); */
   }
 
 
@@ -875,7 +875,7 @@ void context_switch_test(struct timespec *diffTime) {
       close(fds1[1]);
       close(fds2[0]);
 
-      sym_lower();
+      /* sym_lower(); */
 
   } else if (forkId == 0) {
 
@@ -1203,6 +1203,9 @@ int main(int argc, char *argv[])
 	/*****************************************/
 
 	/* sleep(1); */
+#ifdef SYM_ON
+  sym_elevate();
+#endif
 
 	info.iter = BASE_ITER * 100;
 	info.name = "ref";
@@ -1217,6 +1220,10 @@ int main(int argc, char *argv[])
 	info.name = "getpid";
 	one_line_test(fp, copy, getpid_test, &info);
 
+#ifdef SYM_ON
+  sym_lower();
+#endif
+
 
 
 	/*****************************************/
@@ -1226,42 +1233,41 @@ int main(int argc, char *argv[])
   /* This is barfing under symbiosis. Solve with per process flag? */
   /* This has a fork. */
 
-  sym_lower();
+  /* sym_lower(); */
 
 	info.iter = BASE_ITER * 10;
 	info.name = "context switch";
 	one_line_test(fp, copy, context_switch_test, &info);
-  return 0;
 
 
 	/*****************************************/
 	/*             SEND & RECV               */
 	/*****************************************/
   // No good with symbiosis
-	/* msg_size = 1; */
-	/* curr_iter_limit = 50; */
-	/* printf("msg size: %d.\n", msg_size); */
-	/* printf("curr iter limit: %d.\n", curr_iter_limit); */
-	/* info.iter = BASE_ITER * 10; */
-	/* info.name = "send"; */
-	/* one_line_test_v2(fp, copy, send_test, &info); */
+	msg_size = 1;
+	curr_iter_limit = 50;
+	printf("msg size: %d.\n", msg_size);
+	printf("curr iter limit: %d.\n", curr_iter_limit);
+	info.iter = BASE_ITER * 10;
+	info.name = "send";
+	one_line_test_v2(fp, copy, send_test, &info);
 
-	/* info.iter = BASE_ITER * 10; */
-	/* info.name = "recv"; */
-	/* one_line_test_v2(fp, copy, recv_test, &info); */
+	info.iter = BASE_ITER * 10;
+	info.name = "recv";
+	one_line_test_v2(fp, copy, recv_test, &info);
 
 
-	/* msg_size = 96000;	// This size 96000 would cause blocking on older kernels! */
-	/* curr_iter_limit = 1; */
-	/* printf("msg size: %d.\n", msg_size); */
-	/* printf("curr iter limit: %d.\n", curr_iter_limit); */
-	/* info.iter = BASE_ITER; */
-	/* info.name = "big send"; */
-	/* one_line_test_v2(fp, copy, send_test, &info); */
+	msg_size = 96000;	// This size 96000 would cause blocking on older kernels!
+	curr_iter_limit = 1;
+	printf("msg size: %d.\n", msg_size);
+	printf("curr iter limit: %d.\n", curr_iter_limit);
+	info.iter = BASE_ITER;
+	info.name = "big send";
+	one_line_test_v2(fp, copy, send_test, &info);
 		
-	/* info.iter = BASE_ITER; */
-	/* info.name = "big recv"; */
-	/* one_line_test_v2(fp, copy, recv_test, &info); */
+	info.iter = BASE_ITER;
+	info.name = "big recv";
+	one_line_test_v2(fp, copy, recv_test, &info);
 	
 
 	/*****************************************/
@@ -1269,44 +1275,44 @@ int main(int argc, char *argv[])
 	/*****************************************/
 
   // No good with symbiosis
-	/* info.iter = BASE_ITER * 2; */
-	/* info.name = "fork"; */
-	/* two_line_test(fp, copy, forkTest, &info); */
+	info.iter = BASE_ITER * 2;
+	info.name = "fork";
+	two_line_test(fp, copy, forkTest, &info);
 
-  // No good with symbiosis
-	/* info.iter = BASE_ITER * 5; */
-	/* info.name = "thr create"; */
-	/* two_line_test(fp, copy, threadTest, &info); */
+  /* No good with symbiosis */
+	info.iter = BASE_ITER * 5;
+	info.name = "thr create";
+	two_line_test(fp, copy, threadTest, &info);
 
 
-	/* int page_count = 6000; */
-	/* void *pages[page_count]; */
-	/* for (int i = 0; i < page_count; i++) { */
-  /*   		pages[i] = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0); */
-	/* } */
+	int page_count = 6000;
+	void *pages[page_count];
+	for (int i = 0; i < page_count; i++) {
+    		pages[i] = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	}
 	
-	/* info.iter = BASE_ITER / 2; */
-	/* info.name = "big fork"; */
-	/* two_line_test(fp, copy, forkTest, &info); */
+	info.iter = BASE_ITER / 2;
+	info.name = "big fork";
+	two_line_test(fp, copy, forkTest, &info);
 
-	/* for (int i = 0; i < page_count; i++) { */
-	/* 	munmap(pages[i], PAGE_SIZE); */
-	/* } */
+	for (int i = 0; i < page_count; i++) {
+		munmap(pages[i], PAGE_SIZE);
+	}
 
-	/* page_count = 12000; */
-	/* printf("Page count: %d.\n", page_count); */
-	/* void *pages1[page_count]; */
-	/* for (int i = 0; i < page_count; i++) { */
-  /*   		pages1[i] = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0); */
-	/* } */
+	page_count = 12000;
+	printf("Page count: %d.\n", page_count);
+	void *pages1[page_count];
+	for (int i = 0; i < page_count; i++) {
+    		pages1[i] = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	}
 	
-	/* info.iter = BASE_ITER / 2;	 */
-	/* info.name = "huge fork"; */
-	/* two_line_test(fp, copy, forkTest, &info); */
+	info.iter = BASE_ITER / 2;
+	info.name = "huge fork";
+	two_line_test(fp, copy, forkTest, &info);
 
-	/* for (int i = 0; i < page_count; i++) { */
-	/* 	munmap(pages1[i], PAGE_SIZE); */
-	/* } */
+	for (int i = 0; i < page_count; i++) {
+		munmap(pages1[i], PAGE_SIZE);
+	}
 
 
 	/*****************************************/
