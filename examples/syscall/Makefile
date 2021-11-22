@@ -13,6 +13,9 @@ sym_sys: sym_sys.c
 
 run:
 	taskset -c 0 ./sym_sys
+run_virt:
+	sudo qemu-system-x86_64 -smp 4 -enable-kvm -kernel /boot/vmlinuz-5.14.0-symbiote+ -nographic --append "console=ttyS0 root=/dev/sda mitigations=off isolcpus=0" -hda ~tommyunger/ukl/min-initrd/min-initrd.d/root -m 1024 -initrd ~tommyunger/ukl/min-initrd/min-initrd.d/initrd -nodefaults -nographic -serial stdio
+
 
 cp_to_disk: ./sym_sys
 # create tmp dir

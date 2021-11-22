@@ -2,10 +2,14 @@
 #include <sys/syscall.h>
 #include <stdio.h>
 
+#include "../../include/sym_lib_syscall.h"
+
 int main(void) {
   int i;
   long j = 1;
 
+
+  sym_touch_stack();
 
   for(i=0; i < (j<<20); i++){
     syscall(448, 1);
