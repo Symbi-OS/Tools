@@ -1,0 +1,87 @@
+#include "./sym_structs.h"
+#include <string.h>
+
+void sym_load_idtr(struct dtr *location) {
+  // put value in idtr from memory
+  __asm__ __volatile__("lidt %0" : :  "m"(*location) );
+  /* __asm__ __volatile__("sidt %0" : : "m"(*location) : "memory"); */
+}
+
+void sym_set_idtr(unsigned long base, unsigned short bound ){
+  /* struct dtr idtr = {0xfff,(unsigned long)my_idt}; */
+  struct dtr idtr = {bound,base};
+  /* printf("We will set the idtr with \n"); */
+  /* printf("idtr limit: %#x \n", idtr.limit); */
+  /* printf("idtr base : %#lx \n", idtr.base); */
+
+  sym_load_idtr(&idtr);
+}
+
+void sym_store_idt_desc(struct dtr *location) {
+  // put value into memory from idtr
+  __asm__ __volatile__("sidt %0" : : "m"(*location) : "memory");
+}
+
+
+void
+sym_get_idt_base (struct dtr *idtr)
+{
+  /* In 64-bit mode, the operand size is fixed at 8+2 bytes. The instruction stores an 8-byte base and a 2-byte limit. */
+
+  /* _asm sgdt gdtr gdt = *((unsigned long *)&gdtr[2]); */
+  sym_store_idt_desc(idtr);
+  /* printf("idtr limit: #%x \n", idtr->limit); */
+  /* printf("idtr base : #%lx \n", idtr->base); */
+}
+
+// This is the kernel location for the IDT, it's one page in length.
+void sym_copy_system_idt(unsigned char *sym_idt_base){
+  struct dtr idtr;
+  // TODO: assert that idt is at LEAST page alligned.
+  sym_store_idt_desc(&idtr);
+  /* printf("kern idt at %p\n", idtr.base); */
+  memcpy( (void *) sym_idt_base, (const void *) idtr.base, IDT_SZ_BYTES);
+}
+
+// Returns pointer to idt entry. Does not allocate memory.
+union idt_desc *
+sym_get_idt_desc(unsigned char *idt_base, unsigned int idx){
+  union idt_desc *my_desc = (union idt_desc *) (idt_base + (16*idx));
+  return my_desc;
+}
+
+// Pass in ptr to the idt you want modified and the idx of the desc you want modified.
+// Pass in ptr to the new descriptor you want copied in.
+void sym_set_idt_desc(unsigned char *idt_base, unsigned int idx, union idt_desc *new_desc){
+  /* printf("set idt entry\n"); */
+
+  union idt_desc *my_desc;
+  my_desc = sym_get_idt_desc(idt_base, idx);
+
+  // Do deep copy
+  *my_desc = *new_desc;
+}
+
+void sym_print_idt_desc(unsigned char *idt, unsigned int idx){
+  union idt_desc *my_desc;
+  my_desc = sym_get_idt_desc(idt, idx);
+
+  /* union idt_desc *my_desc = (union idt_desc *) (idt + (16*idx)); */
+  /* union idt_desc *my_desc = sym_ */
+
+  printf("my_desc lives at %p\n", my_desc);
+
+  union idt_addr my_idt_addr;
+  my_idt_addr.dcmp.lo = my_desc->fields.lo_addr;
+  my_idt_addr.dcmp.mid = my_desc->fields.mid_addr;
+  my_idt_addr.dcmp.hi = my_desc->fields.hi_addr;
+
+  printf("full addr: %llx\n", my_idt_addr.addr       );
+  printf("segment:   %x\n",   my_desc->fields.seg_sel);
+  printf("ist:       %x\n",   my_desc->fields.ist    );
+  printf("zero0:     %x\n",   my_desc->fields.zero0  );
+  printf("type:      %x\n",   my_desc->fields.type   );
+  printf("dpl:       %x\n",   my_desc->fields.dpl    );
+  printf("p:         %x\n",   my_desc->fields.p      );
+}
+

@@ -2,6 +2,9 @@
 #include <unistd.h>
 
 #include <sys/syscall.h>
+#include "sym_lib_syscall.h"
+
+__thread int is_sticky = 0;
 
 void sym_touch_stack(){
   // Num times to push
@@ -17,18 +20,22 @@ void sym_touch_stack(){
   for(i=0; i < count; i++){
     asm("popq %rax");
   }
-
-  printf("Push %d times, %d bytes, %d pages\n", count, count*8, (count*8) / (1<<12) );
 }
 
 long sym_check_elevate(){
-  return syscall(448,1);
+    return syscall(448, SYSCALL_CHECK_ELEVATE_STATUS);
 }
 
-void sym_elevate(){
-  syscall(448,1);
+long sym_elevate(){
+  // After syscall should be in elevated state
+  if(!is_sticky){
+    return syscall(448, SYSCALL_ELEVATE);
+  }
 }
 
-void sym_lower(){
-  syscall(448,-1);
+// After syscall should be in lowered state
+long sym_lower(){
+  if(!is_sticky){
+    return syscall(448, SYSCALL_LOWER);
+  }
 }
