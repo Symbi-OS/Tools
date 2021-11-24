@@ -1,20 +1,12 @@
+#include "./sym_lib_syscall.h"
 #include "./sym_structs.h"
 #include <string.h>
 
 void sym_load_idtr(struct dtr *location) {
+  sym_elevate();
   // put value in idtr from memory
   __asm__ __volatile__("lidt %0" : :  "m"(*location) );
-  /* __asm__ __volatile__("sidt %0" : : "m"(*location) : "memory"); */
-}
-
-void sym_set_idtr(unsigned long base, unsigned short bound ){
-  /* struct dtr idtr = {0xfff,(unsigned long)my_idt}; */
-  struct dtr idtr = {bound,base};
-  /* printf("We will set the idtr with \n"); */
-  /* printf("idtr limit: %#x \n", idtr.limit); */
-  /* printf("idtr base : %#lx \n", idtr.base); */
-
-  sym_load_idtr(&idtr);
+  sym_lower();
 }
 
 void sym_store_idt_desc(struct dtr *location) {
@@ -22,6 +14,21 @@ void sym_store_idt_desc(struct dtr *location) {
   __asm__ __volatile__("sidt %0" : : "m"(*location) : "memory");
 }
 
+void sym_set_idtr(unsigned long base, unsigned short bound ){
+  struct dtr idtr = {bound,base};
+  sym_load_idtr(&idtr);
+}
+
+void sym_restore_system_idt(){
+  struct dtr my_dtr;
+
+  // Get system idt
+  sym_store_idt_desc(&my_dtr);
+
+
+  // Set system idt
+  sym_load_idtr(&my_dtr);
+}
 
 void
 sym_get_idt_base (struct dtr *idtr)
@@ -39,8 +46,12 @@ void sym_copy_system_idt(unsigned char *sym_idt_base){
   struct dtr idtr;
   // TODO: assert that idt is at LEAST page alligned.
   sym_store_idt_desc(&idtr);
+
   /* printf("kern idt at %p\n", idtr.base); */
+  sym_elevate();
   memcpy( (void *) sym_idt_base, (const void *) idtr.base, IDT_SZ_BYTES);
+  sym_lower();
+
 }
 
 // Returns pointer to idt entry. Does not allocate memory.
@@ -55,11 +66,15 @@ sym_get_idt_desc(unsigned char *idt_base, unsigned int idx){
 void sym_set_idt_desc(unsigned char *idt_base, unsigned int idx, union idt_desc *new_desc){
   /* printf("set idt entry\n"); */
 
+  // Were assuming idt_base is in user side of addr space.
+
   union idt_desc *my_desc;
   my_desc = sym_get_idt_desc(idt_base, idx);
 
+  sym_elevate();
   // Do deep copy
   *my_desc = *new_desc;
+  sym_lower();
 }
 
 void sym_print_idt_desc(unsigned char *idt, unsigned int idx){

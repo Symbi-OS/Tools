@@ -54,28 +54,30 @@ void touch_stack(){
 }
 
 void make_pg_ft_use_ist(){
-  /* printf("user idt at %p\n", my_idt); */
-
   // Copy the system idt to userspace
   sym_copy_system_idt(my_idt);
-
-  // Take a look at the page fault handler descriptor
-  /* sym_print_idt_desc(my_idt, 14); */
-
-  sym_set_idtr((unsigned long)my_idt, IDT_SZ_BYTES - 1);
 
   union idt_desc *desc_old;
   union idt_desc desc_new;
 
-  desc_old = sym_get_idt_desc(my_idt, 14);
+  int PG_FT_IDX = 14;
+  // Get ptr to pf desc
+  desc_old = sym_get_idt_desc(my_idt, PG_FT_IDX);
 
-
+  int DF_IST = 1;
+  // Copy descriptor to local var
+  sym_elevate();
   desc_new = *desc_old;
-  desc_new.fields.ist = 3;
+  sym_lower();
 
-  sym_set_idt_desc(my_idt, 14, &desc_new);
+  // Force IST usage
+  desc_new.fields.ist = DF_IST;
 
-  /* sym_print_idt_desc(my_idt, 14); */
+  // Write into user table
+  sym_set_idt_desc(my_idt, PG_FT_IDX, &desc_new);
+
+  // Swing idtr to new modified table
+  sym_set_idtr((unsigned long)my_idt, IDT_SZ_BYTES - 1);
 }
 
 void show_process_stk_ft_works(){
@@ -83,7 +85,6 @@ void show_process_stk_ft_works(){
 }
 
 void show_naive_elevation_DFs(){
-  // Elevate
   sym_elevate();
 
   sym_touch_stack();
@@ -91,10 +92,9 @@ void show_naive_elevation_DFs(){
   sym_lower();
 }
 
-void show_prefault_solves(){
+void show_prefault_solves_DF(){
   sym_touch_stack();
 
-  // Elevate
   sym_elevate();
 
   sym_touch_stack();
@@ -102,15 +102,12 @@ void show_prefault_solves(){
   sym_lower();
 }
 
-void show_using_ist_solves(){
-  // Elevate
-  sym_elevate();
-
+void show_using_ist_solves_DF(){
   make_pg_ft_use_ist();
 
-  sym_lower();
-
+  sym_elevate();
   sym_touch_stack();
+  sym_lower();
 }
 
 /* #define NORMAL_PROCESS 1 */
@@ -136,17 +133,23 @@ int main(){
 
 #ifdef  PREFAULT_ELEVATION
   printf("PREFAULT_ELEVATION\n");
-  show_prefault_solves();
+  show_prefault_solves_DF();
 #endif
 
 #ifdef IST_ELEVATION
   printf("IST_ELEVATION\n");
-  show_using_ist_solves();
+  show_using_ist_solves_DF();
 #endif
 
   printf("Done main\n");
 
+  /* sym_elevate(); */
+  /* sym_restore_system_idt(); */
+
+
+  /* while(1); */
+  /* sym_lower(); */
+
   while(1);
   return 0;
-
 }

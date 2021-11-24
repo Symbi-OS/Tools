@@ -24,4 +24,7 @@ extern long sym_check_elevate();
 // Lock current elevation status until unset
 extern int set_sticky(int is_sticky);
 
+// Restore system IDT
+void sym_restore_system_idt();
+
 #endif
