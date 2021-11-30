@@ -22,9 +22,7 @@ union idt_addr{
     uint16_t mid;
     uint32_t hi;
   } dcmp;
-  struct{
-    uint64_t addr;
-  } addr;
+    uint64_t raw;
 }__attribute__((packed));
 static_assert(sizeof(union idt_addr) == 8, "Size of idt_addr is not correct");
 
