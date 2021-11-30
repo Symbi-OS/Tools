@@ -2,6 +2,7 @@
 #include "./sym_structs.h"
 #include <string.h>
 
+// Store into IDTR with struct dtr *
 void sym_load_idtr(struct dtr *location) {
   sym_elevate();
   // put value in idtr from memory
@@ -9,11 +10,13 @@ void sym_load_idtr(struct dtr *location) {
   sym_lower();
 }
 
+// Get IDTR
 void sym_store_idt_desc(struct dtr *location) {
   // put value into memory from idtr
   __asm__ __volatile__("sidt %0" : : "m"(*location) : "memory");
 }
 
+// Load idtr with raw base and bound
 void sym_set_idtr(unsigned long base, unsigned short bound ){
   struct dtr idtr = {bound,base};
   sym_load_idtr(&idtr);
@@ -77,21 +80,30 @@ void sym_set_idt_desc(unsigned char *idt_base, unsigned int idx, union idt_desc 
   sym_lower();
 }
 
+// Loads up an addr from a desc.
+void sym_load_addr_from_desc(union idt_desc *desc, union idt_addr *addr){
+  addr->dcmp.lo  = desc->fields.lo_addr;
+  addr->dcmp.mid = desc->fields.mid_addr;
+  addr->dcmp.hi  = desc->fields.hi_addr;
+}
+
+// Loads desc from an addr.
+void sym_load_desc_from_addr(union idt_desc *desc, union idt_addr *addr){
+  desc->fields.lo_addr  = addr->dcmp.lo;
+  desc->fields.mid_addr = addr->dcmp.mid;
+  desc->fields.hi_addr  = addr->dcmp.hi;
+}
+
 void sym_print_idt_desc(unsigned char *idt, unsigned int idx){
   union idt_desc *my_desc;
   my_desc = sym_get_idt_desc(idt, idx);
 
-  /* union idt_desc *my_desc = (union idt_desc *) (idt + (16*idx)); */
-  /* union idt_desc *my_desc = sym_ */
-
   printf("my_desc lives at %p\n", my_desc);
 
   union idt_addr my_idt_addr;
-  my_idt_addr.dcmp.lo = my_desc->fields.lo_addr;
-  my_idt_addr.dcmp.mid = my_desc->fields.mid_addr;
-  my_idt_addr.dcmp.hi = my_desc->fields.hi_addr;
+  sym_load_addr_from_desc(my_desc, &my_idt_addr);
 
-  printf("full addr: %llx\n", my_idt_addr.addr       );
+  printf("full addr: %llx\n", my_idt_addr.raw       );
   printf("segment:   %x\n",   my_desc->fields.seg_sel);
   printf("ist:       %x\n",   my_desc->fields.ist    );
   printf("zero0:     %x\n",   my_desc->fields.zero0  );
