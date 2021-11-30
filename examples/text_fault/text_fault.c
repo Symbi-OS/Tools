@@ -114,7 +114,8 @@ void foo(void);
 /* #define NORMAL_PROCESS 1 */
 /* #define NAIVE_ELEVATION 1 */
 /* #define PREFAULT_ELEVATION 1 */
-#define INT_INTERPOSITION 1
+/* #define INT_INTERPOSITION 1 */
+#define NOP_SLIDE 1
 
 void show_process_text_ft_works(){
   foo();
@@ -134,6 +135,24 @@ void show_int_interposition_works(){
   sym_lower();
 }
 
+void make_nop_slide(){
+  printf("write nops over kernel\n");
+  sym_elevate();
+  memset((void *)0xffffffff810588da, 0x90, 48);
+  sym_lower();
+}
+
+void show_nop_slide_works(){
+  // Access the first byte of page we'll fault on.
+  make_nop_slide();
+  printf("char at addr is %x\n", *((unsigned char*) 0xffffffff810588da) );
+  while(1);
+  asm("WBINVD");
+  sym_elevate();
+  foo();
+  sym_lower();
+}
+
 void show_prefault_works(){
   // Access the first byte of page we'll fault on.
   char *c;
@@ -146,6 +165,12 @@ void show_prefault_works(){
 
 int main(){
   printf("Starting main\n");
+
+  // Store system idtr here for later restoration.
+  struct dtr system_idtr;
+ 
+  // Store initial system IDTR
+  sym_store_idt_desc(&system_idtr);
 
 #ifdef NORMAL_PROCESS
   printf("NORMAL_PROCESS\n");
@@ -162,13 +187,20 @@ int main(){
   show_prefault_works();
 #endif
 
+#ifdef NOP_SLIDE
+  printf("NOP_SLIDE\n");
+  show_nop_slide_works();
+#endif
+
 #ifdef INT_INTERPOSITION
   printf("IST_ELEVATION\n");
   show_int_interposition_works();
 #endif
 
   printf("Done main\n");
-  while(1);
+
+  // Swing back onto system idtr before exit
+  sym_load_idtr(&system_idtr);
 }
 
 
