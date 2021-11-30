@@ -11,10 +11,10 @@
 #include "../../include/sym_structs.h"
 #include "../../include/sym_interrupts.h"
 
-
-// TODO Rename to generalize
-
 unsigned char my_idt [1<<12] __attribute__ ((aligned (1<<12) ));
+
+// Store system idtr here for later restoration.
+struct dtr system_idtr;
 
 void make_pg_ft_use_ist(){
   // Copy the system idt to userspace
@@ -80,9 +80,10 @@ void show_using_ist_solves_DF(){
 
 
 int main(){
-  // This prevents double faults when kern uses def stack for pg ft.
-  /* sym_touch_stack(); */
   printf("Starting main\n");
+
+  // Store initial system IDTR
+  sym_store_idt_desc(system_idtr);
 
 #ifdef NORMAL_PROCESS
   printf("NORMAL_PROCESS\n");
@@ -106,14 +107,7 @@ int main(){
 
   printf("Done main\n");
 
-  /* sym_elevate(); */
-  /* sym_restore_system_idt(); */
-
-
-  /* while(1); */
-  /* sym_lower(); */
-
-  while(1);
-  return 0;
+  // Restore system IDTR
+  sym_load_idtr(system_idtr);
 }
 
