@@ -11,9 +11,16 @@
 #include "../../include/sym_structs.h"
 #include "../../include/sym_interrupts.h"
 
+// Our version of the idt. Not sure about alignment.
 unsigned char my_idt [1<<12] __attribute__ ((aligned (1<<12) ));
 
+// This is the old handler we jmp to after our interposer.
 uint64_t orig_asm_exc_page_fault;
+
+// This is the name of our assembly we're adding to the text section.
+// It will be defined at link time, but use this to allow compile time
+// inclusion in C code.
+extern uint64_t bs_asm_exc_page_fault;
 
 /*
 
@@ -65,8 +72,7 @@ asm("\
  jmp *orig_asm_exc_page_fault      \
 ");
 
-extern uint64_t bs_asm_exc_page_fault;
-void ja_steal_idt(){
+void interpose_on_pg_ft(){
   int PG_FT_IDX= 14;
   // Copy the system idt to userspace
   sym_copy_system_idt(my_idt);
@@ -95,34 +101,6 @@ void ja_steal_idt(){
 
   // Make our user IDT live!
   sym_set_idtr((unsigned long)my_idt, IDT_SZ_BYTES - 1);
-
-}
-
-void make_pg_ft_use_ist(){
-  // Copy the system idt to userspace
-  sym_copy_system_idt(my_idt);
-
-  union idt_desc *desc_old;
-  union idt_desc desc_new;
-
-  int PG_FT_IDX = 14;
-  // Get ptr to pf desc
-  desc_old = sym_get_idt_desc(my_idt, PG_FT_IDX);
-
-  int DF_IST = 1;
-  // Copy descriptor to local var
-  sym_elevate();
-  desc_new = *desc_old;
-  sym_lower();
-
-  // Force IST usage
-  desc_new.fields.ist = DF_IST;
-
-  // Write into user table
-  sym_set_idt_desc(my_idt, PG_FT_IDX, &desc_new);
-
-  // Swing idtr to new modified table
-  sym_set_idtr((unsigned long)my_idt, IDT_SZ_BYTES - 1);
 }
 
 void foo(void);
@@ -133,12 +111,12 @@ void foo(void);
   4) Interposition works.
 */
 
-#define NORMAL_PROCESS 1
+/* #define NORMAL_PROCESS 1 */
 /* #define NAIVE_ELEVATION 1 */
 /* #define PREFAULT_ELEVATION 1 */
-/* #define IST_ELEVATION 1 */
+#define INT_INTERPOSITION 1
 
-void show_process_stk_ft_works(){
+void show_process_text_ft_works(){
   foo();
 }
 
@@ -148,44 +126,30 @@ void show_naive_elevation_breaks(){
   sym_lower();
 }
 
-void show_ja_hack_works(){
+void show_int_interposition_works(){
   sym_elevate();
-  ja_steal_idt();
+  interpose_on_pg_ft();
   sym_elevate();
   foo();
   sym_lower();
 }
 
 void show_prefault_works(){
+  // Access the first byte of page we'll fault on.
+  char *c;
+  c = (char *) 0x404000; // Addr first text fault
+  printf("byte at %p is %c\n", c, *c);
   sym_elevate();
   foo();
-
-  sym_touch_stack();
-
-  sym_lower();
-}
-
-void show_using_ist_works(){
-  make_pg_ft_use_ist();
-
-  sym_elevate();
-  foo();
-  sym_touch_stack();
   sym_lower();
 }
 
 int main(){
-  // This prevents double faults when kern uses def stack for pg ft.
-  /* sym_touch_stack(); */
   printf("Starting main\n");
-
-  printf("This is kinda a useless test because they all work when the OS allows nosmep correctly\n");
-  printf("The elevated ones should fail if faulting under smep is disabled (first case) \n");
-
 
 #ifdef NORMAL_PROCESS
   printf("NORMAL_PROCESS\n");
-  show_process_stk_ft_works();
+  show_process_text_ft_works();
 #endif
 
 #ifdef NAIVE_ELEVATION
@@ -198,13 +162,13 @@ int main(){
   show_prefault_works();
 #endif
 
-#ifdef IST_ELEVATION
+#ifdef INT_INTERPOSITION
   printf("IST_ELEVATION\n");
-  show_using_ist_works();
+  show_int_interposition_works();
 #endif
 
   printf("Done main\n");
-
+  while(1);
 }
 
 
