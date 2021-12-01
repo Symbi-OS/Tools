@@ -5,7 +5,7 @@
 #include <unistd.h>
 
 #include <sys/syscall.h>
-#include "sym_lib_syscall.h"
+#include "headers/sym_lib_syscall.h"
 
 __thread int is_sticky = 0;
 

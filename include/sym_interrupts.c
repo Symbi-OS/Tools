@@ -1,5 +1,5 @@
-#include "./sym_lib_syscall.h"
-#include "./sym_structs.h"
+#include "./headers/sym_lib_syscall.h"
+#include "./headers/sym_structs.h"
 #include <string.h>
 
 // Store into IDTR with struct dtr *
