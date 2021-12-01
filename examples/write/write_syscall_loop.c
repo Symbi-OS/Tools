@@ -1,27 +1,34 @@
-/* #include <stdlib.h> */
-/* #include <stdint.h> */
-/* #include <stdio.h> */
-/* #include <signal.h> */
-/* #include <unistd.h> */
-/* #include <time.h> */
-/* #include <assert.h> */
-/* #include <string.h> */
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <signal.h>
+#include <unistd.h>
+#include <time.h>
+#include <assert.h>
+#include <string.h>
 
-#include "../lib_constructors/elevate.h"
+/* #include "../../../linux/include/linux/compiler_types.h" */
+/* #include "../../../linux/include/linux/compiler.h" */
 
-/* #include "../../linux/include/linux/file.h" */
 
-#include "../../linux/include/linux/fs.h"
+/* #include "../../../linux/include/linux/file.h" */
+/* #include "../../../linux/include/linux/file.h" */
 
-/* #include "kallsymlib.h" */
-extern int kallsymlib_lookup(char *name, struct kallsymlib_info **info_ptr);
+/* #include "../../../linux/include/linux/fs.h" */
+/* #include "../../../linux/include/linux/linkage.h" */
+
+#include "kallsymlib.h"
+#include "sym_lib_syscall.h"
+#include "sym_lib_hacks.h"
+
+/* extern int kallsymlib_lookup(char *name, struct kallsymlib_info **info_ptr); */
 // Really should include this from linux headers.
 struct fd {
 	struct file *file;
 	unsigned int flags;
 };
 
-int NUM_REPS = 1<<23;
+int NUM_REPS = 1<<22;
 /* int NUM_REPS = 1<<30; */
 
 /* void handle_sigint(int sig) */
@@ -34,20 +41,19 @@ int NUM_REPS = 1<<23;
 /*   fprintf(stderr, "Done with lower\n"); */
 /*   exit(0); */
 /* } */
-#define assert kassert
-  struct kallsymlib_info {
-    unsigned long long addr;
-    char type;
-    char *symbol;
-    char *extra;
-    struct kallsymlib_info *next;
-  };
+/* struct kallsymlib_info { */
+/*   unsigned long long addr; */
+/*   char type; */
+/*   char *symbol; */
+/*   char *extra; */
+/*   struct kallsymlib_info *next; */
+/* }; */
 
 
 typedef int(*ksys_write_type)(unsigned int fd, const char *buf, size_t count);
 /* typedef int(*vfs_write_type)(unsigned int fd, const char *buf, size_t count); */
 
-typedef ssize_t (*vfs_write_type)(struct file *file, const char *buf, size_t count, loff_t *pos);
+/* typedef ssize_t (*vfs_write_type)(struct file *file, const char *buf, size_t count, loff_t *pos); */
 
 typedef unsigned long (*__fdget_pos_type)(unsigned int fd);
 
@@ -68,20 +74,21 @@ static inline struct fd __to_fd(unsigned long v)
 	return (struct fd){(struct file *)(v & ~3),v & 3};
 }
 
-static inline struct fd fdget_pos(int fd)
-{
-  // Get fn ptr to __fd_get_pos
-  __fdget_pos_type my___fdget_pos  = (__fdget_pos_type) get_fn_address("__fdget_pos");
-  /* assert(my___fdget_pos != NULL); */
-	return __to_fd(my___fdget_pos(fd));
-}
+/* static inline struct fd fdget_pos(int fd) */
+/* { */
+/*   // Get fn ptr to __fd_get_pos */
+/*   __fdget_pos_type my___fdget_pos  = (__fdget_pos_type) get_fn_address("__fdget_pos"); */
+/*   /\* assert(my___fdget_pos != NULL); *\/ */
+/* 	return __to_fd(my___fdget_pos(fd)); */
+/* } */
 
 
 typedef ssize_t (*vfs_write_type)(struct file *file, const char *buf, size_t count, loff_t *pos);
 
+#if 0
 static inline loff_t *file_ppos(struct file *file)
 {
-	return file->f_mode & FMODE_STREAM ? NULL : &file->f_pos;
+	return file>f_mode & FMODE_STREAM ? NULL : &file->f_pos;
 }
 
 ssize_t local_ksys_write(unsigned int fd, const char *buf, size_t count)
@@ -106,6 +113,7 @@ ssize_t local_ksys_write(unsigned int fd, const char *buf, size_t count)
 
   return ret;
 }
+#endif
 
 
 
@@ -161,16 +169,17 @@ static ksys_write_type my_ksys_write = NULL;
 void ksys_write_shortcut(int reps, ksys_write_type my_ksys_write){
   //assert(reps > 0);
   /* assert(my_ksys_write != NULL); */
+  int count = 0;
 
 	while(reps--){
-    //		if( (count % (1<<10)) == 0) {
-    /* write(1, "Opportunity to catch a signal\n", 30); */
-    //		} else {
-    my_ksys_write(1, "Tommy\n", 6);
-    /* fprintf("Tommy\n"); */
-    //		}
+    if( (count % (1<<13)) == 0) {
+      write(1, "Opportunity to catch a signal\n", 30);
+    } else {
+      my_ksys_write(1, "Tommy\n", 6);
+      /* fprintf("Tommy\n"); */
+    }
 	}
-  /* kallsymlib_cleanup(); */
+  kallsymlib_cleanup();
 }
 
 void vfs_write_shortcut(int reps, ksys_write_type my_vfs_write){
@@ -181,7 +190,7 @@ void vfs_write_shortcut(int reps, ksys_write_type my_vfs_write){
     //		if( (count % (1<<10)) == 0) {
     /* write(1, "Opportunity to catch a signal\n", 30); */
     //		} else {
-    my_ksys_write(1, "Tommy\n", 6);
+    my_vfs_write(1, "Tommy\n", 6);
     /* fprintf("Tommy\n"); */
     //		}
 	}
@@ -190,8 +199,8 @@ void vfs_write_shortcut(int reps, ksys_write_type my_vfs_write){
 
 int main(){
   /* signal(SIGINT, handle_sigint); */
-
-
+  sym_touch_every_page_text();
+  while(1);
 #ifdef STATIC_BUILD
   sym_elevate();
 #endif
@@ -200,15 +209,19 @@ int main(){
   clock_t start, end;
   double cpu_time_used;
 
-  ksys_write_type my_ksys_write = get_fn_address("ksys_write");
-  vfs_write_type my_vfs_write = get_fn_address("vfs_write");
+  ksys_write_type my_ksys_write = (ksys_write_type) get_fn_address("ksys_write");
+  printf("Ksys write lives at %p\n", my_ksys_write);
+  /* vfs_write_type my_vfs_write = (vfs_write_type)get_fn_address("vfs_write"); */
 
   start = clock();
 
+  printf("Loop using ksys_write\n");
   ksys_write_shortcut(NUM_REPS, my_ksys_write);
 
+  /* printf("Loop using vfs_write\n"); */
   /* vfs_write_shortcut(NUM_REPS, my_ksys_write); */
 
+  /* printf("Loop using syscall\n"); */
   /* syscall_loop(NUM_REPS); */
 
   end = clock();
@@ -217,7 +230,7 @@ int main(){
   sym_lower();
 #endif
   cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC; 
-  //fprintf(stderr, "Time used: %f\n", cpu_time_used);
+  fprintf(stderr, "Time used: %f\n", cpu_time_used);
 
   return 0;
 }

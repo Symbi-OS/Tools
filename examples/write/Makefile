@@ -1,14 +1,23 @@
-CC_FLAGS_DYNAMIC=-O0 -ggdb -mno-red-zone -static
+CC_FLAGS_STATIC=-O0 -ggdb -mno-red-zone -static
+SYM_INCLUDE=-I../../include/headers -I../../include
+SYM_LIB=../../include/libsym.a
+KALLSYM_INCLUDE=-I../../include/kallsymlib/
+KALLSYM_LIB=../../include/kallsymlib/libkallsym.a
+
+all: write_syscall_loop_static write_syscall_static
 
 write_syscall_static: write_syscall_static.c
-	$(CC) $(CC_FLAGS_DYNAMIC) -o $@ $^ ../../include/sym_lib_syscall.c
+	$(CC) $(CC_FLAGS_STATIC) -o $@ $^ $(SYM_INCLUDE) $(SYM_LIB)
 
-cp_to_disk: ./write_syscall_static
+write_syscall_loop_static: write_syscall_loop.c $(SYM_LIB) $(KALLSYM_LIB)
+	$(CC) $(CC_FLAGS_STATIC) -DSTATIC_BUILD -o $@ $^ $(SYM_INCLUDE) $(KALLSYM_INCLUDE)
+
+cp_to_disk: ./write_syscall_static ./write_syscall_loop_static
 # create tmp dir
 	mkdir ./mt
 	sudo mount -o loop=/dev/loop0 ~tommyunger/ukl/min-initrd/min-initrd.d/root ./mt
 	sleep 1
-	sudo cp $< ./mt
+	sudo cp $^ ./mt
 #cp in the shared obj
 	sudo cp ../../include/libelevate_cons.so ./mt
 	sleep 1
@@ -23,3 +32,5 @@ run_debug_virt:
 
 clean:
 	-rm -rf write_syscall_static
+	-rm -rf write_syscall_loop_static
+	-rm -rf *.o

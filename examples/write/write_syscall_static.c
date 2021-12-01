@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
-#include "../../include/sym_lib_syscall.h"
+#include "sym_lib_syscall.h"
 
 extern char __executable_start;
 extern char __etext;
