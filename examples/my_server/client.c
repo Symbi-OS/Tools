@@ -13,6 +13,7 @@
 /* #include <unistd.h> */
 
 volatile sig_atomic_t print_flag = false;
+#define MSG_SZ 2000
 
 void handle_alarm( int sig ) {
   print_flag = true;
@@ -22,9 +23,9 @@ int main(int argc , char *argv[])
 {
 	int sock;
 	struct sockaddr_in server;
-	char message[1000] , server_reply[2000];
+	char server_reply[MSG_SZ];
 
-  int runs = 1<<30;
+  unsigned long runs = 1UL << 63;
 
 	//Create socket
 	sock = socket(AF_INET , SOCK_STREAM , 0);
@@ -69,10 +70,10 @@ int main(int argc , char *argv[])
 		//Receive a reply from the server
 
 #ifdef USE_SEND_RECV
-		if( recv(sock , server_reply , 2000 , 0) < 0)
+		if( recv(sock , server_reply , MSG_SZ , 0) < 0)
 #endif
 #ifdef USE_READ_WRITE
-		if( read(sock , server_reply , 2000) < 0)
+		if( read(sock , server_reply , MSG_SZ) < 0)
 #endif
 		{
 			puts("recv failed");
