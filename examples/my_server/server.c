@@ -8,6 +8,7 @@
 #include<arpa/inet.h>	//inet_addr
 #include<unistd.h>	//write
 
+#define MSG_SZ 2000
 int use_shortcut;
 
 typedef int (*my_ksys_write_t)(unsigned int fd, const char *buf, size_t count);
@@ -40,12 +41,15 @@ void do_write(int conn, char* data, int data_len){
   /* my_schedule(); */
 }
 
+#define USE_SEND_RECV 1
+//#define USE_READ_WRITE 1
+
 int main(int argc , char *argv[])
 {
   /* my_schedule_t my_schedule = (my_schedule_t) 0xffffffff81bd12a0; */
 	int socket_desc , client_sock , c , read_size;
 	struct sockaddr_in server , client;
-	char client_message[2000];
+	char client_message[MSG_SZ];
 
   printf("server pid: %ld\n", (long)getpid());
 
@@ -88,10 +92,20 @@ int main(int argc , char *argv[])
 	puts("Connection accepted");
 
 	//Receive a message from client
-	while( (read_size = recv(client_sock , client_message , 2000 , 0)) > 0 )
+#ifdef USE_SEND_RECV
+	while( (read_size = recv(client_sock , client_message , MSG_SZ , 0)) > 0 )
+#endif
+#ifdef USE_READ_WRITE
+  while( (read_size = read(client_sock , client_message , MSG_SZ)) > 0 )
+#endif
 	{
     /* do_write(client_sock , client_message , strlen(client_message)); */
+#ifdef USE_SEND_RECV
+    send(client_sock , client_message , read_size, 0);
+#endif
+#ifdef USE_READ_WRITE
     write(client_sock , client_message , read_size);
+#endif
 	}
 
 	if(read_size == 0)
