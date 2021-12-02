@@ -17,8 +17,7 @@ volatile sig_atomic_t print_flag = false;
 void handle_alarm( int sig ) {
   print_flag = true;
 }
-#define USE_SEND_RECV
-//#define USE_READ_WRITE
+
 int main(int argc , char *argv[])
 {
 	int sock;

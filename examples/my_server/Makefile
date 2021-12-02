@@ -1,10 +1,18 @@
-all: client server
+all: client_RW client_SR server_RW server_SR
 
-CFLAGS=-ggdb -O0 -fno-omit-frame-pointer
+#CFLAGS=-ggdb -O0 -fno-omit-frame-pointer
 
-client:
+client_RW: client.c
+	gcc -DUSE_READ_WRITE -O4 -o $@ $^
 
-server:
+client_SR: client.c
+	gcc -DUSE_SEND_RECV -O4 -o $@ $^
+
+server_RW: server.c
+	gcc -DUSE_READ_WRITE -O4 -o $@ $^
+
+server_SR: server.c
+	gcc -DUSE_SEND_RECV -O4 -o $@ $^
 
 
 cp_to_disk: ./server
@@ -28,5 +36,5 @@ run_debug_virt:
 
 
 clean:
-	- rm -rf client
-	- rm -rf server
+	- rm -rf client_*
+	- rm -rf server_*

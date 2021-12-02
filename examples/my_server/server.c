@@ -41,8 +41,6 @@ void do_write(int conn, char* data, int data_len){
   /* my_schedule(); */
 }
 
-#define USE_SEND_RECV 1
-//#define USE_READ_WRITE 1
 
 int main(int argc , char *argv[])
 {
