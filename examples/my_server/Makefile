@@ -1,6 +1,8 @@
-all: client_RW client_SR server_RW server_SR
+all: client_SR server_SR
 
 #CFLAGS=-ggdb -O0 -fno-omit-frame-pointer
+
+# SR looks faster than RW
 
 client_RW: client.c
 	gcc -DUSE_READ_WRITE -O4 -o $@ $^

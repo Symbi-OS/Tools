@@ -24,6 +24,11 @@ int main(int argc , char *argv[])
 	int sock;
 	struct sockaddr_in server;
 	char server_reply[MSG_SZ];
+	char client_message[MSG_SZ];
+  client_message[0] = 'h';
+  client_message[1] = 'i';
+  client_message[2] = '!';
+  client_message[3] = (char) 0;
 
   unsigned long runs = 1UL << 63;
 
@@ -50,6 +55,7 @@ int main(int argc , char *argv[])
 
 	//keep communicating with server
 	int count = 0;
+
 	while(runs--)
 	{
 		//printf("Enter message : ");
@@ -57,10 +63,11 @@ int main(int argc , char *argv[])
 
 		//Send some data
 #ifdef USE_SEND_RECV
-		if( send(sock , "hi!" , strlen("hi!") , 0) < 0)
+		/* if( send(sock , "hi!" , strlen("hi!") , 0) < 0) */
+		if( send(sock , client_message, MSG_SZ , 0) < 0)
 #endif
 #ifdef USE_READ_WRITE
-		if( write(sock , "hi!" , strlen("hi!")) < 0)
+		if( write(sock , client_message, MSG_SZ) < 0)
 #endif
 		{
 			puts("Send failed");
