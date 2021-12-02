@@ -90,8 +90,8 @@ int main(int argc , char *argv[])
 	//Receive a message from client
 	while( (read_size = recv(client_sock , client_message , 2000 , 0)) > 0 )
 	{
-    do_write(client_sock , client_message , strlen(client_message));
-    /* write(client_sock , client_message , strlen(client_message)); */
+    /* do_write(client_sock , client_message , strlen(client_message)); */
+    write(client_sock , client_message , read_size);
 	}
 
 	if(read_size == 0)
