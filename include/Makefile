@@ -4,9 +4,13 @@ OBJS = $(patsubst %.c, %.o, $(SRC)) # list of object files
 all: libsym.a #libelevate.so libelevate_cons.so
 
 objs : $(OBJS)                      # target
+	- rm -rf ./build
+	mkdir ./build
+	mv *.o build
 
-libsym.a: $(OBJS)
-	ar rcs $@ $^
+
+libsym.a: objs
+	ar rcs $@ ./build/*.o
 
 libelevate.so: sym_interrupts.c sym_lib_syscall.c
 	gcc -shared -fPIC -o $@ $^
@@ -16,4 +20,4 @@ libelevate_cons.so: sym_interrupts.c sym_lib_syscall.c sym_constructors.c
 
 
 clean:
-	-rm *.so *.o *.a
+	-rm -rf *.so *.o *.a ./build
