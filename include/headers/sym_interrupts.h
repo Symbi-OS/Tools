@@ -1,5 +1,6 @@
 #ifndef __SYM_INTERRUPTS__
 #define __SYM_INTERRUPTS__
+#include "./sym_structs.h"
 
 void sym_copy_system_idt(unsigned char *sym_idt_base);
 void sym_set_idtr(unsigned long base, unsigned long bound);
