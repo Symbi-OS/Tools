@@ -1,26 +1,27 @@
-all: client_SR server_SR
+all: client_RW server_RW
+
+CFLAGS=-O4 -static
 
 #CFLAGS=-ggdb -O0 -fno-omit-frame-pointer
 
-# SR looks faster than RW
-
+# Both easily saturate network.
 client_RW: client.c
-	gcc -DUSE_READ_WRITE -O4 -o $@ $^
+	gcc -DUSE_READ_WRITE $(CFLAGS) -o $@ $^
 
 client_SR: client.c
-	gcc -DUSE_SEND_RECV -O4 -o $@ $^
+	gcc -DUSE_SEND_RECV $(CFLAGS) -o $@ $^
 
 server_RW: server.c
-	gcc -DUSE_READ_WRITE -O4 -o $@ $^
+	gcc -DUSE_READ_WRITE $(CFLAGS) -o $@ $^
 
 server_SR: server.c
-	gcc -DUSE_SEND_RECV -O4 -o $@ $^
+	gcc -DUSE_SEND_RECV $(CFLAGS) -o $@ $^
 
 
-cp_to_disk: ./server
+cp_to_disk: ./server_RW
 # create tmp dir
 	mkdir ./mt
-	sudo mount -o loop=/dev/loop0 ~tommyunger/ukl/min-initrd/min-initrd.d/root ./mt
+	sudo mount ~tommyunger/ukl/min-initrd/min-initrd.d/root ./mt
 	sleep 1
 	sudo cp $^ ./mt
 #cp in the shared obj

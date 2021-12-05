@@ -13,7 +13,7 @@
 /* #include <unistd.h> */
 
 volatile sig_atomic_t print_flag = false;
-#define MSG_SZ 2000
+#define MSG_SZ 8
 
 void handle_alarm( int sig ) {
   print_flag = true;
@@ -40,7 +40,8 @@ int main(int argc , char *argv[])
 	}
 	puts("Socket created");
 
-	server.sin_addr.s_addr = inet_addr("1.1.1.2");
+	/* server.sin_addr.s_addr = inet_addr("1.1.1.2"); */
+	server.sin_addr.s_addr = inet_addr("192.168.19.130");
 	server.sin_family = AF_INET;
 	server.sin_port = htons( 8888 );
 

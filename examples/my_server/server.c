@@ -8,7 +8,7 @@
 #include<arpa/inet.h>	//inet_addr
 #include<unistd.h>	//write
 
-#define MSG_SZ 2000
+#define MSG_SZ 8
 int use_shortcut;
 
 typedef int (*my_ksys_write_t)(unsigned int fd, const char *buf, size_t count);
