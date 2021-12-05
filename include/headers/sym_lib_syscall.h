@@ -22,8 +22,6 @@ extern void sym_check_syscall();
 // Execute syscall clearing elevated bit
 extern long sym_lower();
 
-// Touch some stack pages
-extern void sym_touch_stack();
 
 // Query elevation status
 extern long sym_check_elevate();

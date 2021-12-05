@@ -9,21 +9,6 @@
 
 __thread int is_sticky = 0;
 
-void sym_touch_stack(){
-  // Num times to push
-  int count = 1<<16;
-
-  int i;
-  // Touch a bunch of stack pages
-  for(i=0; i < count; i++){
-    __asm__("pushq $42":::"memory");
-  }
-
-  // Pop them all off
-  for(i=0; i < count; i++){
-    __asm__("popq %%rax": /*no*/: /*no*/ : "rax");
-  }
-}
 
 long sym_check_elevate(){
     return syscall(NR_ELEVATE_SYSCALL, SYSCALL_CHECK_ELEVATE_STATUS);
