@@ -28,7 +28,7 @@ struct fd {
 	unsigned int flags;
 };
 
-int NUM_REPS = 1<<22;
+/* int NUM_REPS = 1<<23; */
 /* int NUM_REPS = 1<<30; */
 
 /* void handle_sigint(int sig) */
@@ -172,7 +172,7 @@ void ksys_write_shortcut(int reps, ksys_write_type my_ksys_write){
   int count = 0;
 
 	while(reps--){
-    if( (count % (1<<13)) == 0) {
+    if( (reps % (1<<13)) == 0) {
       write(1, "Opportunity to catch a signal\n", 30);
     } else {
       my_ksys_write(1, "Tommy\n", 6);
@@ -197,32 +197,51 @@ void vfs_write_shortcut(int reps, ksys_write_type my_vfs_write){
   /* kallsymlib_cleanup(); */
 }
 
-int main(){
+int main(int argc, char *argv[]){
   /* signal(SIGINT, handle_sigint); */
   sym_touch_every_page_text();
-  while(1);
-#ifdef STATIC_BUILD
-  sym_elevate();
-#endif
+  sym_touch_stack();
 
+  fprintf(stderr, "arg is %s\n", argv[1]);
+  if(argc != 3){
+    fprintf(stderr, "want <test #> <pwr2 iteration> \n");
+    return -1;
+  }
 
   clock_t start, end;
   double cpu_time_used;
 
   ksys_write_type my_ksys_write = (ksys_write_type) get_fn_address("ksys_write");
-  printf("Ksys write lives at %p\n", my_ksys_write);
   /* vfs_write_type my_vfs_write = (vfs_write_type)get_fn_address("vfs_write"); */
 
+  int my_switch = atoi(argv[1]);
+  long long unsigned NUM_REPS = 1;
+  NUM_REPS <<= atoi(argv[2]);
+
+  fprintf(stderr, "NUM_REPS = %#lx\n", NUM_REPS);
   start = clock();
 
-  printf("Loop using ksys_write\n");
-  ksys_write_shortcut(NUM_REPS, my_ksys_write);
+  if(my_switch == 0){
+    /* printf("syscall case\n"); */
+    fprintf(stderr, "Loop using syscall\n");
+    syscall_loop(NUM_REPS);
+  }else if(my_switch == 1){
+#ifdef STATIC_BUILD
+    sym_elevate();
+#endif
+    /* printf("ksys_write case\n"); */
+    fprintf(stderr, "Ksys write lives at %p\n", my_ksys_write);
+    fprintf(stderr, "Loop using ksys_write\n");
+    ksys_write_shortcut(NUM_REPS, my_ksys_write);
 
-  /* printf("Loop using vfs_write\n"); */
-  /* vfs_write_shortcut(NUM_REPS, my_ksys_write); */
-
-  /* printf("Loop using syscall\n"); */
-  /* syscall_loop(NUM_REPS); */
+  }else if(my_switch == 2){
+    fprintf(stderr, "vfs shortcut unsupported\n");
+    /* printf("Loop using vfs_write\n"); */
+    /* vfs_write_shortcut(NUM_REPS, my_ksys_write); */
+  }else{
+    fprintf(stderr,"idk what you want me to do with that input %d\n", my_switch);
+    return -1;
+  }
 
   end = clock();
 

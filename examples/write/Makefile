@@ -19,7 +19,6 @@ cp_to_disk: ./write_syscall_static ./write_syscall_loop_static
 	sleep 1
 	sudo cp $^ ./mt
 #cp in the shared obj
-	sudo cp ../../include/libelevate_cons.so ./mt
 	sleep 1
 	sudo umount ./mt
 	rm -d ./mt
