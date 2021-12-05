@@ -1,4 +1,4 @@
-#include "./headers/sym_lib_syscall.h"
+#include "./headers/sym_lib.h"
 #include "./headers/sym_structs.h"
 #include <string.h>
 
