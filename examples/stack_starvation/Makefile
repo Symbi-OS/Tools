@@ -1,5 +1,6 @@
 CC=gcc
-CC_FLAGS=-static -O0 -ggdb -mno-red-zone -Werror
+CC_FLAGS=-O0 -ggdb -mno-red-zone -Werror -static
+# CC_FLAGS=-static
 INCLUDE_DIR=../../include/
 
 VECTORS = 10
@@ -7,7 +8,7 @@ QUEUES = 4
 NETWORK = -netdev tap,id=vlan1,ifname=tap0,script=no,downscript=no,vhost=on,queues=$(QUEUES) -device virtio-net-pci,mq=on,vectors=$(VECTORS),netdev=vlan1,mac=02:00:00:04:00:29
 
 stack_starvation: stack_starvation.c
-	$(CC) $(CC_FLAGS) -o $@ $^ $(INCLUDE_DIR)sym_lib_syscall.c $(INCLUDE_DIR)sym_interrupts.c
+	$(CC) $(CC_FLAGS) -o $@ $^ ../../include/libsym.a
 
 run:
 	taskset -c 0 ./stack_starvation
