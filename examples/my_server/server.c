@@ -88,7 +88,7 @@ int main(int argc , char *argv[])
 		return 1;
 	}
 	puts("Connection accepted");
-
+  int my_ctr = 0;
 	//Receive a message from client
 #ifdef USE_SEND_RECV
 	while( (read_size = recv(client_sock , client_message , MSG_SZ , 0)) > 0 )
@@ -97,6 +97,10 @@ int main(int argc , char *argv[])
   while( (read_size = read(client_sock , client_message , MSG_SZ)) > 0 )
 #endif
 	{
+    my_ctr++;
+    if((my_ctr %(100000) ) == 0){
+      write(1, ".", 1);
+    }
     /* do_write(client_sock , client_message , strlen(client_message)); */
 #ifdef USE_SEND_RECV
     send(client_sock , client_message , read_size, 0);

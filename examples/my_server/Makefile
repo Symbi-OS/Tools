@@ -1,8 +1,8 @@
 all: client_RW server_RW
 
-CFLAGS=-O4 -static
+#CFLAGS=-O4 -ggdb -static
 
-#CFLAGS=-ggdb -O0 -fno-omit-frame-pointer
+CFLAGS=-ggdb -O0 -fno-omit-frame-pointer
 
 # Both easily saturate network.
 client_RW: client.c
