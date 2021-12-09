@@ -7,7 +7,7 @@ QUEUES = 4
 NETWORK = -netdev tap,id=vlan1,ifname=tap0,script=no,downscript=no,vhost=on,queues=$(QUEUES) -device virtio-net-pci,mq=on,vectors=$(VECTORS),netdev=vlan1,mac=02:00:00:04:00:29
 
 text_fault: text_fault.c
-	$(CC) $(CC_FLAGS) -o $@ $^ $(INCLUDE_DIR)sym_lib_syscall.c $(INCLUDE_DIR)sym_interrupts.c
+	$(CC) $(CC_FLAGS) -o $@ $^ $(INCLUDE_DIR)/libsym.a
 
 run:
 	taskset -c 0 ./text_fault

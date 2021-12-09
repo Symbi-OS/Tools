@@ -7,97 +7,18 @@
 #include <time.h>
 #include <string.h>
 
-#include "../../include/sym_lib_syscall.h"
-#include "../../include/sym_structs.h"
-#include "../../include/sym_interrupts.h"
+#include "../../include/headers/sym_all.h"
 
 // Our version of the idt. Not sure about alignment.
 unsigned char my_idt [1<<12] __attribute__ ((aligned (1<<12) ));
-
-// This is the old handler we jmp to after our interposer.
-uint64_t orig_asm_exc_page_fault;
-
-// This is the name of our assembly we're adding to the text section.
-// It will be defined at link time, but use this to allow compile time
-// inclusion in C code.
-extern uint64_t bs_asm_exc_page_fault;
-
-/*
-
-Exception frame 0 -> 0 Interrupt;
------------------------
-SS         (RSP + 40)
-RSP        (RSP + 32)
-RFLAGS     (RSP + 24)
-CS         (RSP + 16)
-RIP        (RSP + 8)
-ERROR CODE (<- RSP)
------------------------
-
-
-Page fault error codes: 
- 31              15                             4               0
-+---+--  --+---+-----+---+--  --+---+----+----+---+---+---+---+---+
-|   Reserved   | SGX |   Reserved   | SS | PK | I | R | U | W | P |
-+---+--  --+---+-----+---+--  --+---+----+----+---+---+---+---+---+
-Legend: Set (Clear)
-0 Present (not)
-1 Write (Read)
-2 User (Supervisor)
-3 Reserved bit set in page directory (not)
-4 Inst fetch
-
-Our code for interposing on text fault.
-.text                       Lives in text.
-.align 16                   All the rest look 16 byte aligned.
-bs_asm_exc_page_fault:      Our handler, will be placed in IDT.
-pushq %rsi                  Preserve old rsi (Think just a user reg).
-movq 8(%rsp),%rsi           Grab error code from HW pushed exception frame.
-orq $0x4, %rsi              Set user bit lying that we were in ring 3
-movq %rsi, 8(%rsp)          Throw val back in error code on stack.
-popq %rsi                   Restore user rsi.
-jmp *orig_asm_exc_page_fault
-*/
-
-/* .global bs_asm_exc_page_fault \n\t\ */
-asm("\
- .text                         \n\t\
- .align 16                     \n\t\
- bs_asm_exc_page_fault:        \n\t\
- pushq %rsi                    \n\t\
- movq 8(%rsp),%rsi             \n\t\
- orq $0x4, %rsi                \n\t\
- movq %rsi, 8(%rsp)            \n\t\
- popq %rsi                     \n\t\
- jmp *orig_asm_exc_page_fault      \
-");
 
 void interpose_on_pg_ft(){
   int PG_FT_IDX= 14;
   // Copy the system idt to userspace
   sym_copy_system_idt(my_idt);
 
-  sym_print_idt_desc(my_idt, PG_FT_IDX);
-
-  // Get ptr to pf desc
-  union idt_desc *desc_old;
-  desc_old = sym_get_idt_desc(my_idt, PG_FT_IDX);
-
-  // save old asm_exc_pf ptr
-  union idt_addr old_asm_exc_pf;
-  sym_load_addr_from_desc(desc_old, &old_asm_exc_pf);
-
-  // swing addr to  bs_asm...
-  orig_asm_exc_page_fault = old_asm_exc_pf.raw;
-
-  // New handler
-  union idt_addr new_asm_exc_addr;
-  new_asm_exc_addr.raw = (uint64_t) &bs_asm_exc_page_fault;
-
-  // Set IDT to point to our new interposer
-  sym_load_desc_from_addr(desc_old, &new_asm_exc_addr);
-
-  sym_print_idt_desc(my_idt, PG_FT_IDX);
+  // Modify it to inject a shim that flips a 
+  sym_interpose_on_pg_ft(my_idt);
 
   // Make our user IDT live!
   sym_set_idtr((unsigned long)my_idt, IDT_SZ_BYTES - 1);
@@ -114,8 +35,8 @@ void foo(void);
 /* #define NORMAL_PROCESS 1 */
 /* #define NAIVE_ELEVATION 1 */
 /* #define PREFAULT_ELEVATION 1 */
-/* #define INT_INTERPOSITION 1 */
-#define NOP_SLIDE 1
+#define INT_INTERPOSITION 1
+/* #define NOP_SLIDE 1 */
 
 void show_process_text_ft_works(){
   foo();
