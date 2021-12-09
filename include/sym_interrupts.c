@@ -2,6 +2,8 @@
 #include "./headers/sym_structs.h"
 #include <string.h>
 
+// Fn Documentation in header file.
+
 // Store into IDTR with struct dtr *
 void sym_load_idtr(struct dtr *location) {
   sym_elevate();
