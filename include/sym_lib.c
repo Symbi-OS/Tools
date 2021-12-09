@@ -1,10 +1,9 @@
+// License C 2021-
+// Author: Thomas Unger
+// Level: 0
 #define _GNU_SOURCE
 
-#include <stdio.h>
 #include <stdint.h>
-#include <unistd.h>
-
-#include <sys/syscall.h>
 #include "headers/sym_lib.h"
 
 // This gives 1 level of toggle prevention.
