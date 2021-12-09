@@ -5,4 +5,5 @@
 #include "./sym_lib.h"
 #include "./sym_structs.h"
 #include "./sym_lib_page_fault.h"
+#include "./sym_probe.h"
 #endif

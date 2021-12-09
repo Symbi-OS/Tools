@@ -1,0 +1,18 @@
+#ifndef __SYM_PROBE_LIB__
+#define __SYM_PROBE_LIB__
+
+// License C 2021-
+// Author: Thomas Unger
+// Level: 2
+
+#define X86_TRAP_BP		 3
+
+// Place a software interrupt generating instruction at addr.
+unsigned char sym_set_probe(void *addr);
+
+// Replace software interrupt generating instruction with byte.
+void sym_remove_probe(void *addr, unsigned char old_byte);
+
+void sym_interpose_on_int3_ft(char* new_idt);
+
+#endif
