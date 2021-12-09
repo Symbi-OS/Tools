@@ -4,12 +4,8 @@ all: int3_probe
 
 CFLAGS=-ggdb -O0 -static #-fno-omit-frame-pointer
 
-int3_probe: int3_probe.c pgtblmgr.cc pgtblmgr.h
-	g++ $(CFLAGS) pgtblmgr.cc -c -o pgtblmgr.o
-
-	gcc $(CFLAGS) -c -o int3_probe.o int3_probe.c
-
-	gcc $(CFLAGS) -o $@ int3_probe.o ../../include/libsym.a ./pgtblmgr.o
+int3_probe: int3_probe.c #pgtblmgr.cc pgtblmgr.h
+	gcc $(CFLAGS) -o int3_probe int3_probe.c ../../include/libsym.a 
 
 
 cp_to_disk: ./int3_probe
