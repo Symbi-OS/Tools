@@ -4,4 +4,5 @@
 #include "./sym_lib_hacks.h"
 #include "./sym_lib.h"
 #include "./sym_structs.h"
+#include "./sym_lib_page_fault.h"
 #endif
