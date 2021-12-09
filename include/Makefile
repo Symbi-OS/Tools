@@ -1,5 +1,6 @@
 SRC = $(wildcard *.c)               # list of source files
 OBJS = $(patsubst %.c, %.o, $(SRC)) # list of object files
+CFLAGS =-mno-red-zone -g
 
 all: libsym.a #libelevate.so libelevate_cons.so
 
