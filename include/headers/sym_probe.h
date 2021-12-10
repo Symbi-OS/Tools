@@ -1,5 +1,6 @@
 #ifndef __SYM_PROBE_LIB__
 #define __SYM_PROBE_LIB__
+#include "./sym_structs.h"
 
 // License C 2021-
 // Author: Thomas Unger
@@ -8,7 +9,7 @@
 #define X86_TRAP_BP		 3
 
 // Place a software interrupt generating instruction at addr.
-unsigned char sym_set_probe(void *addr);
+unsigned char sym_set_probe(uint64_t addr);
 
 // Replace software interrupt generating instruction with byte.
 void sym_remove_probe(void *addr, unsigned char old_byte);

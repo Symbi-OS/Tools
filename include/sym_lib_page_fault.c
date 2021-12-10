@@ -42,3 +42,15 @@ void sym_interpose_on_pg_ft(char * my_idt){
   // Set IDT to point to our new interposer
   sym_load_desc_from_addr(desc_old, &new_asm_exc_addr);
 }
+
+typedef void* (*lookup_address_t)(uint64_t address, unsigned int * level);
+void sym_make_pte_writable(uint64_t addr){
+
+  // Get PTE
+  lookup_address_t my_lookup_address = (lookup_address_t) 0xffffffff8105ce60;
+  unsigned int level;
+  void* ret = my_lookup_address(addr, &level);
+
+  struct pte* pte_p = (struct pte*) ret;
+  pte_p->RW = 1;
+}

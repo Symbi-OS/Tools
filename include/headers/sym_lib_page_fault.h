@@ -1,5 +1,7 @@
 #ifndef __SYM_LIB_PAGE_FAULT__
 #define __SYM_LIB_PATE_FAULT__
+
+#include "./sym_structs.h"
 // License C 2021-
 // Author: Thomas Unger
 // Level: 2
@@ -41,6 +43,24 @@ popq %rsi                   Restore user rsi.
 jmp *orig_asm_exc_page_fault
 */
 #define PG_FT_IDX 14
+
+struct pte{
+  uint64_t
+  SEL : 1,
+    RW : 1,
+    US : 1,
+    PWT: 1,
+    PCD: 1,
+    A : 1,
+    DIRTY: 1,
+    MAPS : 1,
+    WHOCARES2 : 4,
+    PG_TBL_ADDR : 40,
+    RES : 11,
+    XD  : 1;
+};
+
+void sym_make_pte_writable(uint64_t addr);
 
 void sym_interpose_on_pg_ft(char* new_idt);
 
