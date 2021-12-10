@@ -134,6 +134,7 @@ int main(){
 
 #ifdef NOP_SLIDE
   printf("NOP_SLIDE\n");
+  printf("currently doesn't work\n");
   show_nop_slide_works();
 #endif
 

@@ -44,24 +44,16 @@ static void print_ef(){
 }
 
 static void pg_ft_c_entry(){
-  myprintk("Got to pg ft entry\n");
-  print_ef();
-
   uint64_t my_cr3 = 0;
-
+  // This might be slow, I don't know.
   asm("movq %%cr3,%0" : "=r"(my_cr3));
 
-  /* myprintki("we're %#lx\n", my_cr3); */
-  /* myprintki("hoping for %#lx\n", cr3_reg); */
   if(!cr3_reg){
     myprintk("Error, cr3_reg never set\n");
     while(1);
   }
 
-  if(cr3_reg == my_cr3){
-    char *p = "wow, cr3 matches\n";
-    myprintk(p);
-  }else{
+  if(cr3_reg  != my_cr3){
     char *p = "Bummer, no match\n";
     myprintk(p);
     myprintk("This is unsupported :/ \n");
@@ -70,13 +62,11 @@ static void pg_ft_c_entry(){
 
   // Are we an instruction fetch?
   if(ef->err & INS_FETCH){
-    myprintk("ins fetch pg ft\n");
     // Are we user code?
     // Could look in cr2, but by def rip caused the fault here.
     // This is modeled after kern:fault_in_kernel_space
     if(ef->rip < ( (1UL << 47) - 4096) ){
-      myprintk("From user space\n");
-      myprintk("Lie to handler that it was running in user mode");
+      /// Lie that code was running in user mode.
       ef->err |= USER_FT;
     }
   }
