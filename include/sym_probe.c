@@ -7,7 +7,7 @@
 // This is the old handler we jmp to after our interposer.
 uint64_t orig_asm_exc_int3;
 
-uint64_t cr3_reg;
+uint64_t cr3_reg = 0;
 
 
 static void (*myprintk)(char *) = (void *)0xffffffff81bd6f95;

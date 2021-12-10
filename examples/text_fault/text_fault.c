@@ -13,16 +13,34 @@
 unsigned char my_idt [1<<12] __attribute__ ((aligned (1<<12) ));
 
 void interpose_on_pg_ft(){
-  int PG_FT_IDX= 14;
-  // Copy the system idt to userspace
-  sym_copy_system_idt(my_idt);
 
-  // Modify it to inject a shim that flips a 
-  sym_interpose_on_pg_ft(my_idt);
+  // We want to check if another interposition has already taken over idt
+  struct dtr check_idtr;
+  sym_store_idt_desc(&check_idtr);
+
+  if(check_idtr.base != (uint64_t) &my_idt);{
+    printf("copying the idt for pf\n");
+    // Copy the system idt to userspace if we haven't already.
+    sym_copy_system_idt(my_idt);
+  }
+
+  sym_interpose_on_pg_ft_c(my_idt);
 
   // Make our user IDT live!
   sym_set_idtr((unsigned long)my_idt, IDT_SZ_BYTES - 1);
+
 }
+/* void interpose_on_pg_ft(){ */
+/*   int PG_FT_IDX= 14; */
+/*   // Copy the system idt to userspace */
+/*   sym_copy_system_idt(my_idt); */
+
+/*   // Modify it to inject a shim that flips a  */
+/*   sym_interpose_on_pg_ft(my_idt); */
+
+/*   // Make our user IDT live! */
+/*   sym_set_idtr((unsigned long)my_idt, IDT_SZ_BYTES - 1); */
+/* } */
 
 void foo(void);
 /*
@@ -84,6 +102,7 @@ void show_prefault_works(){
   sym_lower();
 }
 
+extern uint64_t cr3_reg;
 int main(){
   printf("Starting main\n");
 
@@ -92,6 +111,11 @@ int main(){
  
   // Store initial system IDTR
   sym_store_idt_desc(&system_idtr);
+
+  sym_elevate();
+  asm("movq %%cr3,%0" : "=r"(cr3_reg));
+  sym_lower();
+
 
 #ifdef NORMAL_PROCESS
   printf("NORMAL_PROCESS\n");

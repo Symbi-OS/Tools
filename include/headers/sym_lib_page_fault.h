@@ -24,6 +24,7 @@ Page fault error codes:
 +---+--  --+---+-----+---+--  --+---+----+----+---+---+---+---+---+
 |   Reserved   | SGX |   Reserved   | SS | PK | I | R | U | W | P |
 +---+--  --+---+-----+---+--  --+---+----+----+---+---+---+---+---+
+
 Legend: Set (Clear)
 0 Present (not)
 1 Write (Read)
@@ -42,8 +43,11 @@ movq %rsi, 8(%rsp)          Throw val back in error code on stack.
 popq %rsi                   Restore user rsi.
 jmp *orig_asm_exc_page_fault
 */
-#define PG_FT_IDX 14
+// NOTE Err codes:
+#define INS_FETCH 0x10
+#define USER_FT 1<<2;
 
+#define PG_FT_IDX 14
 struct pte{
   uint64_t
   SEL : 1,
@@ -60,9 +64,19 @@ struct pte{
     XD  : 1;
 };
 
+struct excep_frame{
+  uint64_t err;
+  uint64_t rip;
+  uint64_t cs;
+  uint64_t flag;
+  uint64_t rsp;
+  uint64_t ss;
+};
+
 void sym_make_pg_writable(uint64_t addr);
 void sym_make_pg_unwritable(uint64_t addr);
 
 void sym_interpose_on_pg_ft(char* new_idt);
+void sym_interpose_on_pg_ft_c(char* new_idt);
 
 #endif
