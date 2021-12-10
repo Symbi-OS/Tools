@@ -1,5 +1,6 @@
 #include "headers/sym_lib_page_fault.h"
 #include "headers/sym_interrupts.h"
+#include "headers/sym_lib.h"
 
 
 // XXX global val
@@ -44,8 +45,8 @@ void sym_interpose_on_pg_ft(char * my_idt){
 }
 
 typedef void* (*lookup_address_t)(uint64_t address, unsigned int * level);
-void sym_make_pte_writable(uint64_t addr){
-
+void sym_make_pg_writable(uint64_t addr){
+  sym_elevate();
   // Get PTE
   lookup_address_t my_lookup_address = (lookup_address_t) 0xffffffff8105ce60;
   unsigned int level;
@@ -53,4 +54,23 @@ void sym_make_pte_writable(uint64_t addr){
 
   struct pte* pte_p = (struct pte*) ret;
   pte_p->RW = 1;
+  sym_lower();
 }
+
+void sym_make_pg_unwritable(uint64_t addr){
+  sym_elevate();
+  // Get PTE
+  lookup_address_t my_lookup_address = (lookup_address_t) 0xffffffff8105ce60;
+  unsigned int level;
+  void* ret = my_lookup_address(addr, &level);
+
+  struct pte* pte_p = (struct pte*) ret;
+  pte_p->RW = 0;
+  sym_lower();
+}
+/* void write_ktext_addr(uint64_t addr, char *s, int len){ */
+/*   // TODO if write spans pages, this will fail. */
+/*   sym_make_pte_writable(addr); */
+/*   sym_elevate(); */
+/*   memcpy((void *)addr, s, len); */
+/* } */

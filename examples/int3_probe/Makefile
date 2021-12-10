@@ -5,10 +5,10 @@ all: int3_probe
 CFLAGS=-ggdb -O0 -static #-fno-omit-frame-pointer
 
 int3_probe: int3_probe.c #pgtblmgr.cc pgtblmgr.h
-	gcc $(CFLAGS) -o int3_probe int3_probe.c ../../include/libsym.a 
+	gcc $(CFLAGS) -o int3_probe int3_probe.c ../../include/libsym.a ../../include/kallsymlib/libkallsym.a
 
 
-cp_to_disk: ./int3_probe
+cp_to_disk: ./int3_probe System.map
 # create tmp dir
 	mkdir ./mt
 	sudo mount ~tommyunger/ukl/min-initrd/min-initrd.d/root ./mt

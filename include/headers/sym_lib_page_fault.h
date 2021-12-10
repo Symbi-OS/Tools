@@ -60,7 +60,8 @@ struct pte{
     XD  : 1;
 };
 
-void sym_make_pte_writable(uint64_t addr);
+void sym_make_pg_writable(uint64_t addr);
+void sym_make_pg_unwritable(uint64_t addr);
 
 void sym_interpose_on_pg_ft(char* new_idt);
 

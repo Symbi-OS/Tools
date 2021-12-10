@@ -25,7 +25,7 @@ asm(" \
 ");
 
 void sym_interpose_on_int3_ft(char * my_idt){
-  sym_print_idt_desc(my_idt, X86_TRAP_BP);
+  /* sym_print_idt_desc(my_idt, X86_TRAP_BP); */
 
   // Get ptr to pf desc
   union idt_desc *desc_old;
@@ -45,16 +45,18 @@ void sym_interpose_on_int3_ft(char * my_idt){
   // Set IDT to point to our new interposer
   sym_load_desc_from_addr(desc_old, &new_asm_exc_addr);
 
-  sym_print_idt_desc(my_idt,  X86_TRAP_BP);
+  /* sym_print_idt_desc(my_idt,  X86_TRAP_BP); */
 }
 
 unsigned char sym_set_probe(uint64_t addr){
   // TODO if write spans pages, this will fail.
   sym_elevate();
   unsigned char ret = *(unsigned char *) addr;
-  printf("Read %x \n", ret);
-  sym_make_pte_writable(addr);
+  sym_lower();
+  sym_make_pg_writable(addr);
 
+  sym_elevate();
   // Magic write int3 instruction.
   *(unsigned char *) addr = 0xcc;
+  sym_lower();
 }
