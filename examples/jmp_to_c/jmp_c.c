@@ -38,13 +38,28 @@ void init_kallsym(){
 }
 
 void interpose_on_int3_ft(){
-  // Copy the system idt to userspace
-  sym_copy_system_idt(my_idt);
+
+  // We want to check if another interposition has already taken over idt
+  struct dtr check_idtr;
+  sym_store_idt_desc(&check_idtr);
+
+  if(check_idtr.base != (uint64_t) &my_idt);{
+    printf("copying the idt for int3\n");
+      // Copy the system idt to userspace if we haven't already.
+      sym_copy_system_idt(my_idt);
+  }
 
   sym_interpose_on_int3_ft_c(my_idt);
 
   // Make our user IDT live!
   sym_set_idtr((unsigned long)my_idt, IDT_SZ_BYTES - 1);
+}
+
+
+void check_on_probe(uint64_t addr){
+  sym_elevate();
+  printf("1st byte getpid is %#x \n", *((unsigned char *) addr));
+  sym_lower();
 }
 
 void show_int_interposition_works(){
@@ -55,68 +70,68 @@ void show_int_interposition_works(){
 
   interpose_on_int3_ft();
 
-  sym_elevate();
-  printf("Before modification 1st byte getpid is %#x \n", *((unsigned char *) addr__do_sys_getpid));
-  sym_lower();
+  check_on_probe(addr__do_sys_getpid);
 
+  // Inject probe on first byte of fn.
   sym_set_probe(addr__do_sys_getpid);
 
-  sym_elevate();
-  printf("After inserting int3, 1st byte of getpid is %#x \n", *((unsigned char *) addr__do_sys_getpid));
-  sym_lower();
+  check_on_probe(addr__do_sys_getpid);
 
-  // This invocation will result in triggering the 
-  sym_elevate();
+  // This invocation will result in triggering the
+  sym_make_pg_unwritable(addr__do_sys_getpid);
+
+  // NOTE: Hmm, shouldn't this fault as text is not writable?
   getpid();
 
-  /* sym_make_pg_unwritable(addr__do_sys_getpid); */
-
-  sym_elevate();
-  printf("After encountering and running handler, 1st byte of getpid is restored %#x \n", *((unsigned char *) addr__do_sys_getpid));
-  sym_lower();
+  check_on_probe(addr__do_sys_getpid);
 
   // Totally normal invocation
   getpid();
 
-  sym_elevate();
-  printf("once more for fun, 1st byte of getpid is restored %#x \n", *((unsigned char *) addr__do_sys_getpid));
-  sym_lower();
+  check_on_probe(addr__do_sys_getpid);
 }
-
-
 
 extern uint64_t cr3_reg;
 
-int main(){
+// Store system idtr here for later restoration.
+struct dtr system_idtr;
 
-  sym_touch_every_page_text();
-  /* sym_touch_stack(); */
-  init_kallsym();
-
-  printf("Starting main\n");
+void setup(){
+  printf("Starting setup\n");
 
   sym_elevate();
-  asm("movq %%cr3,%0"
-      : "=r"(cr3_reg)
-      );
-  printf("Cr3 holds %p\n", cr3_reg);
+  asm("movq %%cr3,%0" : "=r"(cr3_reg));
   sym_lower();
 
-  // Store system idtr here for later restoration.
-  struct dtr system_idtr;
+  init_kallsym();
+
   sym_store_idt_desc(&system_idtr);
+}
+
+void cleanup(){
+  kallsymlib_cleanup();
+
+  // Swing back onto system idtr before exit
+  // XXX why are you broken?
+  sym_load_idtr(&system_idtr);
+
+  // Make sure we lower.
+  if(sym_check_elevate()){
+    printf("Didn't expect to be elevated\n");
+    sym_lower();
+  }
+}
+
+int main(){
+  printf("Starting main\n");
+  printf("Don't really get why not preparing the stack or text still works\n");
+
+  setup();
 
   // Where all the real work happens.
   show_int_interposition_works();
 
-  kallsymlib_cleanup();
-
-  // Swing back onto system idtr before exit
-  sym_load_idtr(&system_idtr);
-
-  // Make sure we lower.
-  if(sym_check_elevate())
-    sym_lower();
+  cleanup();
 
   printf("Done main\n");
 }

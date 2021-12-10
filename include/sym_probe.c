@@ -9,10 +9,11 @@ uint64_t orig_asm_exc_int3;
 
 uint64_t cr3_reg;
 
-void (*myprintk)(char *) = (void *)0xffffffff81bd6f95;
-void (*myprintki)(char *, int) = (void *)0xffffffff81bd6f95;
 
-void tu_c_entry(){
+static void (*myprintk)(char *) = (void *)0xffffffff81bd6f95;
+static void (*myprintki)(char *, int) = (void *)0xffffffff81bd6f95;
+
+static void tu_c_entry(){
   char *p = "hey\n";
   myprintk(p);
 
@@ -31,7 +32,7 @@ void tu_c_entry(){
 }
 
 // HACK: why?
-uint64_t my_entry = (uint64_t) &tu_c_entry;
+static uint64_t my_entry = (uint64_t) &tu_c_entry;
 
 extern uint64_t int3_jmp_to_c;
 asm(" \
