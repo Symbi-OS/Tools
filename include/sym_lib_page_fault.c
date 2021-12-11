@@ -32,7 +32,7 @@ extern uint64_t cr3_reg;
 static void (*myprintk)(char *) = (void *)0xffffffff81bd6f95;
 static void (*myprintki)(char *, uint64_t) = (void *)0xffffffff81bd6f95;
 
-struct excep_frame *ef = NULL;
+static struct excep_frame *ef = NULL;
 static void print_ef(){
 
   myprintki("ef->err  %#llx\n", ef->err);
@@ -68,6 +68,8 @@ static void pg_ft_c_entry(){
     if(ef->rip < ( (1UL << 47) - 4096) ){
       /// Lie that code was running in user mode.
       ef->err |= USER_FT;
+      myprintk("swinging err code for\n");
+      print_ef();
     }
   }
 }

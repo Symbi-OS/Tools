@@ -43,11 +43,16 @@ movq %rsi, 8(%rsp)          Throw val back in error code on stack.
 popq %rsi                   Restore user rsi.
 jmp *orig_asm_exc_page_fault
 */
-// NOTE Err codes:
-#define INS_FETCH 0x10
-#define USER_FT 1<<2;
 
+// NOTE Err codes:
+#define WR_FT   1<<1
+#define USER_FT 1<<2
+#define INS_FETCH 1<<4
+
+// Interrupt vectors
 #define PG_FT_IDX 14
+#define DF_IDX 8
+
 struct pte{
   uint64_t
   SEL : 1,
