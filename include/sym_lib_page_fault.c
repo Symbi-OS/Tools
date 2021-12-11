@@ -11,6 +11,7 @@ uint64_t orig_asm_exc_double_fault;
 
 // This is the old handler we jmp to after our interposer.
 /* uint64_t orig_asm_exc_double_fault; //= 0xffffffff81c3e2b0; */
+// NOTE: In df handler, make sure not to jump to new interposed version.
 uint64_t my_asm_exc_page_fault = 0xffffffff81e00ac0;
 
 // This is the name of our assembly we're adding to the text section.
@@ -147,7 +148,7 @@ void sym_interpose_on_df_c(char * my_idt){
   // save old asm_exc_pf ptr
   union idt_addr old_asm_exc_df;
   sym_load_addr_from_desc(desc_old, &old_asm_exc_df);
-  printf("old_asm_exc_df.raw %llx\n", old_asm_exc_df.raw );
+
   // Next line breaks
 
   // swing addr to  bs_asm...

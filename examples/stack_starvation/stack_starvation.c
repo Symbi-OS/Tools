@@ -65,13 +65,13 @@ void show_using_ist_solves_DF(){
   sym_lower();
 }
 
-void idt_interpose(){
+void interpose_on_df(){
   // We want to check if another interposition has already taken over idt
   struct dtr check_idtr;
   sym_store_idt_desc(&check_idtr);
 
-  if(check_idtr.base != (uint64_t) &my_idt);{
-    printf("copying the idt for df\n");
+  if(check_idtr.base != (uint64_t) &my_idt){
+    printf("copying the idt for DOUBLE F\n");
     // Copy the system idt to userspace if we haven't already.
     sym_copy_system_idt(my_idt);
   }
@@ -93,8 +93,8 @@ void interpose_on_pg_ft(){
   struct dtr check_idtr;
   sym_store_idt_desc(&check_idtr);
 
-  if(check_idtr.base != (uint64_t) &my_idt);{
-    printf("copying the idt for pf\n");
+  if(check_idtr.base != (uint64_t) &my_idt){
+    printf("copying the idt for PAGE F\n");
     // Copy the system idt to userspace if we haven't already.
     sym_copy_system_idt(my_idt);
   }
@@ -107,11 +107,9 @@ void interpose_on_pg_ft(){
 
 void show_using_idt_interpose_solves_DF(){
   // make sure we don't fault on text faults
-  interpose_on_pg_ft();
 
-  sym_elevate();
-  idt_interpose();
-  sym_lower();
+  interpose_on_pg_ft();
+  interpose_on_df();
 
   sym_elevate();
   sym_touch_stack();

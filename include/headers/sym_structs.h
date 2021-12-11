@@ -11,8 +11,8 @@
 // Descriptor table entry. For use with GDT, IDT
 struct dtr
 {
-  unsigned short limit; // limit 2
-  unsigned long base;   // base 8
+  uint16_t limit; // limit 2
+  uint64_t base;   // base 8
 }__attribute__((packed));
 static_assert(sizeof(struct dtr) == 10, "Size of dtr is not correct");
 
