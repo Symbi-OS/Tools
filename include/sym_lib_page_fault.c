@@ -7,6 +7,12 @@
 // This is the old handler we jmp to after our interposer.
 uint64_t orig_asm_exc_page_fault;
 
+uint64_t orig_asm_exc_double_fault;
+
+// This is the old handler we jmp to after our interposer.
+/* uint64_t orig_asm_exc_double_fault; //= 0xffffffff81c3e2b0; */
+uint64_t my_asm_exc_page_fault = 0xffffffff81e00ac0;
+
 // This is the name of our assembly we're adding to the text section.
 // It will be defined at link time, but use this to allow compile time
 // inclusion in C code.
@@ -96,11 +102,64 @@ asm("\
  popq %rbx \n\t\
  jmp *orig_asm_exc_page_fault      \
 ");
-/* pushq %rsi                    \n\t\ */
-/* movq 8(%rsp),%rsi             \n\t\ */
-/*   orq $0x4, %rsi                \n\t\ */
-/*   movq %rsi, 8(%rsp)            \n\t\ */
-/*   popq %rsi                     \n\t\ */
+
+static void df_c_entry(){
+  // Error code on DF is 0, 
+  ef->err = USER_FT | WR_FT;
+}
+
+static uint64_t my_df_entry = (uint64_t) &df_c_entry;
+// This is the name of our assembly we're adding to the text section.
+// It will be defined at link time, but use this to allow compile time
+// inclusion in C code.
+extern uint64_t c_df_handler;
+// Want this to fix double faults.
+// Why is asm_exc_page_fault going to work this time?
+// DF runs on known good IST stack unlike pg ft.
+// Likely at a performance penalty, should be rare path.
+// See kernel mode linux "Stack Starvation".
+asm("\
+ .text                         \n\t\
+ .align 16                     \n\t\
+ c_df_handler:      \n\t\
+ movq %rsp, ef \n\t\
+ pushq %rbx \n\t\
+ pushq %r12 \n\t\
+ pushq %r13 \n\t\
+ pushq %r14 \n\t\
+ pushq %r15 \n\t\
+ pushq %rbp \n\t\
+ call *my_df_entry               \n\t\
+ popq %rbp \n\t\
+ popq %r15 \n\t\
+ popq %r14 \n\t\
+ popq %r13 \n\t\
+ popq %r12 \n\t\
+ popq %rbx \n\t\
+ jmp     *my_asm_exc_page_fault       \
+");
+
+void sym_interpose_on_df_c(char * my_idt){
+  // Get ptr to df desc
+  union idt_desc *desc_old;
+  desc_old = sym_get_idt_desc(my_idt, DF_IDX);
+
+  // save old asm_exc_pf ptr
+  union idt_addr old_asm_exc_df;
+  sym_load_addr_from_desc(desc_old, &old_asm_exc_df);
+  printf("old_asm_exc_df.raw %llx\n", old_asm_exc_df.raw );
+  // Next line breaks
+
+  // swing addr to  bs_asm...
+  orig_asm_exc_double_fault = old_asm_exc_df.raw;
+
+  // New handler
+  union idt_addr new_asm_exc_addr;
+  new_asm_exc_addr.raw = (uint64_t) &c_df_handler;
+
+  // Set IDT to point to our new interposer
+  sym_load_desc_from_addr(desc_old, &new_asm_exc_addr);
+}
 
 void sym_interpose_on_pg_ft_c(char * my_idt){
   // Get ptr to pf desc
@@ -138,6 +197,27 @@ void sym_interpose_on_pg_ft(char * my_idt){
 
   // Set IDT to point to our new interposer
   sym_load_desc_from_addr(desc_old, &new_asm_exc_addr);
+}
+
+void sym_make_pg_ft_use_ist(char *my_idt){
+  union idt_desc *desc_old;
+  union idt_desc desc_new;
+
+  // Get ptr to pf desc
+  desc_old = sym_get_idt_desc(my_idt, PG_FT_IDX);
+
+  int DF_IST = 1;
+  // Copy descriptor to local var
+  sym_elevate();
+  desc_new = *desc_old;
+  sym_lower();
+
+  // Force IST usage
+  desc_new.fields.ist = DF_IST;
+
+  // Write into user table
+  sym_set_idt_desc(my_idt, PG_FT_IDX, &desc_new);
+
 }
 
 typedef void* (*lookup_address_t)(uint64_t address, unsigned int * level);

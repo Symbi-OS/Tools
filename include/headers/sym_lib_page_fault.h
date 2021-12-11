@@ -84,4 +84,8 @@ void sym_make_pg_unwritable(uint64_t addr);
 void sym_interpose_on_pg_ft(char* new_idt);
 void sym_interpose_on_pg_ft_c(char* new_idt);
 
+void sym_interpose_on_df_c(char* new_idt);
+
+void sym_make_pg_ft_use_ist(char *my_idt);
+
 #endif
