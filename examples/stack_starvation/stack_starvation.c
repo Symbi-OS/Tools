@@ -107,8 +107,7 @@ void interpose_on_pg_ft(){
 
 void show_using_idt_interpose_solves_DF(){
   // make sure we don't fault on text faults
-  /* interpose_on_pg_ft(); */
-  sym_touch_every_page_text();
+  interpose_on_pg_ft();
 
   sym_elevate();
   idt_interpose();
@@ -123,7 +122,6 @@ void show_using_idt_interpose_solves_DF(){
 /* #define NAIVE_ELEVATION 1 */
 /* #define PREFAULT_ELEVATION 1 */
 /* #define IST_ELEVATION 1 */
-
 #define IDT_INTERPOSE 1
 
 int main(){
