@@ -70,6 +70,23 @@ struct pte{
     XD  : 1;
 };
 
+extern struct pte * sym_get_pte(uint64_t addr, unsigned int *level);
+ 
+static inline int sym_is_pte_writeable(struct pte pte) {
+  return pte.RW;
+}
+
+static inline void sym_set_pte_writeable(struct pte *pte) {
+  pte->RW = 1;
+}
+static inline void sym_clear_pte_writeable(struct pte *pte) {
+  pte->RW = 0;
+}
+
+static inline int sym_is_pte_readaable(struct pte pte) {
+  return pte.RW == 0;
+}
+
 struct excep_frame{
   uint64_t err;
   uint64_t rip;

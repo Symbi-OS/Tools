@@ -249,7 +249,17 @@ void sym_make_pg_ft_use_ist(char *my_idt){
 
 }
 
+
 typedef void* (*lookup_address_t)(uint64_t address, unsigned int * level);
+
+struct pte *
+sym_get_pte(uint64_t addr, unsigned int *level)
+{
+  static lookup_address_t my_lookup_address = NULL;
+  if (my_lookup_address == NULL) my_lookup_address = (lookup_address_t) 0xffffffff8105ce60;
+  return (struct pte *) my_lookup_address(addr, level);
+}
+
 void sym_make_pg_writable(uint64_t addr){
   sym_elevate();
   // Get PTE
@@ -263,13 +273,10 @@ void sym_make_pg_writable(uint64_t addr){
 }
 
 void sym_make_pg_unwritable(uint64_t addr){
-  sym_elevate();
-  // Get PTE
-  lookup_address_t my_lookup_address = (lookup_address_t) 0xffffffff8105ce60;
   unsigned int level;
-  void* ret = my_lookup_address(addr, &level);
-
-  struct pte* pte_p = (struct pte*) ret;
+  sym_elevate();
+  // Get PTE 
+  struct pte* pte_p = sym_get_pte(addr, &level);
   pte_p->RW = 0;
   sym_lower();
 }
