@@ -39,7 +39,9 @@ extern uint64_t cr3_reg;
 static void (*myprintk)(char *) = (void *)0xffffffff81bd6f95;
 static void (*myprintki)(char *, uint64_t) = (void *)0xffffffff81bd6f95;
 
+__attribute__((aligned (16)))
 static struct excep_frame *ef = NULL;
+__attribute__((aligned (16)))
 static void print_ef(){
 
   myprintki("ef->err  %#llx\n", ef->err);
@@ -49,10 +51,13 @@ static void print_ef(){
   myprintki("ef->rsp  %#llx\n", ef->rsp);
   myprintki("ef->ss   %#llx\n", ef->ss);
 }
-
+int my_ctr = 0;
+__attribute__((aligned (16)))
 static void pg_ft_c_entry(){
+
+  /* ef->err |= USER_FT; */
   uint64_t my_cr3 = 0;
-  // This might be slow, I don't know.
+  /* This might be slow, I don't know. */
   asm("movq %%cr3,%0" : "=r"(my_cr3));
 
   if(!cr3_reg){
@@ -67,16 +72,20 @@ static void pg_ft_c_entry(){
     while(1);
   }
 
-  // Are we an instruction fetch?
+  /* Are we an instruction fetch? */
   if(ef->err & INS_FETCH){
-    // Are we user code?
-    // Could look in cr2, but by def rip caused the fault here.
-    // This is modeled after kern:fault_in_kernel_space
-    if(ef->rip < ( (1UL << 47) - 4096) ){
-      /// Lie that code was running in user mode.
-      ef->err |= USER_FT;
-      myprintk("swinging err code for\n");
-      print_ef();
+    // We don't need to special case when in ring 3.
+    if(! (ef->err & USER_FT)  ){
+      // Are we user code?
+      // Could look in cr2, but by def rip caused the fault here.
+      // This is modeled after kern:fault_in_kernel_space
+      if(ef->rip < ( (1UL << 47) - 4096) ){
+        /// Lie that code was running in user mode.
+        ef->err |= USER_FT;
+        /* myprintk("swinging err code for\n"); */
+        /* print_ef(); */
+        /* myprintki("my_ctr %d\n", my_ctr++); */
+      }
     }
   }
 }
@@ -88,21 +97,40 @@ asm("\
  .align 16                     \n\t\
  c_handler_page_fault:        \n\t\
  movq %rsp, ef \n\t\
- pushq %rbx \n\t\
- pushq %r12 \n\t\
- pushq %r13 \n\t\
- pushq %r14 \n\t\
- pushq %r15 \n\t\
- pushq %rbp \n\t\
+    pushq %rax \n\t\
+    pushq %rcx \n\t\
+    pushq %rdx \n\t\
+    pushq %rsi \n\t\
+    pushq %rdi \n\t\
+    pushq %r8 \n\t\
+    pushq %r9 \n\t\
+    pushq %r10 \n\t\
+    pushq %r11 \n\t\
  call *my_entry               \n\t\
- popq %rbp \n\t\
- popq %r15 \n\t\
- popq %r14 \n\t\
- popq %r13 \n\t\
- popq %r12 \n\t\
- popq %rbx \n\t\
+    popq %r11 \n\t\
+    popq %r10 \n\t\
+    popq %r9 \n\t\
+    popq %r8 \n\t\
+    popq %rdi \n\t\
+    popq %rsi \n\t\
+    popq %rdx \n\t\
+    popq %rcx \n\t\
+    popq %rax \n\t\
  jmp *orig_asm_exc_page_fault      \
 ");
+
+/* pushq %rbx \n\t\ */
+/* pushq %r12 \n\t\ */
+/* pushq %r13 \n\t\ */
+/* pushq %r14 \n\t\ */
+/* pushq %r15 \n\t\ */
+/* pushq %rbp \n\t\ */
+/* popq %rbp \n\t\ */
+/* popq %r15 \n\t\ */
+/* popq %r14 \n\t\ */
+/* popq %r13 \n\t\ */
+/* popq %r12 \n\t\ */
+/* popq %rbx \n\t\ */
 
 static void df_c_entry(){
   // Error code on DF is 0, 

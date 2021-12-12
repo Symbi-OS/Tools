@@ -45,6 +45,7 @@ jmp *orig_asm_exc_page_fault
 */
 
 // NOTE Err codes:
+#define PRESENT 1
 #define WR_FT   1<<1
 #define USER_FT 1<<2
 #define INS_FETCH 1<<4
