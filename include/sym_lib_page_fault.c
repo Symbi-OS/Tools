@@ -56,7 +56,7 @@ __attribute__((aligned (16)))
 static void pg_ft_c_entry(){
 
   /* ef->err |= USER_FT; */
-  uint64_t my_cr3 = 0;
+  uint64_t my_cr3;
   /* This might be slow, I don't know. */
   asm("movq %%cr3,%0" : "=r"(my_cr3));
 
@@ -90,6 +90,8 @@ static void pg_ft_c_entry(){
   }
 }
 
+// Preserve caller saved GPRs.
+// Want RSP to be 16byte aligned after call.
 static uint64_t my_entry = (uint64_t) &pg_ft_c_entry;
 extern uint64_t c_handler_page_fault;
 asm("\
@@ -119,22 +121,11 @@ asm("\
  jmp *orig_asm_exc_page_fault      \
 ");
 
-/* pushq %rbx \n\t\ */
-/* pushq %r12 \n\t\ */
-/* pushq %r13 \n\t\ */
-/* pushq %r14 \n\t\ */
-/* pushq %r15 \n\t\ */
-/* pushq %rbp \n\t\ */
-/* popq %rbp \n\t\ */
-/* popq %r15 \n\t\ */
-/* popq %r14 \n\t\ */
-/* popq %r13 \n\t\ */
-/* popq %r12 \n\t\ */
-/* popq %rbx \n\t\ */
-
+__attribute__((aligned (16)))
 static void df_c_entry(){
   // Error code on DF is 0, 
   ef->err = USER_FT | WR_FT;
+  /* print_ef(); */
 }
 
 static uint64_t my_df_entry = (uint64_t) &df_c_entry;
@@ -152,19 +143,25 @@ asm("\
  .align 16                     \n\t\
  c_df_handler:      \n\t\
  movq %rsp, ef \n\t\
- pushq %rbx \n\t\
- pushq %r12 \n\t\
- pushq %r13 \n\t\
- pushq %r14 \n\t\
- pushq %r15 \n\t\
- pushq %rbp \n\t\
+    pushq %rax \n\t\
+    pushq %rcx \n\t\
+    pushq %rdx \n\t\
+    pushq %rsi \n\t\
+    pushq %rdi \n\t\
+    pushq %r8 \n\t\
+    pushq %r9 \n\t\
+    pushq %r10 \n\t\
+    pushq %r11 \n\t\
  call *my_df_entry               \n\t\
- popq %rbp \n\t\
- popq %r15 \n\t\
- popq %r14 \n\t\
- popq %r13 \n\t\
- popq %r12 \n\t\
- popq %rbx \n\t\
+    popq %r11 \n\t\
+    popq %r10 \n\t\
+    popq %r9 \n\t\
+    popq %r8 \n\t\
+    popq %rdi \n\t\
+    popq %rsi \n\t\
+    popq %rdx \n\t\
+    popq %rcx \n\t\
+    popq %rax \n\t\
  jmp     *my_asm_exc_page_fault       \
 ");
 
