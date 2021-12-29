@@ -3,6 +3,8 @@
 #include "headers/sym_lib.h"
 
 
+asm(".include \"headers/arch_x86.S\"");
+
 // XXX global val
 // This is the old handler we jmp to after our interposer.
 uint64_t orig_asm_exc_page_fault;
@@ -36,8 +38,8 @@ asm("\
 extern uint64_t cr3_reg;
 
 // HACK
-static void (*myprintk)(char *) = (void *)0xffffffff81bd6f95;
-static void (*myprintki)(char *, uint64_t) = (void *)0xffffffff81bd6f95;
+static void (*myprintk)(char *) = (void *)0xffffffff81c34d5b;
+static void (*myprintki)(char *, uint64_t) = (void *)0xffffffff81c34d5b;
 
 __attribute__((aligned (16)))
 static struct excep_frame *ef = NULL;
@@ -54,6 +56,7 @@ static void print_ef(){
 int my_ctr = 0;
 __attribute__((aligned (16)))
 static void pg_ft_c_entry(){
+  myprintk("my handler!\n");
 
   /* ef->err |= USER_FT; */
   uint64_t my_cr3;
@@ -82,9 +85,9 @@ static void pg_ft_c_entry(){
       if(ef->rip < ( (1UL << 47) - 4096) ){
         /// Lie that code was running in user mode.
         ef->err |= USER_FT;
-        /* myprintk("swinging err code for\n"); */
-        /* print_ef(); */
-        /* myprintki("my_ctr %d\n", my_ctr++); */
+        myprintk("swinging err code for\n");
+        print_ef();
+        myprintki("my_ctr %d\n", my_ctr++);
       }
     }
   }
@@ -125,8 +128,9 @@ __attribute__((aligned (16)))
 static void df_c_entry(){
   // Error code on DF is 0, 
   ef->err = USER_FT | WR_FT;
-  /* print_ef(); */
 }
+
+
 
 static uint64_t my_df_entry = (uint64_t) &df_c_entry;
 // This is the name of our assembly we're adding to the text section.
@@ -143,25 +147,9 @@ asm("\
  .align 16                     \n\t\
  c_df_handler:      \n\t\
  movq %rsp, ef \n\t\
-    pushq %rax \n\t\
-    pushq %rcx \n\t\
-    pushq %rdx \n\t\
-    pushq %rsi \n\t\
-    pushq %rdi \n\t\
-    pushq %r8 \n\t\
-    pushq %r9 \n\t\
-    pushq %r10 \n\t\
-    pushq %r11 \n\t\
+ SYM_PUSH_REGS \n\t\
  call *my_df_entry               \n\t\
-    popq %r11 \n\t\
-    popq %r10 \n\t\
-    popq %r9 \n\t\
-    popq %r8 \n\t\
-    popq %rdi \n\t\
-    popq %rsi \n\t\
-    popq %rdx \n\t\
-    popq %rcx \n\t\
-    popq %rax \n\t\
+ SYM_POP_REGS \n\t\
  jmp     *my_asm_exc_page_fault       \
 ");
 
@@ -253,14 +241,14 @@ struct pte *
 sym_get_pte(uint64_t addr, unsigned int *level)
 {
   static lookup_address_t my_lookup_address = NULL;
-  if (my_lookup_address == NULL) my_lookup_address = (lookup_address_t) 0xffffffff8105ce60;
+  if (my_lookup_address == NULL) my_lookup_address = (lookup_address_t) 0xffffffff8107f7d0;
   return (struct pte *) my_lookup_address(addr, level);
 }
 
 void sym_make_pg_writable(uint64_t addr){
   sym_elevate();
   // Get PTE
-  lookup_address_t my_lookup_address = (lookup_address_t) 0xffffffff8105ce60;
+  lookup_address_t my_lookup_address = (lookup_address_t) 0xffffffff8107f7d0;
   unsigned int level;
   void* ret = my_lookup_address(addr, &level);
 

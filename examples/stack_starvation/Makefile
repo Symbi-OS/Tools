@@ -7,9 +7,13 @@ QUEUES = 4
 NETWORK = -netdev tap,id=vlan1,ifname=tap0,script=no,downscript=no,vhost=on,queues=$(QUEUES) -device virtio-net-pci,mq=on,vectors=$(VECTORS),netdev=vlan1,mac=02:00:00:04:00:29
 
 stack_starvation: stack_starvation.c
+	make -C $(INCLUDE_DIR)
 	$(CC) $(CC_FLAGS) -o $@ $^ ../../include/libsym.a
 
 run:
+	sync
+	sync
+	sync
 	taskset -c 0 ./stack_starvation
 
 # run_virt:

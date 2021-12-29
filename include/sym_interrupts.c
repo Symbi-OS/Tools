@@ -15,7 +15,11 @@ void sym_load_idtr(struct dtr *location) {
 // Get IDTR
 void sym_store_idt_desc(struct dtr *location) {
   // put value into memory from idtr
+  // Not technically a supervisor instruction, but linux does expensive
+  // software emulation if not elevated.
+  sym_elevate();
   __asm__ __volatile__("sidt %0" : : "m"(*location) : "memory");
+  sym_lower();
 }
 
 // Load idtr with raw base and bound
