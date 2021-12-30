@@ -142,15 +142,14 @@ extern uint64_t c_df_handler;
 // DF runs on known good IST stack unlike pg ft.
 // Likely at a performance penalty, should be rare path.
 // See kernel mode linux "Stack Starvation".
+
 asm("\
- .text                         \n\t\
- .align 16                     \n\t\
- c_df_handler:      \n\t\
- movq %rsp, ef \n\t\
- SYM_PUSH_REGS \n\t\
- call *my_df_entry               \n\t\
- SYM_POP_REGS \n\t\
- jmp     *my_asm_exc_page_fault       \
+ NEW_HANDLER c_df_handler \n\t\
+ GET_EXCP_FRAME \n\t\
+ PUSH_REGS \n\t\
+ MY_CALL *my_df_entry               \n\t\
+ POP_REGS \n\t\
+ MY_JUMP *my_asm_exc_page_fault \
 ");
 
 void sym_interpose_on_df_c(char * my_idt){

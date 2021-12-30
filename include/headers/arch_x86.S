@@ -8,35 +8,9 @@
  * for assembly code:
  */
 
-.macro TU_MACRO
-xorl %edx, %edx
+.macro UNWIND_HINT_REGS
 .endm
 
-.macro SYM_PUSH_REGS
-    pushq %rax
-    pushq %rcx
-    pushq %rdx
-    pushq %rsi
-    pushq %rdi
-    pushq %r8
-    pushq %r9
-    pushq %r10
-    pushq %r11
-.endm
-
-.macro SYM_POP_REGS
-    popq %r11
-    popq %r10
-    popq %r9
-    popq %r8
-    popq %rdi
-    popq %rsi
-    popq %rdx
-    popq %rcx
-    popq %rax
-.endm
-
-#if 0
 .macro PUSH_REGS rdx=%rdx rax=%rax save_ret=0
 	.if \save_ret
 	pushq	%rsi		/* pt_regs->si */
@@ -120,6 +94,24 @@ xorl %edx, %edx
 	popq %rdi
 	.endif
 .endm
-#endif // if 0
+
+.macro NEW_HANDLER name
+ .text
+ .align 16
+ \name:
+.endm
+
+.macro MY_JUMP tar
+  jmp \tar
+.endm
+
+.macro MY_CALL tar
+  call \tar
+.endm
+
+
+.macro GET_EXCP_FRAME
+ movq %rsp, ef
+.endm
 
 #endif //CONFIG_X86_64
