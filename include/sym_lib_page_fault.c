@@ -144,12 +144,12 @@ extern uint64_t c_df_handler;
 // See kernel mode linux "Stack Starvation".
 
 asm("\
- NEW_HANDLER c_df_handler \n\t\
- GET_EXCP_FRAME \n\t\
- PUSH_REGS \n\t\
- MY_CALL *my_df_entry               \n\t\
- POP_REGS \n\t\
- MY_JUMP *my_asm_exc_page_fault \
+ NEW_HANDLER c_df_handler       \n\t\
+ GET_EXCP_FRAME                 \n\t\
+ PUSH_REGS                      \n\t\
+ MY_CALL *my_df_entry           \n\t\
+ POP_REGS                       \n\t\
+ MY_JUMP *my_asm_exc_page_fault     \
 ");
 
 void sym_interpose_on_df_c(char * my_idt){
