@@ -98,30 +98,12 @@ static void pg_ft_c_entry(){
 static uint64_t my_entry = (uint64_t) &pg_ft_c_entry;
 extern uint64_t c_handler_page_fault;
 asm("\
- .text                         \n\t\
- .align 16                     \n\t\
- c_handler_page_fault:        \n\t\
- movq %rsp, ef \n\t\
-    pushq %rax \n\t\
-    pushq %rcx \n\t\
-    pushq %rdx \n\t\
-    pushq %rsi \n\t\
-    pushq %rdi \n\t\
-    pushq %r8 \n\t\
-    pushq %r9 \n\t\
-    pushq %r10 \n\t\
-    pushq %r11 \n\t\
- call *my_entry               \n\t\
-    popq %r11 \n\t\
-    popq %r10 \n\t\
-    popq %r9 \n\t\
-    popq %r8 \n\t\
-    popq %rdi \n\t\
-    popq %rsi \n\t\
-    popq %rdx \n\t\
-    popq %rcx \n\t\
-    popq %rax \n\t\
- jmp *orig_asm_exc_page_fault      \
+ NEW_HANDLER c_handler_page_fault       \n\t\
+ GET_EXCP_FRAME                 \n\t\
+ PUSH_REGS                      \n\t\
+ MY_CALL *my_entry              \n\t\
+ POP_REGS                       \n\t\
+ MY_JUMP *orig_asm_exc_page_fault      \
 ");
 
 __attribute__((aligned (16)))
