@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
-#include "../include/sym_lib.h"
+#include "../../include/headers/sym_all.h"
 
 int main(){
 
