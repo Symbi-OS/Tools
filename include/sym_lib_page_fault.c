@@ -119,7 +119,7 @@ asm("\
  MY_JUMP *my_asm_exc_page_fault     \
 ");
 
-void sym_interpose_on_df_c(char * my_idt){
+void sym_interpose_on_df_c(unsigned char * my_idt){
   // Get ptr to df desc
   union idt_desc *desc_old;
   desc_old = sym_get_idt_desc(my_idt, DF_IDX);
@@ -141,7 +141,7 @@ void sym_interpose_on_df_c(char * my_idt){
   sym_load_desc_from_addr(desc_old, &new_asm_exc_addr);
 }
 
-void sym_interpose_on_pg_ft_c(char * my_idt){
+void sym_interpose_on_pg_ft_c(unsigned char * my_idt){
   // Get ptr to pf desc
   union idt_desc *desc_old = sym_get_idt_desc(my_idt, PG_FT_IDX);
 
@@ -160,7 +160,7 @@ void sym_interpose_on_pg_ft_c(char * my_idt){
   sym_load_desc_from_addr(desc_old, &new_asm_exc_addr);
 }
 
-void sym_make_pg_ft_use_ist(char *my_idt){
+void sym_make_pg_ft_use_ist(unsigned char *my_idt){
   union idt_desc *desc_old;
   union idt_desc desc_new;
 

@@ -14,7 +14,7 @@ unsigned char sym_set_probe(uint64_t addr);
 // Replace software interrupt generating instruction with byte.
 void sym_remove_probe(void *addr, unsigned char old_byte);
 
-void sym_interpose_on_int3_ft_asm(char* new_idt);
-void sym_interpose_on_int3_ft_c(char* new_idt);
+void sym_interpose_on_int3_ft_asm(unsigned char* new_idt);
+void sym_interpose_on_int3_ft_c(unsigned char* new_idt);
 
 #endif

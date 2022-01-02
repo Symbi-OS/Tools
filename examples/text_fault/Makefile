@@ -1,5 +1,5 @@
 CC=gcc
-CC_FLAGS=-O0 -ggdb -Werror #-static
+CC_FLAGS=-O0 -ggdb -Werror -Wall #-static
 INCLUDE_DIR=../../include/
 
 VECTORS = 10

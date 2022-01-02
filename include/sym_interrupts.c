@@ -109,7 +109,7 @@ void sym_print_idt_desc(unsigned char *idt, unsigned int idx){
   union idt_addr my_idt_addr;
   sym_load_addr_from_desc(my_desc, &my_idt_addr);
 
-  printf("full addr: %llx\n", my_idt_addr.raw       );
+  printf("full addr: %lx\n", my_idt_addr.raw       );
   printf("segment:   %x\n",   my_desc->fields.seg_sel);
   printf("ist:       %x\n",   my_desc->fields.ist    );
   printf("zero0:     %x\n",   my_desc->fields.zero0  );

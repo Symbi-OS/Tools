@@ -77,7 +77,7 @@ asm(" \
  iretq                             \
 ");
 
-void sym_interpose_on_int3_ft_asm(char * my_idt){
+void sym_interpose_on_int3_ft_asm(unsigned char * my_idt){
   /* sym_print_idt_desc(my_idt, X86_TRAP_BP); */
 
   // Get ptr to pf desc
@@ -101,7 +101,7 @@ void sym_interpose_on_int3_ft_asm(char * my_idt){
   /* sym_print_idt_desc(my_idt,  X86_TRAP_BP); */
 }
 
-void sym_interpose_on_int3_ft_c(char * my_idt){
+void sym_interpose_on_int3_ft_c(unsigned char * my_idt){
   /* sym_print_idt_desc(my_idt, X86_TRAP_BP); */
 
   // Get ptr to pf desc
@@ -136,4 +136,6 @@ unsigned char sym_set_probe(uint64_t addr){
   // Magic write int3 instruction.
   *(unsigned char *) addr = 0xcc;
   sym_lower();
+
+  return ret;
 }

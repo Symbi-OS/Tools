@@ -18,7 +18,7 @@ void interpose_on_pg_ft(){
   struct dtr check_idtr;
   sym_store_idt_desc(&check_idtr);
 
-  if(check_idtr.base != (uint64_t) &my_idt);{
+  if(check_idtr.base != (uint64_t) &my_idt){
     printf("copying the idt for pf\n");
     // Copy the system idt to userspace if we haven't already.
     sym_copy_system_idt(my_idt);

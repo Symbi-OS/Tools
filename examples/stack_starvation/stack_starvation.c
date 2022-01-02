@@ -45,7 +45,7 @@ void show_using_ist_solves_DF(){
   struct dtr check_idtr;
   sym_store_idt_desc(&check_idtr);
 
-  if(check_idtr.base != (uint64_t) &my_idt);{
+  if(check_idtr.base != (uint64_t) &my_idt){
     printf("copying the idt for ist\n");
     // Copy the system idt to userspace if we haven't already.
     sym_copy_system_idt(my_idt);
@@ -55,7 +55,7 @@ void show_using_ist_solves_DF(){
 
   // If already swung, don't do anything.
   sym_store_idt_desc(&check_idtr);
-  if(check_idtr.base != (uint64_t) &my_idt);{
+  if(check_idtr.base != (uint64_t) &my_idt){
     // Swing idtr to new modified table
     sym_set_idtr((unsigned long)my_idt, IDT_SZ_BYTES - 1);
   }

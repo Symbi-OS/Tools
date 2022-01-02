@@ -1,5 +1,5 @@
 CC=gcc
-CC_FLAGS=-ggdb -Werror #-static #-mno-red-zone
+CC_FLAGS=-ggdb -Werror -Wall #-static #-mno-red-zone
 INCLUDE_DIR=../../include/
 
 VECTORS = 10
