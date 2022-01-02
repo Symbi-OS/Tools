@@ -51,9 +51,9 @@ extern void foo(void);
 */
 
 /* #define NORMAL_PROCESS 1 */
-#define NAIVE_ELEVATION 1
+/* #define NAIVE_ELEVATION 1 */
 /* #define PREFAULT_ELEVATION 1 */
-/* #define INT_INTERPOSITION 1 */
+#define INT_INTERPOSITION 1
 /* #define NOP_SLIDE 1 */
 
 void show_process_text_ft_works(){
