@@ -21,19 +21,6 @@ uint64_t my_asm_exc_page_fault = 0xffffffff81e00ac0;
 // inclusion in C code.
 extern uint64_t bs_asm_exc_page_fault;
 
-/* .global bs_asm_exc_page_fault \n\t\ */
-asm("\
- .text                         \n\t\
- .align 16                     \n\t\
- bs_asm_exc_page_fault:        \n\t\
- pushq %rsi                    \n\t\
- movq 8(%rsp),%rsi             \n\t\
- orq $0x4, %rsi                \n\t\
- movq %rsi, 8(%rsp)            \n\t\
- popq %rsi                     \n\t\
- jmp *orig_asm_exc_page_fault      \
-");
-
 // HACK
 extern uint64_t cr3_reg;
 
@@ -112,8 +99,6 @@ static void df_c_entry(){
   ef->err = USER_FT | WR_FT;
 }
 
-
-
 static uint64_t my_df_entry = (uint64_t) &df_c_entry;
 // This is the name of our assembly we're adding to the text section.
 // It will be defined at link time, but use this to allow compile time
@@ -175,25 +160,6 @@ void sym_interpose_on_pg_ft_c(char * my_idt){
   sym_load_desc_from_addr(desc_old, &new_asm_exc_addr);
 }
 
-void sym_interpose_on_pg_ft(char * my_idt){
-  // Get ptr to pf desc
-  union idt_desc *desc_old = sym_get_idt_desc(my_idt, PG_FT_IDX);
-
-  // save old asm_exc_pf ptr
-  union idt_addr old_asm_exc_pf;
-  sym_load_addr_from_desc(desc_old, &old_asm_exc_pf);
-
-  // swing addr to  bs_asm...
-  orig_asm_exc_page_fault = old_asm_exc_pf.raw;
-
-  // New handler
-  union idt_addr new_asm_exc_addr;
-  new_asm_exc_addr.raw = (uint64_t) &bs_asm_exc_page_fault;
-
-  // Set IDT to point to our new interposer
-  sym_load_desc_from_addr(desc_old, &new_asm_exc_addr);
-}
-
 void sym_make_pg_ft_use_ist(char *my_idt){
   union idt_desc *desc_old;
   union idt_desc desc_new;
@@ -212,7 +178,6 @@ void sym_make_pg_ft_use_ist(char *my_idt){
 
   // Write into user table
   sym_set_idt_desc(my_idt, PG_FT_IDX, &desc_new);
-
 }
 
 
