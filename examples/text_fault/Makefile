@@ -1,15 +1,19 @@
 CC=gcc
-CC_FLAGS=-static -O0 -ggdb -mno-red-zone -Werror
+CC_FLAGS=-O0 -ggdb -Werror -static
 INCLUDE_DIR=../../include/
 
 VECTORS = 10
 QUEUES = 4
 NETWORK = -netdev tap,id=vlan1,ifname=tap0,script=no,downscript=no,vhost=on,queues=$(QUEUES) -device virtio-net-pci,mq=on,vectors=$(VECTORS),netdev=vlan1,mac=02:00:00:04:00:29
 
-text_fault: text_fault.c
+text_fault: text_fault.c foo.c
+	make -C $(INCLUDE_DIR)
 	$(CC) $(CC_FLAGS) -o $@ $^ $(INCLUDE_DIR)/libsym.a
 
 run:
+	sync
+	sync
+	sync
 	taskset -c 0 ./text_fault
 
 # run_virt:
