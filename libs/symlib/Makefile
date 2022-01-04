@@ -1,16 +1,16 @@
-# CFLAGS=-mno-red-zone -g -D CONFIG_X86_64 -Wall
 CC=gcc
+CFLAGS= -g -D CONFIG_X86_64 -Wall -Wextra #-static -mno-red-zone
+
+# Ignores TODO: remove them all
+# CFLAGS+=-Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-function
 
 # SRC DIRS
 SRC_DIR=src
-SRC_DIR_L0=$(SRC_DIR)/L0
-SRC_DIR_L1=$(SRC_DIR)/L1
-SRC_DIR_L2=$(SRC_DIR)/L2
 
 # SRC FILES
-SRC_L0=$(wildcard $(SRC_DIR_L0)/*.c)
-SRC_L1=$(wildcard $(SRC_DIR_L1)/*.c)
-SRC_L2=$(wildcard $(SRC_DIR_L2)/*.c)
+SRC_L0=$(wildcard $(SRC_DIR)/L0/*.c)
+SRC_L1=$(wildcard $(SRC_DIR)/L1/*.c)
+SRC_L2=$(wildcard $(SRC_DIR)/L2/*.c)
 
 # BUILD DIRECTORIES
 BUILD_DIR=build
@@ -31,6 +31,7 @@ LIB_L0=$(BUILD_DIR_L0)/L0.a
 LIB_L1=$(BUILD_DIR_L1)/L1.a
 LIB_L2=$(BUILD_DIR_L2)/L2.a
 
+# The superset lib.
 LIB_SYM=$(BUILD_DIR)/libsym.a
 
 $(LIB_SYM): $(LIB_L0) $(LIB_L1) $(LIB_L2)
@@ -66,10 +67,6 @@ $(BUILD_DIR_L0): $(BUILD_DIR)
 
 $(BUILD_DIR):
 	mkdir $@
-
-# obj/%.o : %.c
-# 	@echo $<
-# 	gcc -c $< -o $@
 
 clean:
 	rm -rf $(BUILD_DIR)

@@ -3,8 +3,10 @@
 #include "L1/sym_interrupts.h"
 #include "L2/sym_lib_page_fault.h"
 
+#ifdef CONFIG_X86_64
 // TODO turn this into a header?
 asm(".include \"../arch/x86/arch_x86.S\"");
+#endif
 
 // This is the old handler we jmp to after our interposer.
 uint64_t orig_asm_exc_int3;
