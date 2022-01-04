@@ -1,9 +1,9 @@
-#include "headers/sym_lib_page_fault.h"
-#include "headers/sym_interrupts.h"
-#include "headers/sym_lib.h"
+#include "L2/sym_lib_page_fault.h"
+#include "L1/sym_interrupts.h"
+#include "L0/sym_lib.h"
 
-
-asm(".include \"headers/arch_x86.S\"");
+// TODO turn this into a header?
+asm(".include \"../arch/x86/arch_x86.S\"");
 
 // XXX global val
 // This is the old handler we jmp to after our interposer.

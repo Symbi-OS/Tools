@@ -1,5 +1,5 @@
-#include "./headers/sym_lib.h"
-#include "./headers/sym_structs.h"
+#include "L0/sym_lib.h"
+#include "L0/sym_structs.h"
 #include <string.h>
 
 // Fn Documentation in header file.

@@ -1,9 +1,10 @@
-#include "headers/sym_probe.h"
-#include "headers/sym_lib.h"
-#include "headers/sym_interrupts.h"
-#include "headers/sym_lib_page_fault.h"
+#include "L2/sym_probe.h"
+#include "L0/sym_lib.h"
+#include "L1/sym_interrupts.h"
+#include "L2/sym_lib_page_fault.h"
 
-asm(".include \"headers/arch_x86.S\"");
+// TODO turn this into a header?
+asm(".include \"../arch/x86/arch_x86.S\"");
 
 // This is the old handler we jmp to after our interposer.
 uint64_t orig_asm_exc_int3;

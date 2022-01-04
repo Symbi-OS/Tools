@@ -1,6 +1,6 @@
 #ifndef __SYM_PROBE_LIB__
 #define __SYM_PROBE_LIB__
-#include "./sym_structs.h"
+#include "L0/sym_structs.h"
 
 // License C 2021-
 // Author: Thomas Unger

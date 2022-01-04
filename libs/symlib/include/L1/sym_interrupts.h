@@ -1,6 +1,6 @@
 #ifndef __SYM_INTERRUPTS__
 #define __SYM_INTERRUPTS__
-#include "./sym_structs.h"
+#include "L0/sym_structs.h"
 
 // License C 2021-
 // Author: Thomas Unger
