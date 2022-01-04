@@ -1,4 +1,4 @@
-#include "./headers/sym_lib_hacks.h"
+#include "L0/sym_lib_hacks.h"
 
 extern char __executable_start;
 extern char __etext;

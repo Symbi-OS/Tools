@@ -4,7 +4,7 @@
 #define _GNU_SOURCE
 
 #include <stdint.h>
-#include "headers/sym_lib.h"
+#include "L0/sym_lib.h"
 
 // This gives 1 level of toggle prevention.
 __thread int is_sticky = 0;
