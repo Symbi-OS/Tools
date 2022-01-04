@@ -12,6 +12,15 @@
 
 #include "../../include/kallsymlib/kallsymlib.h"
 
+// Some colors for printf
+#define RESET "\033[0m"
+#define RED "\033[31m"     /* Red */
+#define GREEN "\033[32m"   /* Green */
+#define YELLOW "\033[33m"  /* Yellow */
+#define BLUE "\033[34m"    /* Blue */
+#define MAGENTA "\033[35m" /* Magenta */
+#define CYAN "\033[36m"    /* Cyan */
+
 // Our version of the idt. Not sure about alignment.
 unsigned char my_idt [1<<12] __attribute__ ((aligned (1<<12) ));
 
@@ -26,7 +35,7 @@ uint64_t get_fn_address(char *symbol){
 }
 
 void init_kallsym(){
-  char *path = "./System.map";
+  char *path = "/boot/System.map-5.14.0-symbiote+";
   if (path) {
     // alternative path specified for kallsyms file
     // manually initialize library with this path
@@ -43,10 +52,12 @@ void interpose_on_int3_ft(){
   struct dtr check_idtr;
   sym_store_idt_desc(&check_idtr);
 
-  if(check_idtr.base != (uint64_t) &my_idt);{
+  if(check_idtr.base != (uint64_t) &my_idt){
     printf("copying the idt for int3\n");
       // Copy the system idt to userspace if we haven't already.
       sym_copy_system_idt(my_idt);
+  } else{
+    printf("no copy made int3\n");
   }
 
   sym_interpose_on_int3_ft_c(my_idt);
@@ -62,12 +73,13 @@ void check_on_probe(uint64_t addr){
   sym_lower();
 }
 
+extern uint64_t cr3_reg;
+// Store system idtr here for later restoration.
+struct dtr system_idtr;
 void show_int_interposition_works(){
   // Elevation is used somewhat carefully here.
 
   uint64_t addr__do_sys_getpid = get_fn_address("__do_sys_getpid");
-  printf("the fn lives at %llx\n", addr__do_sys_getpid);
-
   interpose_on_int3_ft();
 
   check_on_probe(addr__do_sys_getpid);
@@ -78,7 +90,7 @@ void show_int_interposition_works(){
   check_on_probe(addr__do_sys_getpid);
 
   // This invocation will result in triggering the
-  sym_make_pg_unwritable(addr__do_sys_getpid);
+  /* sym_make_pg_unwritable(addr__do_sys_getpid); */
 
   // NOTE: Hmm, shouldn't this fault as text is not writable?
   getpid();
@@ -91,10 +103,25 @@ void show_int_interposition_works(){
   check_on_probe(addr__do_sys_getpid);
 }
 
-extern uint64_t cr3_reg;
 
-// Store system idtr here for later restoration.
-struct dtr system_idtr;
+void interpose_on_pg_ft(){
+  // We want to check if another interposition has already taken over idt
+  struct dtr check_idtr;
+  sym_store_idt_desc(&check_idtr);
+
+  if(check_idtr.base != (uint64_t) &my_idt){
+    printf("copying the idt for pf\n");
+    // Copy the system idt to userspace if we haven't already.
+    sym_copy_system_idt(my_idt);
+  } else{
+    printf("no copy made pg_ft\n");
+  }
+
+  sym_interpose_on_pg_ft_c(my_idt);
+
+  // Make our user IDT live!
+  sym_set_idtr((unsigned long)my_idt, IDT_SZ_BYTES - 1);
+}
 
 void setup(){
   printf("Starting setup\n");
@@ -106,13 +133,14 @@ void setup(){
   init_kallsym();
 
   sym_store_idt_desc(&system_idtr);
+
+  interpose_on_pg_ft();
 }
 
 void cleanup(){
   kallsymlib_cleanup();
 
   // Swing back onto system idtr before exit
-  // XXX why are you broken?
   sym_load_idtr(&system_idtr);
 
   // Make sure we lower.
@@ -124,7 +152,6 @@ void cleanup(){
 
 int main(){
   printf("Starting main\n");
-  printf("Don't really get why not preparing the stack or text still works\n");
 
   setup();
 

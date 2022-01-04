@@ -43,7 +43,8 @@ static void print_ef(){
 int my_ctr = 0;
 __attribute__((aligned (16)))
 static void pg_ft_c_entry(){
-  myprintk("my handler!\n");
+  /* myprintk("my handler!\n"); */
+  /* print_ef(); */
 
   /* ef->err |= USER_FT; */
   uint64_t my_cr3;
@@ -51,14 +52,14 @@ static void pg_ft_c_entry(){
   asm("movq %%cr3,%0" : "=r"(my_cr3));
 
   if(!cr3_reg){
-    myprintk("Error, cr3_reg never set\n");
+    /* myprintk("Error, cr3_reg never set\n"); */
     while(1);
   }
 
   if(cr3_reg  != my_cr3){
     char *p = "Bummer, no match\n";
-    myprintk(p);
-    myprintk("This is unsupported :/ \n");
+    /* myprintk(p); */
+    /* myprintk("This is unsupported :/ \n"); */
     while(1);
   }
 
@@ -72,9 +73,9 @@ static void pg_ft_c_entry(){
       if(ef->rip < ( (1UL << 47) - 4096) ){
         /// Lie that code was running in user mode.
         ef->err |= USER_FT;
-        myprintk("swinging err code for\n");
-        print_ef();
-        myprintki("my_ctr %d\n", my_ctr++);
+        /* myprintk("swinging err code for\n"); */
+        /* print_ef(); */
+        /* myprintki("my_ctr %d\n", my_ctr++); */
       }
     }
   }

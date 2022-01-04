@@ -1,15 +1,23 @@
+INCLUDE_DIR=../../include/
 all: jmp_c
 
-CFLAGS=-ggdb -O0 #-static #-fno-omit-frame-pointer
+CFLAGS=-ggdb -O0 -Wall -Wextra -Werror #-static #-fno-omit-frame-pointer
 
 System.map:
 	echo ERROR copy your kernels system map here.
 
-jmp_c: jmp_c.c ../../include/libsym.a ../../include/kallsymlib/libkallsym.a System.map
+jmp_c: jmp_c.c ../../include/libsym.a ../../include/kallsymlib/libkallsym.a  /boot/System.map-5.14.0-symbiote+
+	make -C $(INCLUDE_DIR)
 	gcc $(CFLAGS) -o $@ $< ../../include/libsym.a ../../include/kallsymlib/libkallsym.a
 
+run:
+	sync
+	sync
+	sync
+	taskset -c 0 ./jmp_c
 
-cp_to_disk: ./jmp_c System.map
+
+cp_to_disk: ./jmp_c /boot/System.map-5.14.0-symbiote+
 # create tmp dir
 	mkdir ./mt
 	sudo mount ~tommyunger/ukl/min-initrd/min-initrd.d/root ./mt

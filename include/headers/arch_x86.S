@@ -111,7 +111,15 @@
 
 
 .macro GET_EXCP_FRAME
- movq %rsp, ef
+  movq %rsp, ef
+.endm
+
+.macro DECREMENT_RETURN_RIP
+  decq (%rsp)
+.endm
+
+.macro MY_IRET
+  iretq
 .endm
 
 #endif //CONFIG_X86_64
