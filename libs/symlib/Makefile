@@ -53,16 +53,17 @@ $(LIB_L0): $(OBJ_L0) | $(BUILD_DIR_L0)
 	ar rcs $@ $(OBJ_L0)
 	@printf '\e[1mBuilt L0 lib\e[0m\n'
 
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c $(BUILD_DIR_L0) $(BUILD_DIR_L1) $(BUILD_DIR_L2)
+# TODO this shouldn't build all dirs if only building subset of libs...
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR_L0) $(BUILD_DIR_L1) $(BUILD_DIR_L2)
 	gcc $(CFLAGS) -c $< -o $@ -I $(HEADER_DIR)
 
-$(BUILD_DIR_L2): $(BUILD_DIR)
+$(BUILD_DIR_L2):
 	mkdir $@
 
-$(BUILD_DIR_L1): $(BUILD_DIR)
+$(BUILD_DIR_L1):
 	mkdir $@
 
-$(BUILD_DIR_L0): $(BUILD_DIR)
+$(BUILD_DIR_L0): | $(BUILD_DIR)
 	mkdir $@
 
 $(BUILD_DIR):

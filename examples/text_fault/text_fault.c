@@ -7,7 +7,7 @@
 #include <time.h>
 #include <string.h>
 
-#include "../../include/headers/sym_all.h"
+#include "LINF/sym_all.h"
 
 // Our version of the idt. Not sure about alignment.
 unsigned char my_idt [1<<12] __attribute__ ((aligned (1<<12) ));

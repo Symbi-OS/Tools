@@ -8,9 +8,9 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "../../include/headers/sym_all.h"
+#include "LINF/sym_all.h"
 
-#include "../../include/kallsymlib/kallsymlib.h"
+#include "../../libs/kallsymlib/kallsymlib.h"
 
 // Some colors for printf
 #define RESET "\033[0m"
