@@ -1,5 +1,10 @@
 #include "L0/sym_lib_hacks.h"
 
+#ifdef CONFIG_X86_64
+// TODO turn this into a header?
+asm(".include \"../arch/x86/arch_x86.S\"");
+#endif
+
 extern char __executable_start;
 extern char __etext;
 
@@ -19,11 +24,13 @@ void sym_touch_stack(){
   int i;
   // Touch a bunch of stack pages
   for(i=0; i < count; i++){
-    __asm__("pushq $42":::"memory");
+    __asm__("PUSH_JUNK":::"memory");
+    /* __asm__("pushq $42":::"memory"); */
   }
 
   // Pop them all off
   for(i=0; i < count; i++){
-    __asm__("popq %%rax": /*no*/: /*no*/ : "rax");
+    // Find a way to make clobber rax arch agnostic
+    __asm__("POP_JUNK": /*no*/: /*no*/ : "rax");
   }
 }
