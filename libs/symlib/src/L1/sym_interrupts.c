@@ -2,13 +2,17 @@
 #include "L0/sym_structs.h"
 #include <string.h>
 
+#ifdef CONFIG_X86_64
+#include "../../arch/x86_64/L1/sym_interrupts.h"
+#endif
+
 // Fn Documentation in header file.
 
 // Store into IDTR with struct dtr *
 void sym_load_idtr(struct dtr *location) {
   sym_elevate();
   // put value in idtr from memory
-  __asm__ __volatile__("lidt %0" : :  "m"(*location) );
+  LOAD_IDT;
   sym_lower();
 }
 
@@ -18,7 +22,7 @@ void sym_store_idt_desc(struct dtr *location) {
   // Not technically a supervisor instruction, but linux does expensive
   // software emulation if not elevated.
   sym_elevate();
-  __asm__ __volatile__("sidt %0" : : "m"(*location) : "memory");
+  STORE_IDT;
   sym_lower();
 }
 

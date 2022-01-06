@@ -4,7 +4,7 @@
 
 #ifdef CONFIG_X86_64
 // TODO turn this into a header?
-asm(".include \"../arch/x86/arch_x86.S\"");
+asm(".include \"../arch/x86_64/arch_x86.S\"");
 #endif
 
 // XXX global val
@@ -83,18 +83,23 @@ static void pg_ft_c_entry(){
   }
 }
 
+#ifdef CONFIG_X86_64
+#include "../../arch/x86_64/L2/sym_lib_page_fault.h"
+#endif
+
 // Preserve caller saved GPRs.
 // Want RSP to be 16byte aligned after call.
 static uint64_t my_entry = (uint64_t) &pg_ft_c_entry;
 extern uint64_t c_handler_page_fault;
+
+MY_NEW_HANDLER(c_handler_page_fault);
 asm("\
- NEW_HANDLER c_handler_page_fault       \n\t\
  GET_EXCP_FRAME                 \n\t\
  PUSH_REGS                      \n\t\
  MY_CALL *my_entry              \n\t\
- POP_REGS                       \n\t\
- MY_JUMP *orig_asm_exc_page_fault      \
+ POP_REGS                           \
 ");
+MY_JUMP(*orig_asm_exc_page_fault);
 
 __attribute__((aligned (16)))
 static void df_c_entry(){
@@ -113,14 +118,14 @@ extern uint64_t c_df_handler;
 // Likely at a performance penalty, should be rare path.
 // See kernel mode linux "Stack Starvation".
 
+MY_NEW_HANDLER(c_df_handler);
+MY_GET_EXCP_FRAME;
 asm("\
- NEW_HANDLER c_df_handler       \n\t\
- GET_EXCP_FRAME                 \n\t\
- PUSH_REGS                      \n\t\
+ PUSH_REGS \n\t\
  MY_CALL *my_df_entry           \n\t\
- POP_REGS                       \n\t\
- MY_JUMP *my_asm_exc_page_fault     \
+ POP_REGS                           \
 ");
+MY_JUMP(*my_asm_exc_page_fault);
 
 void sym_interpose_on_df_c(unsigned char * my_idt){
   // Get ptr to df desc

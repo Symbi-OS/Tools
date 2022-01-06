@@ -5,7 +5,7 @@
 
 #ifdef CONFIG_X86_64
 // TODO turn this into a header?
-asm(".include \"../arch/x86/arch_x86.S\"");
+asm(".include \"../arch/x86_64/arch_x86.S\"");
 #endif
 
 // This is the old handler we jmp to after our interposer.

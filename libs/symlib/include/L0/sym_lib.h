@@ -12,13 +12,13 @@
 #define NOT_STICKY 0
 
 // Execute syscall setting elevated bit. Calls glibc syscall fn.
-long sym_elevate();
+extern long sym_elevate();
 
 // Execute syscall clearing elevated bit
-long sym_lower();
+extern long sym_lower();
 
 // Query elevation status
-long sym_check_elevate();
+extern long sym_check_elevate();
 
 // Lock current elevation status until unset
 extern int set_sticky(int is_sticky);

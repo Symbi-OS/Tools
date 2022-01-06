@@ -101,10 +101,6 @@
  \name:
 .endm
 
-.macro MY_JUMP tar
-  jmp \tar
-.endm
-
 .macro MY_CALL tar
   call \tar
 .endm
@@ -121,15 +117,5 @@
 .macro MY_IRET
   iretq
 .endm
-
-.macro PUSH_JUNK
-  pushq $42
-.endm
-
-.macro POP_JUNK
-  popq %rax
-.endm
-
-
 
 #endif //CONFIG_X86_64
