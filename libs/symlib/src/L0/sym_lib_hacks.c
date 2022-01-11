@@ -26,7 +26,6 @@ void sym_touch_stack(){
   for(i=0; i < count; i++){
     // TODO put these in .h header.
     PUSH_JUNK
-    /* __asm__("pushq $42":::"memory"); */
   }
 
   // Pop them all off

@@ -18,7 +18,7 @@ static void tu_c_entry(){
   myprintk("hey\n");
 
   uint64_t my_cr3;
-  asm("movq %%cr3,%0" : "=r"(my_cr3));
+  GET_CR3(my_cr3);
   if(cr3_reg == my_cr3){
     myprintk("wow, cr3 matches\n");
 

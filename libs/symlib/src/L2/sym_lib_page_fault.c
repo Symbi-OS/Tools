@@ -46,7 +46,7 @@ static void pg_ft_c_entry(){
   /* ef->err |= USER_FT; */
   uint64_t my_cr3;
   /* This might be slow, I don't know. */
-  asm("movq %%cr3,%0" : "=r"(my_cr3));
+  GET_CR3(my_cr3)
 
   if(!cr3_reg){
     /* myprintk("Error, cr3_reg never set\n"); */
