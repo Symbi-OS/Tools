@@ -14,39 +14,54 @@
 
 #define MY_GET_EXCP_FRAME __asm__("movq %rsp, ef");
 
-/* #define MY_PUSH_REGS \ */
+#define MY_PUSH_REGS \
+  __asm__("\
+  pushq   %rdi		/* pt_regs->di */ \n\t\
+  pushq   %rsi		/* pt_regs->si */ \n\t\
+  pushq	  %rdx		/* pt_regs->dx */ \n\t\
+  pushq   %rcx		/* pt_regs->cx */ \n\t\
+  pushq   %rax		/* pt_regs->ax */ \n\t\
+  pushq   %r8		/* pt_regs->r8 */ \n\t\
+  pushq   %r9		/* pt_regs->r9 */ \n\t\
+  pushq   %r10		/* pt_regs->r10 */ \n\t\
+  pushq   %r11		/* pt_regs->r11 */ \n\t\
+  pushq	  %rbx		/* pt_regs->rbx */ \n\t\
+  pushq	  %rbp		/* pt_regs->rbp */ \n\t\
+  pushq	  %r12		/* pt_regs->r12 */ \n\t\
+  pushq	  %r13		/* pt_regs->r13 */ \n\t\
+  pushq	  %r14		/* pt_regs->r14 */ \n\t\
+  pushq	  %r15		/* pt_regs->r15 */ \
+");
+
+
+#define MY_POP_REGS \
+__asm__("\
+	popq %r15 \n\t\
+	popq %r14 \n\t\
+	popq %r13 \n\t\
+	popq %r12 \n\t\
+	popq %rbp \n\t\
+	popq %rbx \n\t\
+	popq %r11 \n\t\
+	popq %r10 \n\t\
+	popq %r9  \n\t\
+	popq %r8  \n\t\
+	popq %rax \n\t\
+	popq %rcx \n\t\
+	popq %rdx \n\t\
+	popq %rsi \n\t\
+	popq %rdi \
+");
+
+/* #define MY_NEW_HANDLER(FN)                      \ */
 /*   __asm__("\ */
-/* ") */
+/*      .text \n\t                                 \ */
+/*      .align 16 \n\t\ "                          \ */
+/*           #FN ":\ */
+/* "); */
 
-
-/* .macro PUSH_REGS rdx=%rdx rax=%rax save_ret=0 */
-/*     .if \save_ret */
-/*     pushq	%rsi		/\* pt_regs->si *\/ */
-/*     movq	8(%rsp), %rsi	/\* temporarily store the return address in %rsi *\/ */
-/*     movq	%rdi, 8(%rsp)	/\* pt_regs->di (overwriting original return address) *\/ */
-/*     .else */
-/*     pushq   %rdi		/\* pt_regs->di *\/ */
-/*     pushq   %rsi		/\* pt_regs->si *\/ */
-/*     .endif */
-/*     pushq	\rdx		/\* pt_regs->dx *\/ */
-/*     pushq   %rcx		/\* pt_regs->cx *\/ */
-/*     pushq   \rax		/\* pt_regs->ax *\/ */
-/*     pushq   %r8		/\* pt_regs->r8 *\/ */
-/*     pushq   %r9		/\* pt_regs->r9 *\/ */
-/*     pushq   %r10		/\* pt_regs->r10 *\/ */
-/*     pushq   %r11		/\* pt_regs->r11 *\/ */
-/*     pushq	%rbx		/\* pt_regs->rbx *\/ */
-/*     pushq	%rbp		/\* pt_regs->rbp *\/ */
-/*     pushq	%r12		/\* pt_regs->r12 *\/ */
-/*     pushq	%r13		/\* pt_regs->r13 *\/ */
-/*     pushq	%r14		/\* pt_regs->r14 *\/ */
-/*     pushq	%r15		/\* pt_regs->r15 *\/ */
-/*     UNWIND_HINT_REGS */
-
-/*     .if \save_ret */
-/*     pushq	%rsi		/\* return address on top of stack *\/ */
-/*     .endif */
-/*     .endm */
+#define MY_MY_CALL(FN) \
+__asm__("call " #FN);
 
 
 #endif

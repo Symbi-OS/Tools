@@ -44,6 +44,15 @@ popq %rsi                   Restore user rsi.
 jmp *orig_asm_exc_page_fault
 */
 
+// NOTE: Haven't really thought about stringification
+#define MY_FINAL_HANDLER(LAB, TARG, OLD_HAND) \
+  MY_NEW_HANDLER(LAB)                         \
+  MY_GET_EXCP_FRAME                           \
+  MY_PUSH_REGS                                \
+  MY_MY_CALL(TARG)                            \
+  MY_POP_REGS                                 \
+  MY_JUMP(OLD_HAND)
+
 // NOTE Err codes:
 #define PRESENT 1
 #define WR_FT   1<<1

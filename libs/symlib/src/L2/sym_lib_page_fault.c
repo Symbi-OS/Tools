@@ -92,14 +92,9 @@ static void pg_ft_c_entry(){
 static uint64_t my_entry = (uint64_t) &pg_ft_c_entry;
 extern uint64_t c_handler_page_fault;
 
-MY_NEW_HANDLER(c_handler_page_fault);
-asm("\
- GET_EXCP_FRAME                 \n\t\
- PUSH_REGS                      \n\t\
- MY_CALL *my_entry              \n\t\
- POP_REGS                           \
-");
-MY_JUMP(*orig_asm_exc_page_fault);
+// NOTE: semicolons for editor only.
+// NOTE: This should really be abstracted into a single macro.
+MY_FINAL_HANDLER(c_handler_page_fault, *my_entry, *orig_asm_exc_page_fault);
 
 __attribute__((aligned (16)))
 static void df_c_entry(){
@@ -118,14 +113,7 @@ extern uint64_t c_df_handler;
 // Likely at a performance penalty, should be rare path.
 // See kernel mode linux "Stack Starvation".
 
-MY_NEW_HANDLER(c_df_handler);
-MY_GET_EXCP_FRAME;
-asm("\
- PUSH_REGS \n\t\
- MY_CALL *my_df_entry           \n\t\
- POP_REGS                           \
-");
-MY_JUMP(*my_asm_exc_page_fault);
+MY_FINAL_HANDLER(c_df_handler, *my_df_entry, *my_asm_exc_page_fault);
 
 void sym_interpose_on_df_c(unsigned char * my_idt){
   // Get ptr to df desc
