@@ -2,6 +2,10 @@
 #define __SYM_LIB_PATE_FAULT__
 
 #include "L0/sym_structs.h"
+
+#ifdef CONFIG_X86_64
+#include "../../arch/x86_64/L2/sym_lib_page_fault.h"
+#endif
 // License C 2021-
 // Author: Thomas Unger
 // Level: 2

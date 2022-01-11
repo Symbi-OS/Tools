@@ -3,11 +3,6 @@
 #include "L1/sym_interrupts.h"
 #include "L2/sym_lib_page_fault.h"
 
-#ifdef CONFIG_X86_64
-// TODO turn this into a header?
-asm(".include \"../arch/x86_64/arch_x86.S\"");
-#endif
-
 // This is the old handler we jmp to after our interposer.
 uint64_t orig_asm_exc_int3;
 
@@ -38,18 +33,9 @@ static void tu_c_entry(){
 // HACK: why?
 static uint64_t my_entry = (uint64_t) &tu_c_entry;
 
+
 extern uint64_t int3_jmp_to_c;
-asm(" \
- .text                          \n\t\
- .align 16                      \n\t\
- .global int3_jmp_to_c          \n\t\
- int3_jmp_to_c:                 \n\t\
- DECREMENT_RETURN_RIP           \n\t\
- PUSH_REGS                      \n\t\
- MY_CALL *my_entry              \n\t\
- POP_REGS                       \n\t\
- MY_IRET                            \
-");
+MY_INT3_HANDLER(int3_jmp_to_c, *my_entry);
 
 // This is the name of our assembly we're adding to the text section.
 // It will be defined at link time, but use this to allow compile time
