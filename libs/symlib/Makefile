@@ -11,12 +11,14 @@ SRC_DIR=src
 SRC_L0=$(wildcard $(SRC_DIR)/L0/*.c)
 SRC_L1=$(wildcard $(SRC_DIR)/L1/*.c)
 SRC_L2=$(wildcard $(SRC_DIR)/L2/*.c)
+SRC_LINF=$(wildcard $(SRC_DIR)/LINF/*.c)
 
 # BUILD DIRECTORIES
 BUILD_DIR=build
 BUILD_DIR_L0=$(BUILD_DIR)/L0
 BUILD_DIR_L1=$(BUILD_DIR)/L1
 BUILD_DIR_L2=$(BUILD_DIR)/L2
+BUILD_DIR_LINF=$(BUILD_DIR)/LINF
 
 # HEADERS
 HEADER_DIR=include
@@ -25,18 +27,25 @@ HEADER_DIR=include
 OBJ_L0 = $(patsubst src/%.c,$(BUILD_DIR)/%.o,$(SRC_L0))
 OBJ_L1 = $(patsubst src/%.c,$(BUILD_DIR)/%.o,$(SRC_L1))
 OBJ_L2 = $(patsubst src/%.c,$(BUILD_DIR)/%.o,$(SRC_L2))
+OBJ_LINF = $(patsubst src/%.c,$(BUILD_DIR)/%.o,$(SRC_LINF))
 
 # Libs
 LIB_L0=$(BUILD_DIR_L0)/L0.a
 LIB_L1=$(BUILD_DIR_L1)/L1.a
 LIB_L2=$(BUILD_DIR_L2)/L2.a
+LIB_LINF=$(BUILD_DIR_LINF)/LINF.a
 
 # The superset lib.
 LIB_SYM=$(BUILD_DIR)/libsym.a
 
-$(LIB_SYM): $(LIB_L0) $(LIB_L1) $(LIB_L2)
-	ar rcs $@ $(OBJ_L0) $(OBJ_L1) $(OBJ_L2)
+$(LIB_SYM): $(LIB_L0) $(LIB_L1) $(LIB_L2) $(LIB_LINF)
+	ar rcs $@ $(OBJ_L0) $(OBJ_L1) $(OBJ_L2) $(OBJ_LINF)
 	@printf '\e[1mBuilt libsym.a\e[0m\n'
+
+# BUILD LINF lib.
+$(LIB_LINF): $(LIB_L0) $(LIB_L1) $(OBJ_L2) $(OBJ_LINF) | $(BUILD_DIR_LINF)
+	ar rcs $@ $(OBJ_LINF) $(OBJ_L2) $(OBJ_L1) $(OBJ_L0)
+	@printf '\e[1mBuilt LINF lib\e[0m\n'
 
 # BUILD L2 lib.
 $(LIB_L2): $(LIB_L0) $(LIB_L1) $(OBJ_L2) | $(BUILD_DIR_L2)
@@ -54,8 +63,11 @@ $(LIB_L0): $(OBJ_L0) | $(BUILD_DIR_L0)
 	@printf '\e[1mBuilt L0 lib\e[0m\n'
 
 # TODO this shouldn't build all dirs if only building subset of libs...
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR_L0) $(BUILD_DIR_L1) $(BUILD_DIR_L2)
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR_L0) $(BUILD_DIR_L1) $(BUILD_DIR_L2) $(BUILD_DIR_LINF)
 	gcc $(CFLAGS) -c $< -o $@ -I $(HEADER_DIR)
+
+$(BUILD_DIR_LINF):
+	mkdir $@
 
 $(BUILD_DIR_L2):
 	mkdir $@
