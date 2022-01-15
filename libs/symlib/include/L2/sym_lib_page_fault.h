@@ -83,6 +83,8 @@ struct pte{
     XD  : 1;
 };
 
+void sym_lib_page_fault_init();
+
 extern struct pte * sym_get_pte(uint64_t addr, unsigned int *level);
  
 static inline int sym_is_pte_writeable(struct pte pte) {

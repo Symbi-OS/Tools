@@ -124,6 +124,7 @@ void show_using_idt_interpose_solves_DF(){
 
 int main(){
   printf("Starting main\n");
+  sym_lib_init();
 
 #ifndef NORMAL_PROCESS
   // Store initial system IDTR

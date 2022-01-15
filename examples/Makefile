@@ -16,17 +16,19 @@ EXECS=$(SSD)/stack_starvation $(TFD)/text_fault $(I3D)/int3_probe
 
 all: $(EXECS)
 
+# TODO: resolve the fact that symlib requires kallsymlib
+
 $(SSD)/stack_starvation: $(SSD)/stack_starvation.c
 	make -C $(SYMLIB_DIR)
-	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) -I $(SYMLIB_INCLUDE_DIR)
+	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
 
 $(TFD)/text_fault: $(TFD)/text_fault.c $(TFD)/foo.c
 	make -C $(SYMLIB_DIR)
-	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) -I $(SYMLIB_INCLUDE_DIR)
+	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) -I $(SYMLIB_INCLUDE_DIR) $(KALLSYMLIB)
 
 $(I3D)/int3_probe: $(I3D)/int3_probe.c
 	make -C $(SYMLIB_DIR)
-	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
+	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR) $(KALLSYMLIB)
 
 run_ss:
 	taskset -c 0 $(SSD)/stack_starvation
@@ -40,6 +42,8 @@ run_i3:
 clean:
 	rm -rf $(EXECS)
 
+dist_clean:
+	make -C $(SYMLIB_DIR) clean
 
 
 # MY_INCLUDES=-I../../linux/arch/x86/include/generated  -I../../linux/include -I../../linux/arch/x86/include/uapi -I../../linux/arch/x86/include/generated/uapi -I../../linux/include/uapi -I../../linux/include/generated/uapi -I../../linux/include
