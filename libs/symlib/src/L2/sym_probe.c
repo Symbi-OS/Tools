@@ -31,9 +31,9 @@ static void tu_c_entry(){
   }
 }
 
-// HACK: why?
-static uint64_t my_entry = (uint64_t) &tu_c_entry;
-
+// NOTE: This function is not used in C code, but is used in inline assembly.
+// This asks the compiler not to warn about it being unused.
+static uint64_t __attribute((unused)) my_entry = (uint64_t) &tu_c_entry;
 
 extern uint64_t int3_jmp_to_c;
 MY_INT3_HANDLER(int3_jmp_to_c, *my_entry);

@@ -58,8 +58,6 @@ static void pg_ft_c_entry(){
   }
 
   if(cr3_reg  != my_cr3){
-    char *p = "Bummer, no match\n";
-    /* myprintk(p); */
     /* myprintk("This is unsupported :/ \n"); */
     while(1);
   }
@@ -96,12 +94,13 @@ void sym_lib_page_fault_init(){
 
 // Preserve caller saved GPRs.
 // Want RSP to be 16byte aligned after call.
-static uint64_t my_entry = (uint64_t) &pg_ft_c_entry;
+static uint64_t __attribute__((unused))my_entry = (uint64_t) &pg_ft_c_entry;
 extern uint64_t c_handler_page_fault;
 
 // NOTE: semicolons for editor only.
 // NOTE: This should really be abstracted into a single macro.
 MY_FINAL_HANDLER(c_handler_page_fault, *my_entry, *orig_asm_exc_page_fault);
+
 
 __attribute__((aligned (16)))
 static void df_c_entry(){
@@ -109,11 +108,16 @@ static void df_c_entry(){
   ef->err = USER_FT | WR_FT;
 }
 
-static uint64_t my_df_entry = (uint64_t) &df_c_entry;
+// NOTE: This function is not used in C code, but is used in inline assembly.
+// This asks the compiler not to warn about it being unused.
+static uint64_t __attribute__((unused)) my_df_entry = (uint64_t) &df_c_entry;
 // This is the name of our assembly we're adding to the text section.
 // It will be defined at link time, but use this to allow compile time
 // inclusion in C code.
-extern uint64_t c_df_handler;
+
+// NOTE: This function is not used in C code, but is used in inline assembly.
+// This asks the compiler not to warn about it being unused.
+extern uint64_t __attribute__((unused)) c_df_handler;
 // Want this to fix double faults.
 // Why is asm_exc_page_fault going to work this time?
 // DF runs on known good IST stack unlike pg ft.
