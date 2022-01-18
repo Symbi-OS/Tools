@@ -11,3 +11,17 @@ __thread int is_sticky = 0;
 #ifdef CONFIG_X86_64
 #include "../../arch/x86_64/L0/sym_lib.h"
 #endif
+
+
+long sym_elevate(){
+  return sym_do_syscall(SYSCALL_ELEVATE);
+}
+
+long sym_lower(){
+  return sym_do_syscall(SYSCALL_LOWER);
+}
+
+long sym_check_elevate(){
+  return sym_do_syscall(SYSCALL_CHECK_ELEVATE_STATUS);
+}
+
