@@ -152,6 +152,7 @@ void cleanup(){
 
 int main(){
   printf("Starting main\n");
+  sym_lib_init();
 
   setup();
 

@@ -105,6 +105,7 @@ void show_prefault_works(){
 extern uint64_t cr3_reg;
 int main(){
   printf("Starting main\n");
+  sym_lib_init();
 
   // Store system idtr here for later restoration.
   struct dtr system_idtr;
