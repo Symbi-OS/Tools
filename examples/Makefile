@@ -5,7 +5,10 @@ SYMLIB_DIR=../libs/symlib
 SYMLIB=$(SYMLIB_DIR)/build/libsym.a
 SYMLIB_INCLUDE_DIR=$(SYMLIB_DIR)/include
 
+KALLSYMDIR=../libs/kallsymlib/
 KALLSYMLIB=../libs/kallsymlib/libkallsym.a
+
+DEPENDENCY_LIBS=$(KALLSYMLIB) $(SYMLIB)
 
 # TODO: Add all executables here.
 # Stack Starvation DIR
@@ -17,17 +20,19 @@ EXECS=$(SSD)/stack_starvation $(TFD)/text_fault $(I3D)/int3_probe
 all: $(EXECS)
 
 # TODO: resolve the fact that symlib requires kallsymlib
+$(KALLSYMLIB):
+	make -C $(KALLSYMDIR)
 
-$(SSD)/stack_starvation: $(SSD)/stack_starvation.c
+$(SYMLIB):
 	make -C $(SYMLIB_DIR)
+
+$(SSD)/stack_starvation: $(SSD)/stack_starvation.c | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
 
-$(TFD)/text_fault: $(TFD)/text_fault.c $(TFD)/foo.c
-	make -C $(SYMLIB_DIR)
+$(TFD)/text_fault: $(TFD)/text_fault.c $(TFD)/foo.c | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) -I $(SYMLIB_INCLUDE_DIR) $(KALLSYMLIB)
 
-$(I3D)/int3_probe: $(I3D)/int3_probe.c
-	make -C $(SYMLIB_DIR)
+$(I3D)/int3_probe: $(I3D)/int3_probe.c | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR) $(KALLSYMLIB)
 
 run_ss:
@@ -42,9 +47,9 @@ run_i3:
 clean:
 	rm -rf $(EXECS)
 
-dist_clean:
+dist_clean: clean
 	make -C $(SYMLIB_DIR) clean
-
+	make -C $(KALLSYMDIR) clean
 
 # MY_INCLUDES=-I../../linux/arch/x86/include/generated  -I../../linux/include -I../../linux/arch/x86/include/uapi -I../../linux/arch/x86/include/generated/uapi -I../../linux/include/uapi -I../../linux/include/generated/uapi -I../../linux/include
 
