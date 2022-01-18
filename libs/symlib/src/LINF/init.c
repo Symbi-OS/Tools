@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "LINF/init.h"
 #include "L2/init.h"
+#include "LIDK/idk.h"
 
 void sym_lib_init(){
   // Init kall sym lib

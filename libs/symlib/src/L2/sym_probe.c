@@ -3,14 +3,15 @@
 #include "L1/sym_interrupts.h"
 #include "L2/sym_lib_page_fault.h"
 
+#include "LIDK/idk.h"
+
 // This is the old handler we jmp to after our interposer.
 uint64_t orig_asm_exc_int3;
 
 uint64_t cr3_reg = 0;
 
 
-static void (*myprintk)(char *) = (void *)0xffffffff81c34d5b;
-/* static void (*myprintki)(char *, int) = (void *)0xffffffff81c34d5b; */
+static void (*myprintk)(char *);
 
 unsigned char reset_byte = 0xf;
 
@@ -42,6 +43,10 @@ MY_INT3_HANDLER(int3_jmp_to_c, *my_entry);
 // inclusion in C code.
 extern uint64_t bs_asm_exc_int3;
 
+void sym_probe_init(){
+  printf("Init SP\n");
+  myprintk =  sym_get_fn_address("printk");
+}
 
 void sym_interpose_on_int3_ft_c(unsigned char * my_idt){
   /* sym_print_idt_desc(my_idt, X86_TRAP_BP); */

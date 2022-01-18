@@ -22,6 +22,8 @@
     MY_POP_REGS                                 \
     MY_MY_IRET
 
+void sym_probe_init();
+
 // Place a software interrupt generating instruction at addr.
 unsigned char sym_set_probe(uint64_t addr);
 

@@ -11,9 +11,9 @@ uint64_t orig_asm_exc_page_fault;
 uint64_t orig_asm_exc_double_fault;
 
 // This is the old handler we jmp to after our interposer.
-/* uint64_t orig_asm_exc_double_fault; //= 0xffffffff81c3e2b0; */
+/* uint64_t orig_asm_exc_double_fault; */
 // NOTE: In df handler, make sure not to jump to new interposed version.
-uint64_t my_asm_exc_page_fault; // = 0xffffffff81e00ac0;
+uint64_t my_asm_exc_page_fault;
 
 // This is the name of our assembly we're adding to the text section.
 // It will be defined at link time, but use this to allow compile time
@@ -24,12 +24,14 @@ extern uint64_t bs_asm_exc_page_fault;
 extern uint64_t cr3_reg;
 
 // HACK
-static void (*myprintk)(char *); //= (void *)0xffffffff81c34d5b;
-static void (*myprintki)(char *, uint64_t); // = (void *)0xffffffff81c34d5b;
+static void (*myprintk)(char *);
+static void (*myprintki)(char *, uint64_t);
 
 __attribute__((aligned (16)))
 static struct excep_frame *ef = NULL;
 __attribute__((aligned (16)))
+
+static void print_ef() __attribute__((unused));
 static void print_ef(){
 
   myprintki("ef->err  %#llx\n", ef->err);
@@ -84,7 +86,7 @@ static void pg_ft_c_entry(){
 void sym_lib_page_fault_init(){
   printf("Init SLPF\n");
 
-  my_asm_exc_page_fault = sym_get_fn_address("asm_exc_page_fault");
+  my_asm_exc_page_fault = (uint64_t) sym_get_fn_address("asm_exc_page_fault");
 
   // Hacks
   myprintk = sym_get_fn_address("printk");
@@ -195,7 +197,6 @@ sym_get_pte(uint64_t addr, unsigned int *level)
 void sym_make_pg_writable(uint64_t addr){
   sym_elevate();
   // Get PTE
-  /* lookup_address_t my_lookup_address = (lookup_address_t) 0xffffffff8107f7d0; */
   lookup_address_t my_lookup_address = sym_get_fn_address("lookup_address");
   unsigned int level;
   void* ret = my_lookup_address(addr, &level);
