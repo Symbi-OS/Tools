@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
-#include "../../include/headers/sym_all.h"
+#include "../../libs/symlib/include/LINF/sym_all.h"
 
 int main(){
 
@@ -16,7 +16,7 @@ int main(){
       : "=r"(cr3_reg)
       );
   sym_lower();
-  printf("Cr3 holds %p\n", cr3_reg);
+  printf("Cr3 holds %lx\n", cr3_reg);
 
   return 0;
 }
