@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS= -g -Wall -Wextra #-static -mno-red-zone
+CFLAGS= -g -Wall -Wextra -static #-mno-red-zone
 
 SYMLIB_DIR=../libs/symlib
 SYMLIB=$(SYMLIB_DIR)/build/libsym.a
@@ -8,6 +8,8 @@ SYMLIB_INCLUDE_DIR=$(SYMLIB_DIR)/include
 KALLSYMDIR=../libs/kallsymlib/
 KALLSYMLIB=../libs/kallsymlib/libkallsym.a
 
+VM_DISK=../../min-initrd/min-initrd.d/root
+
 DEPENDENCY_LIBS=$(KALLSYMLIB) $(SYMLIB)
 
 # TODO: Add all executables here.
@@ -15,7 +17,9 @@ DEPENDENCY_LIBS=$(KALLSYMLIB) $(SYMLIB)
 SSD=stack_starvation
 TFD=text_fault
 I3D=int3_probe
-EXECS=$(SSD)/stack_starvation $(TFD)/text_fault $(I3D)/int3_probe
+P3D=print
+GPD=getppid
+EXECS=$(SSD)/stack_starvation $(TFD)/text_fault $(I3D)/int3_probe $(P3D)/print_cr3_static $(GPD)/getppid
 
 all: $(EXECS)
 
@@ -25,6 +29,12 @@ $(KALLSYMLIB):
 
 $(SYMLIB):
 	make -C $(SYMLIB_DIR)
+
+$(GPD)/getppid: $(GPD)/getppid.c | $(DEPENDENCY_LIBS)
+	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
+
+$(P3D)/print_cr3_static: $(P3D)/print_cr3_static.c | $(DEPENDENCY_LIBS)
+	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
 
 $(SSD)/stack_starvation: $(SSD)/stack_starvation.c | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
@@ -43,6 +53,9 @@ run_tf:
 
 run_i3:
 	taskset -c 0 $(I3D)/int3_probe
+
+cp_execs:
+	cp_to_disk.sh $(VM_DISK) $(EXECS)
 
 clean:
 	rm -rf $(EXECS)
