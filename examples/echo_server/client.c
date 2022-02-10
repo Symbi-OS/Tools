@@ -7,6 +7,8 @@
 #include <arpa/inet.h>	//inet_addr
 #include <unistd.h>
 
+#include <stdlib.h>
+
 #include <signal.h>
 /* #include <stdio.h> */
 #include <stdbool.h>
@@ -30,7 +32,7 @@ int main(int argc , char *argv[])
   client_message[2] = '!';
   client_message[3] = (char) 0;
 
-  unsigned long runs = 1UL << 63;
+  unsigned long runs = 1UL << 13;
 
 	//Create socket
 	sock = socket(AF_INET , SOCK_STREAM , 0);
@@ -41,7 +43,12 @@ int main(int argc , char *argv[])
 	puts("Socket created");
 
 	/* server.sin_addr.s_addr = inet_addr("1.1.1.2"); */
-	server.sin_addr.s_addr = inet_addr("192.168.19.130");
+	/* server.sin_addr.s_addr = inet_addr("127.0.0.1"); */
+  if(argc !=2){
+    printf("expects ./client_RW <ip addr server>\n");
+    exit(-1);
+  }
+	server.sin_addr.s_addr = inet_addr(argv[1]);
 	server.sin_family = AF_INET;
 	server.sin_port = htons( 8888 );
 

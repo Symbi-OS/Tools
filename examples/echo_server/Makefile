@@ -1,8 +1,8 @@
 all: client_RW server_RW
 
-#CFLAGS=-O4 -ggdb -static
+CFLAGS=-O4
 
-CFLAGS=-ggdb -O0 -fno-omit-frame-pointer
+#CFLAGS=-ggdb -O0 -fno-omit-frame-pointer
 
 # Both easily saturate network.
 client_RW: client.c
@@ -18,13 +18,19 @@ server_SR: server.c
 	gcc -DUSE_SEND_RECV $(CFLAGS) -o $@ $^
 
 
-cp_to_disk: ./server_RW
+cp_to_disk: ./server_RW ./client_RW
 # create tmp dir
 	mkdir ./mt
-	sudo mount ~tommyunger/ukl/min-initrd/min-initrd.d/root ./mt
+	sudo mount ../../../min-initrd/min-initrd.d/root ./mt
 	sleep 1
-	sudo cp $^ ./mt
+	sudo cp ./server_RW ./mt
 #cp in the shared obj
+	sleep 1
+	sudo umount ./mt
+
+	sudo mount ../../../min-initrd/min-initrd.d/root2 ./mt
+	sleep 1
+	sudo cp ./client_RW ./mt
 	sleep 1
 	sudo umount ./mt
 	rm -d ./mt

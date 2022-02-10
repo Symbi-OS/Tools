@@ -9,8 +9,9 @@
 #include<unistd.h>	//write
 
 #define MSG_SZ 8
-int use_shortcut;
+int use_shortcut = 0;
 
+#if 0
 typedef int (*my_ksys_write_t)(unsigned int fd, const char *buf, size_t count);
 /* typedef void (*my_schedule_t)(void); */
 typedef int (*my_tcp_sendmsg_t)(void *soc, void *msghdr, size_t count);
@@ -20,11 +21,15 @@ char kiocb_struct[48];
 
 void *sym_sk = NULL;
 struct iovec iov;
+#endif
 
 void do_write(int conn, char* data, int data_len){
+  //Send the message back to client
+  write(conn, data, data_len);
+
+#if 0
   my_tcp_sendmsg_t my_tcp_sendmsg = (my_tcp_sendmsg_t) 0xffffffff81ab4e20;
   my_ksys_write_t my_ksys_write = (my_ksys_write_t) 0xffffffff8133e990;
-  //Send the message back to client
   /* write(client_sock , client_message , strlen(client_message)); */
   iov.iov_base = (void *)data;
   iov.iov_len  = data_len;
@@ -39,6 +44,7 @@ void do_write(int conn, char* data, int data_len){
     my_ksys_write(conn , data , data_len);
   }
   /* my_schedule(); */
+#endif
 }
 
 
@@ -98,15 +104,15 @@ int main(int argc , char *argv[])
 #endif
 	{
     my_ctr++;
-    if((my_ctr %(100000) ) == 0){
+    if((my_ctr %(1000) ) == 0){
       write(1, ".", 1);
     }
-    /* do_write(client_sock , client_message , strlen(client_message)); */
 #ifdef USE_SEND_RECV
     send(client_sock , client_message , read_size, 0);
 #endif
 #ifdef USE_READ_WRITE
-    write(client_sock , client_message , read_size);
+    /* write(client_sock , client_message , read_size); */
+    do_write(client_sock , client_message , strlen(client_message));
 #endif
 	}
 
