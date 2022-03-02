@@ -12,6 +12,7 @@ SRC_DIR=src
 SRC_L0=$(wildcard $(SRC_DIR)/L0/*.c)
 SRC_L1=$(wildcard $(SRC_DIR)/L1/*.c)
 SRC_L2=$(wildcard $(SRC_DIR)/L2/*.c)
+SRC_L3=$(wildcard $(SRC_DIR)/L3/*.c)
 SRC_LINF=$(wildcard $(SRC_DIR)/LINF/*.c)
 SRC_LIDK=$(wildcard $(SRC_DIR)/LIDK/*.c)
 
@@ -20,6 +21,7 @@ BUILD_DIR=build
 BUILD_DIR_L0=$(BUILD_DIR)/L0
 BUILD_DIR_L1=$(BUILD_DIR)/L1
 BUILD_DIR_L2=$(BUILD_DIR)/L2
+BUILD_DIR_L3=$(BUILD_DIR)/L3
 BUILD_DIR_LINF=$(BUILD_DIR)/LINF
 BUILD_DIR_LIDK=$(BUILD_DIR)/LIDK
 
@@ -30,6 +32,7 @@ HEADER_DIR=include
 OBJ_L0 = $(patsubst src/%.c,$(BUILD_DIR)/%.o,$(SRC_L0))
 OBJ_L1 = $(patsubst src/%.c,$(BUILD_DIR)/%.o,$(SRC_L1))
 OBJ_L2 = $(patsubst src/%.c,$(BUILD_DIR)/%.o,$(SRC_L2))
+OBJ_L3 = $(patsubst src/%.c,$(BUILD_DIR)/%.o,$(SRC_L3))
 OBJ_LINF = $(patsubst src/%.c,$(BUILD_DIR)/%.o,$(SRC_LINF))
 OBJ_LIDK = $(patsubst src/%.c,$(BUILD_DIR)/%.o,$(SRC_LIDK))
 
@@ -37,17 +40,19 @@ OBJ_LIDK = $(patsubst src/%.c,$(BUILD_DIR)/%.o,$(SRC_LIDK))
 OBJ_LE0  =$(OBJ_L0)  $(OBJ_LIDK) #NOTE here's IDK, it gets into everything.
 OBJ_LE1  =$(OBJ_LE0) $(OBJ_L1)
 OBJ_LE2  =$(OBJ_LE1) $(OBJ_L2)
-OBJ_LEINF=$(OBJ_LE2) $(OBJ_LINF)
+OBJ_LE3  =$(OBJ_LE2) $(OBJ_L3)
+OBJ_LEINF=$(OBJ_LE3) $(OBJ_LINF)
 
 # Libs
 LIB_L0=$(BUILD_DIR_L0)/L0.a
 LIB_L1=$(BUILD_DIR_L1)/L1.a
 LIB_L2=$(BUILD_DIR_L2)/L2.a
+LIB_L3=$(BUILD_DIR_L3)/L3.a
 LIB_LINF=$(BUILD_DIR_LINF)/LINF.a
 
 # The superset lib.
 LIB_SYM=$(BUILD_DIR)/libsym.a
-ALL_LIBS =$(LIB_L0) $(LIB_L1) $(LIB_L2) $(LIB_LINF) $(LIB_SYM)
+ALL_LIBS =$(LIB_L0) $(LIB_L1) $(LIB_L2) $(LIB_L3) $(LIB_LINF) $(LIB_SYM)
 
 boldprint = @printf '\e[1m%s\e[0m\n' $1
 
@@ -62,6 +67,11 @@ $(LIB_SYM): | $(LIB_LINF)
 $(LIB_LINF): $(OBJ_LEINF)
 	ar rcs $@ $^
 	$(call boldprint, 'Built LINF lib')
+
+# BUILD L2 lib.
+$(LIB_L3): $(OBJ_LE3)
+	ar rcs $@ $^
+	$(call boldprint, 'Built L3 lib')
 
 # BUILD L2 lib.
 $(LIB_L2): $(OBJ_LE2)
@@ -83,6 +93,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@ -I $(HEADER_DIR)
 
+# XXX what is this trying to do? LIB_LIDK isn't a thing???
 # BUILD LINF lib.
 $(LIB_LIDK): $(LIB_L0) $(LIB_L1) $(OBJ_L2) $(OBJ_LINF) $(OBJ_LIDK) | $(BUILD_DIR_LIDK)
 	ar rcs $@ $(OBJ_LINF) $(OBJ_LIDK) $(OBJ_L2) $(OBJ_L1) $(OBJ_L0)
