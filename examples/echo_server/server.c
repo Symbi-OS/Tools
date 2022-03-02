@@ -104,8 +104,9 @@ int main(int argc , char *argv[])
 #endif
 	{
     my_ctr++;
-    if((my_ctr %(1000) ) == 0){
-      write(1, ".", 1);
+    write(1, ".", 1);
+    if((my_ctr %(16) ) == 0){
+      write(1, "\n", 1);
     }
 #ifdef USE_SEND_RECV
     send(client_sock , client_message , read_size, 0);
