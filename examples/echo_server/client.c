@@ -32,7 +32,7 @@ int main(int argc , char *argv[])
   client_message[2] = '!';
   client_message[3] = (char) 0;
 
-  unsigned long runs = 1UL << 13;
+  unsigned long runs = 1UL << 63;
 
 	//Create socket
 	sock = socket(AF_INET , SOCK_STREAM , 0);
@@ -68,7 +68,7 @@ int main(int argc , char *argv[])
 	{
 		//printf("Enter message : ");
 		//scanf("%s" , message);
-
+    getchar();
 		//Send some data
 #ifdef USE_SEND_RECV
 		/* if( send(sock , "hi!" , strlen("hi!") , 0) < 0) */

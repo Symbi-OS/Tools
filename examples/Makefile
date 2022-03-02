@@ -19,7 +19,9 @@ TFD=text_fault
 I3D=int3_probe
 P3D=print
 GPD=getppid
-EXECS=$(SSD)/stack_starvation $(TFD)/text_fault $(I3D)/int3_probe $(P3D)/print_cr3_static $(GPD)/getppid
+POLLD=sym_poll
+
+EXECS=$(SSD)/stack_starvation $(TFD)/text_fault $(I3D)/int3_probe $(P3D)/print_cr3_static $(GPD)/getppid $(POLLD)/poller
 
 all: $(EXECS)
 
@@ -29,6 +31,9 @@ $(KALLSYMLIB):
 
 $(SYMLIB):
 	make -C $(SYMLIB_DIR)
+
+$(POLLD)/poller: $(POLLD)/poller.c | $(DEPENDENCY_LIBS)
+	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
 
 $(GPD)/getppid: $(GPD)/getppid.c | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
