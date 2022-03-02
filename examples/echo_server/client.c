@@ -15,7 +15,7 @@
 /* #include <unistd.h> */
 
 volatile sig_atomic_t print_flag = false;
-#define MSG_SZ 8
+#define MSG_SZ 1
 
 void handle_alarm( int sig ) {
   print_flag = true;
@@ -68,7 +68,7 @@ int main(int argc , char *argv[])
 	{
 		//printf("Enter message : ");
 		//scanf("%s" , message);
-    getchar();
+    client_message[0] = getchar();
 		//Send some data
 #ifdef USE_SEND_RECV
 		/* if( send(sock , "hi!" , strlen("hi!") , 0) < 0) */
@@ -83,16 +83,17 @@ int main(int argc , char *argv[])
 		}
 
 		//Receive a reply from the server
-
 #ifdef USE_SEND_RECV
 		if( recv(sock , server_reply , MSG_SZ , 0) < 0)
 #endif
 #ifdef USE_READ_WRITE
-		if( read(sock , server_reply , MSG_SZ) < 0)
+		if( read(sock , server_reply , MSG_SZ) )
 #endif
-		{
-			puts("recv failed");
-			break;
+      {
+        write(1, server_reply, 1);
+      }else {
+      puts("recv failed");
+      break;
 		}
 
 		//puts("Server reply :");

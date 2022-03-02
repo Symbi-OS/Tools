@@ -8,7 +8,7 @@
 #include<arpa/inet.h>	//inet_addr
 #include<unistd.h>	//write
 
-#define MSG_SZ 8
+#define MSG_SZ 1
 int use_shortcut = 0;
 
 #if 0
@@ -107,13 +107,18 @@ int main(int argc , char *argv[])
     write(1, ".", 1);
     if((my_ctr %(16) ) == 0){
       write(1, "\n", 1);
+    /* write(1, ".", 1); */
+    write(1, client_message, 1);
+    if((my_ctr %(16) ) == 0){
+      /* write(1, "\n", 1); */
     }
 #ifdef USE_SEND_RECV
     send(client_sock , client_message , read_size, 0);
 #endif
 #ifdef USE_READ_WRITE
-    /* write(client_sock , client_message , read_size); */
-    do_write(client_sock , client_message , strlen(client_message));
+    /* write(client_sock , c
+       lient_message , read_size); */
+    do_write(client_sock , client_message , MSG_SZ);
 #endif
 	}
 

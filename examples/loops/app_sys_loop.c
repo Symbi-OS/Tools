@@ -41,7 +41,7 @@ int main(int argc, char *argv[]){
   while(work_total--){
 
     // app work
-//    register int work_ctr = work_total;
+    //    register int work_ctr = work_total;
 #ifdef USER
     int app_work_total_tmp = app_work_total;
 

@@ -67,11 +67,12 @@ bool disable_napi(uint64_t napi, int work_done){
 
 int main(int argc , char *argv[])
 {
-  if(argc != 5){
-    fprintf(stderr, "expected ./poller <napi> <vq> <processed> <cb_enable> \n");
-    exit(-1);
-  }
+  /* if(argc != 5){ */
+  /*   fprintf(stderr, "expected ./poller <napi> <vq> <processed> <cb_enable> \n"); */
+  /*   exit(-1); */
+  /* } */
   /* unsigned long long addr = strtoull(argv[1], NULL, 16); */
+
   uint64_t napi = strtoull(argv[1], NULL, 16) ;
   uint64_t vq   = strtoull(argv[2], NULL, 16) ;
   int processed = atoi(argv[3]); // strtoull(argv[3], NULL, 16);
@@ -96,6 +97,14 @@ int main(int argc , char *argv[])
     virtqueue_enable_cb(vq);
   } else if(cb_enable == 2) {
     printf("poll %d\n", virtnet_poll(napi, -1));
+  } else if(cb_enable == 3) {
+    int count = atoi(argv[5]);
+    int sleep_time = atoi(argv[6]);
+    int i;
+    for(i=0; i<count; i++){
+      virtnet_poll(napi, -1);
+      usleep(sleep_time);
+    }
   }
 
   sym_lower();
