@@ -123,43 +123,16 @@ void interpose_on_pg_ft(){
   sym_set_idtr((unsigned long)my_idt, IDT_SZ_BYTES - 1);
 }
 
-void setup(){
-  printf("Starting setup\n");
-
-  sym_elevate();
-  asm("movq %%cr3,%0" : "=r"(cr3_reg));
-  sym_lower();
-
-  init_kallsym();
-
-  sym_store_idt_desc(&system_idtr);
-
-  interpose_on_pg_ft();
-}
-
-void cleanup(){
-  kallsymlib_cleanup();
-
-  // Swing back onto system idtr before exit
-  sym_load_idtr(&system_idtr);
-
-  // Make sure we lower.
-  if(sym_check_elevate()){
-    printf("Didn't expect to be elevated\n");
-    sym_lower();
-  }
-}
-
 int main(){
   printf("Starting main\n");
   sym_lib_init();
 
-  setup();
+  sym_mitigate_pf();
 
   // Where all the real work happens.
   show_int_interposition_works();
 
-  cleanup();
+  sym_mitigate_pf_cleanup();
 
   printf("Done main\n");
 }
