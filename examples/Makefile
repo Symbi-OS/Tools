@@ -20,8 +20,9 @@ I3D=int3_probe
 P3D=print
 GPD=getppid
 POLLD=sym_poll
+ECO=echo_server
 
-EXECS=$(SSD)/stack_starvation $(TFD)/text_fault $(I3D)/int3_probe $(P3D)/print_cr3_static $(GPD)/getppid $(POLLD)/poller
+EXECS=$(SSD)/stack_starvation $(TFD)/text_fault $(I3D)/int3_probe $(P3D)/print_cr3_static $(GPD)/getppid $(POLLD)/poller $(ECO)/client_RW $(ECO)/server_RW
 
 all: $(EXECS)
 
@@ -31,6 +32,14 @@ $(KALLSYMLIB):
 
 $(SYMLIB):
 	make -C $(SYMLIB_DIR)
+
+$(ECO)/client_RW: $(ECO)/client.c | $(DEPENDENCY_LIBS)
+	$(CC) -DUSE_READ_WRITE $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
+
+ # $(ECO)/server_RW
+
+$(ECO)/server_RW: $(ECO)/server.c | $(DEPENDENCY_LIBS)
+	gcc -DUSE_READ_WRITE $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
 
 $(POLLD)/poller: $(POLLD)/poller.c | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
