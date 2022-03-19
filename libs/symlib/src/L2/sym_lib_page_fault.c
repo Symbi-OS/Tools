@@ -193,10 +193,19 @@ typedef void* (*lookup_address_t)(uint64_t address, unsigned int * level);
 struct pte *
 sym_get_pte(uint64_t addr, unsigned int *level)
 {
+  // XXX think this only works for kern addresses???
   // Cache this if slow
   lookup_address_t my_lookup_address = sym_get_fn_address("lookup_address");
-  return (struct pte *) my_lookup_address(addr, level);
+  sym_elevate();
+  struct pte * ret = my_lookup_address(addr, level);
+  sym_lower();
+  return ret;
 }
+void sym_print_pte(struct pte *pte){
+  printf("Pte is %p\n", pte);
+  sym_elevate(); uint64_t raw_pte = pte->raw; sym_lower();
+  printf("PTE at %p contains %lx\n", pte, raw_pte);
+};
 
 void sym_make_pg_writable(uint64_t addr){
   sym_elevate();
