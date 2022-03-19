@@ -59,7 +59,7 @@ boldprint = @printf '\e[1m%s\e[0m\n' $1
 all: $(ALL_LIBS)
 
 # NOTE: Inf and libsym are the same :)
-$(LIB_SYM): | $(LIB_LINF)
+$(LIB_SYM): $(LIB_LINF)
 	cp $(LIB_LINF) $@
 	$(call boldprint, 'Built libsym.a')
 
