@@ -111,6 +111,8 @@ void sym_print_idt_desc(unsigned char *idt, unsigned int idx){
   printf("my_desc lives at %p\n", my_desc);
 
   union idt_addr my_idt_addr;
+
+  sym_elevate();
   sym_load_addr_from_desc(my_desc, &my_idt_addr);
 
   printf("full addr: %lx\n", my_idt_addr.raw       );
@@ -120,5 +122,7 @@ void sym_print_idt_desc(unsigned char *idt, unsigned int idx){
   printf("type:      %x\n",   my_desc->fields.type   );
   printf("dpl:       %x\n",   my_desc->fields.dpl    );
   printf("p:         %x\n",   my_desc->fields.p      );
+  sym_lower();
+
 }
 
