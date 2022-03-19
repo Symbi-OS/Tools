@@ -22,15 +22,21 @@ typedef bool (*napi_complete_done_t)(uint64_t napi, int work_done);
 
 
 typedef int (*virtnet_poll_t)(uint64_t napi, int budget);
+int count = 0;
 
 int virtnet_poll(uint64_t napi, int budget){
   // TODO: change all these to use kall sym lib.
   virtnet_poll_t virtnet_poll = (virtnet_poll_t) 0xffffffff818eda30;
-  fprintf(stderr, "%s: [%p] napi= %lx budget= %d\n", __func__, virtnet_poll, napi, budget );
-
+  /* int freq = 100; */
+  /* if(count % freq == 0){ */
+  /*   fprintf(stderr, "%d polls of \n", freq); */
+  /*   fprintf(stderr, "%s: [%p] napi= %lx budget= %d\n", __func__, virtnet_poll, napi, budget ); */
+  /* } */
+  /* count++; */
   sym_elevate();
   int ret = virtnet_poll(napi, budget);
   sym_lower();
+  /* fprintf(stderr, "leaving %s, ret is %d\n", __func__, ret); */
   return ret;
 }
 
@@ -85,12 +91,12 @@ bool disable_napi(uint64_t napi, int work_done){
 void help(){
   printf("./poller \n");
   printf("options: pick one of\n");
-  printf("\t-d disable: supply -n and -v\n");
-  printf("\t-e enable: supply -v\n");
-  printf("\t-p poll: one shot poll: supply -v\n");
-  printf("\t-c continuous poll: supply -v -s -i\n\n");
+  printf("\t-d disable: supply -n -v\n");
+  printf("\t-e enable:  supply -v\n");
+  printf("\t-p poll:    one shot poll: supply -n\n");
+  printf("\t-c continuous poll: supply -n -s -i\n");
 
-  printf("parameters\n");
+  printf("\nparameters\n");
   printf("\t-n napi struct pointer\n");
   printf("\t-v vq struct pointer\n");
   printf("\t-s sleep time (ms)\n");
@@ -112,7 +118,9 @@ int main(int argc , char *argv[])
   opterr = 0;
 
   int c;
-  while ((c = getopt (argc, argv, "depcn:q:s:i:")) != -1)
+  // Ugly, has to be in order {d e p c} {n, v } {i, s}
+  // Or something like that.
+  while ((c = getopt (argc, argv, "depcn:v:q:s:i:")) != -1)
     switch (c)
       {
       case 'd':
@@ -129,6 +137,19 @@ int main(int argc , char *argv[])
         break;
       case 'n':
         napi = strtoull(optarg, NULL, 16) ;
+        break;
+      case 'v':
+        vq = strtoull(optarg, NULL, 16) ;
+        if(disable && napi){
+          virtqueue_disable_cb(vq);
+          (void) disable_napi(napi, 0); //  napi, processed);
+        }
+        // XXX
+        if(enable){
+          // Think enable is currently broken
+          printf("Enable vq %lx\n", vq);
+          virtqueue_enable_cb(vq);
+        }
         break;
       case 'q':
         break;
@@ -156,8 +177,8 @@ int main(int argc , char *argv[])
   for (index = optind; index < argc; index++)
     printf ("Non-option argument %s\n", argv[index]);
 
-  /* "Expected exactly one of d,e,p,c\n" */
-  assert( (disable + enable + poll + cont_poll) == 1 );
+  // allow for example disabling napi and vqs and immediately starting polling
+  assert( (disable + enable + poll + cont_poll) >= 1 );
 
   printf("disable %d, enable %d, poll %d, cont_poll %d\n", disable, enable, poll, cont_poll);
   printf("napi %lx, vq %lx, sleep_time %d, iterations %d\n", napi, vq, sleep_time, iterations );
@@ -165,18 +186,31 @@ int main(int argc , char *argv[])
   // Error checking
   if(disable){
     assert((napi != 0) && (vq != 0));
-    assert(sleep_time + iterations == 0);
+    /* assert(sleep_time + iterations == 0); */
+    assert(enable != 1);
 
   } else if(enable){
     assert(vq != 0);
-    assert(sleep_time + iterations == 0);
+
+    // Don't do anything else
+    assert(sleep_time == 0);
+    assert(iterations == 0);
+    assert(disable == 0);
+    assert(poll == 0);
+    assert(cont_poll == 0);
 
   } else if(poll){
-    assert(vq != 0);
-    assert(sleep_time + iterations == 0);
+    assert(napi != 0);
 
-  } else if(cont_poll){
+    assert(sleep_time == 0);
+    assert(iterations == 0);
+    assert(cont_poll == 0);
+  }
+
+  if(cont_poll){
+    assert(napi != 0);
     assert( (iterations != 0) && (sleep_time != 0) );
+    assert(poll==0);
   }
 
   // Prepare for symbiote mode
@@ -184,34 +218,38 @@ int main(int argc , char *argv[])
   sym_touch_stack();
 
   if (disable){
-    virtqueue_disable_cb(vq);
-    bool rc = disable_napi(napi, 0); //  napi, processed);
+    // Already done in loop
+    /* virtqueue_disable_cb(vq); */
+    /* bool rc = disable_napi(napi, 0); //  napi, processed); */
 
-    printf("disable got %d\n", rc);
+    /* printf("disable got %d\n", rc); */
 
   } else if(enable){
-    printf("enable\n");
-    virtqueue_enable_cb(vq);
+    /* printf("enable\n"); */
 
   } else if(poll) {
-    printf("poll %d\n", virtnet_poll(napi, -1));
+    (void) virtnet_poll(napi, -1);
+  }
 
-  } else if(cont_poll) {
+  if(cont_poll) {
 
     // Special case poll forever...
     if(iterations == -1){
       while(1){
         virtnet_poll(napi, -1);
+        sleep(sleep_time);
+      }
+    } else {
+      sym_elevate();
+      for(int i=0; i<iterations; i++){
+        virtnet_poll(napi, -1);
         usleep(sleep_time);
       }
-    }
-
-    for(int i=0; i<iterations; i++){
-      virtnet_poll(napi, -1);
-      usleep(sleep_time);
+      sym_lower();
     }
 
   }
 
+  fprintf(stderr, "leaving %s\n", __func__);
 	return 0;
 }
