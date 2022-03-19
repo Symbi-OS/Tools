@@ -23,6 +23,33 @@ void *sym_sk = NULL;
 struct iovec iov;
 #endif
 
+static void printchar(unsigned char theChar) {
+
+  switch (theChar) {
+
+  case '\n':
+    /* printf("\\n\n"); */
+    write(1, "\\n\n" ,2);
+    break;
+  case '\r':
+    /* printf("\\r"); */
+    write(1, "\\r" ,1);
+    break;
+  case '\t':
+    /* printf("\\t"); */
+    write(1, "\\t" ,1);
+    break;
+  default:
+    if ((theChar < 0x20) || (theChar > 0x7f)) {
+      /* printf("\\%03o", (unsigned char)theChar); */
+      printf("Not supported");
+    } else {
+      write(1, &theChar, 1);
+    }
+    break;
+  }
+}
+
 void do_write(int conn, char* data, int data_len){
   //Send the message back to client
   write(conn, data, data_len);
@@ -48,7 +75,7 @@ void do_write(int conn, char* data, int data_len){
 }
 
 
-int main(int argc , char *argv[])
+int main()
 {
   /* my_schedule_t my_schedule = (my_schedule_t) 0xffffffff81bd12a0; */
 	int socket_desc , client_sock , c , read_size;
@@ -95,6 +122,7 @@ int main(int argc , char *argv[])
 	}
 	puts("Connection accepted");
   int my_ctr = 0;
+
 	//Receive a message from client
 #ifdef USE_SEND_RECV
 	while( (read_size = recv(client_sock , client_message , MSG_SZ , 0)) > 0 )
@@ -103,8 +131,12 @@ int main(int argc , char *argv[])
   while( (read_size = read(client_sock , client_message , MSG_SZ)) > 0 )
 #endif
 	{
+    /* printf("rd sz %d\n", read_size); */
+    /* printf("client_msg "); */
+
     my_ctr++;
-    write(1, client_message, MSG_SZ);
+    printchar(client_message[0]);
+    /* write(1, client_message, MSG_SZ); */
     if((my_ctr %(16) ) == 0){
       write(1, "\n", 1);
     }

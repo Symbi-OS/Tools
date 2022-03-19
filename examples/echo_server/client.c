@@ -14,11 +14,31 @@
 #include <stdbool.h>
 /* #include <unistd.h> */
 
-volatile sig_atomic_t print_flag = false;
+/* volatile sig_atomic_t print_flag = false; */
 #define MSG_SZ 1
 
-void handle_alarm( int sig ) {
-  print_flag = true;
+// Pretty printer
+static void printchar(unsigned char theChar) {
+
+  switch (theChar) {
+
+  case '\n':
+    printf("\\n\n");
+    break;
+  case '\r':
+    printf("\\r");
+    break;
+  case '\t':
+    printf("\\t");
+    break;
+  default:
+    if ((theChar < 0x20) || (theChar > 0x7f)) {
+      printf("\\%03o", (unsigned char)theChar);
+    } else {
+      printf("%c", theChar);
+    }
+    break;
+  }
 }
 
 int main(int argc , char *argv[])
@@ -27,12 +47,11 @@ int main(int argc , char *argv[])
 	struct sockaddr_in server;
 	char server_reply[MSG_SZ];
 	char client_message[MSG_SZ];
-  client_message[0] = 'h';
-  client_message[1] = 'i';
-  client_message[2] = '!';
-  client_message[3] = (char) 0;
-
-  unsigned long runs = 1UL << 63;
+  /* client_message[0] = 'h'; */
+  /* client_message[1] = 'i'; */
+  /* client_message[2] = '!'; */
+  /* client_message[3] = (char) 0; */
+  /* unsigned long runs = 1UL << 63; */
 
 	//Create socket
 	sock = socket(AF_INET , SOCK_STREAM , 0);
@@ -42,12 +61,11 @@ int main(int argc , char *argv[])
 	}
 	puts("Socket created");
 
-	/* server.sin_addr.s_addr = inet_addr("1.1.1.2"); */
-	/* server.sin_addr.s_addr = inet_addr("127.0.0.1"); */
   if(argc !=2){
     printf("expects ./client_RW <ip addr server>\n");
     exit(-1);
   }
+
 	server.sin_addr.s_addr = inet_addr(argv[1]);
 	server.sin_family = AF_INET;
 	server.sin_port = htons( 8888 );
@@ -60,15 +78,17 @@ int main(int argc , char *argv[])
 	}
 
 	puts("Connected\n");
+  printf("Send a msg:\n");
 
-	//keep communicating with server
-	int count = 0;
-
-	while(runs--)
-	{
-		//printf("Enter message : ");
-		//scanf("%s" , message);
+	while(1) {
     client_message[0] = getchar();
+    printf("s: ");
+    printchar(client_message[0]);
+
+    // Just printout spacing
+    if (client_message[0] != '\n')
+      printf("\n");
+
 		//Send some data
 #ifdef USE_SEND_RECV
 		/* if( send(sock , "hi!" , strlen("hi!") , 0) < 0) */
@@ -90,16 +110,14 @@ int main(int argc , char *argv[])
 		if( read(sock , server_reply , MSG_SZ) )
 #endif
       {
-        write(1, server_reply, 1);
+        printf("r: ");
+        printchar(server_reply[0]);
+        printf("\n");
+        /* write(1, server_reply, 1); */
       }else {
       puts("recv failed");
       break;
 		}
-
-		//puts("Server reply :");
-		//puts(server_reply);
-		/* if(++count % 10000 == 0) */
-		/* 	printf("%d\n",count++); */
 	}
 
 	close(sock);
