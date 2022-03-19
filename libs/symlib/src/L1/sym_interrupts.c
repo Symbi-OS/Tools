@@ -99,9 +99,12 @@ void sym_load_addr_from_desc(union idt_desc *desc, union idt_addr *addr){
 
 // Loads desc from an addr.
 void sym_load_desc_from_addr(union idt_desc *desc, union idt_addr *addr){
+  sym_elevate();
   desc->fields.lo_addr  = addr->dcmp.lo;
   desc->fields.mid_addr = addr->dcmp.mid;
   desc->fields.hi_addr  = addr->dcmp.hi;
+  sym_lower();
+
 }
 
 void sym_print_idt_desc(unsigned char *idt, unsigned int idx){
