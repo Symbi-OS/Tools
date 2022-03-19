@@ -25,5 +25,6 @@ void sym_load_addr_from_desc(union idt_desc *desc, union idt_addr *addr);
 
 void sym_load_desc_from_addr(union idt_desc *desc, union idt_addr *addr);
 
+// TODO: Fix this first arg type ...
 void sym_print_idt_desc(unsigned char *idt, unsigned int idx);
 #endif

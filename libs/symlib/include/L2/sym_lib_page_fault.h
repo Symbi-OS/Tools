@@ -2,6 +2,7 @@
 #define __SYM_LIB_PATE_FAULT__
 
 #include "L0/sym_structs.h"
+#include "L0/sym_lib.h"
 
 #ifdef CONFIG_X86_64
 #include "../../arch/x86_64/L2/sym_lib_page_fault.h"
@@ -68,25 +69,45 @@ jmp *orig_asm_exc_page_fault
 #define DF_IDX 8
 
 struct pte{
-  uint64_t
-  SEL : 1,
-    RW : 1,
-    US : 1,
-    PWT: 1,
-    PCD: 1,
-    A : 1,
-    DIRTY: 1,
-    MAPS : 1,
-    WHOCARES2 : 4,
-    PG_TBL_ADDR : 40,
-    RES : 11,
-    XD  : 1;
+  union {
+    uint64_t
+    SEL : 1,
+      RW : 1,
+      US : 1,
+      PWT: 1,
+      PCD: 1,
+      A : 1,
+      DIRTY: 1,
+      MAPS : 1,
+      WHOCARES2 : 4,
+      PG_TBL_ADDR : 40,
+      RES : 11,
+      XD  : 1;
+    uint64_t raw;
+  };
 };
+static_assert(sizeof(struct pte) ==8, "Size of pte is not correct");
 
+void sym_print_pte(struct pte *pte);
 void sym_lib_page_fault_init();
 
 extern struct pte * sym_get_pte(uint64_t addr, unsigned int *level);
- 
+
+// Execute disable
+static inline int sym_is_pte_execute_disable(struct pte *pte) {
+  sym_elevate(); int ret = pte->XD; sym_lower();
+  return ret;
+}
+
+static inline void sym_set_pte_execute_disable(struct pte *pte) {
+  sym_elevate(); pte->XD = 1; sym_lower();
+}
+
+static inline void sym_clear_pte_execute_disable(struct pte *pte) {
+  sym_elevate(); pte->XD = 0; sym_lower();
+}
+
+// TODO these should all take ptrs right?
 static inline int sym_is_pte_writeable(struct pte pte) {
   return pte.RW;
 }
