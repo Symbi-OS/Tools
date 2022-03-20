@@ -107,6 +107,7 @@ void sym_load_desc_from_addr(union idt_desc *desc, union idt_addr *addr){
 
 }
 
+// TODO this is a stupid idt type. Try void *
 void sym_print_idt_desc(unsigned char *idt, unsigned int idx){
   union idt_desc *my_desc;
   my_desc = sym_get_idt_desc(idt, idx);
