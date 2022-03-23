@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS= -g -Wall -Wextra -static -mno-red-zone
+CFLAGS= -O0 -ggdb -Wall -Wextra -static -mno-red-zone
 
 SYMLIB_DIR=../libs/symlib
 SYMLIB=$(SYMLIB_DIR)/build/libsym.a
