@@ -89,6 +89,7 @@ struct pte{
 static_assert(sizeof(struct pte) ==8, "Size of pte is not correct");
 
 extern void c_handler_page_fault();
+extern void df_asm_handler();
 
 void sym_print_pte(struct pte *pte);
 void sym_lib_page_fault_init();
@@ -141,6 +142,7 @@ void sym_make_pg_unwritable(uint64_t addr);
 void sym_interpose_on_pg_ft_c(unsigned char* new_idt);
 
 void sym_interpose_on_df_c(unsigned char* new_idt);
+void sym_interpose_on_df_asm(unsigned char* new_idt, unsigned char* handler_pg);
 
 void sym_make_pg_ft_use_ist(unsigned char *my_idt);
 

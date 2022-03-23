@@ -124,7 +124,22 @@ extern uint64_t __attribute__((unused)) c_df_handler;
 // Likely at a performance penalty, should be rare path.
 // See kernel mode linux "Stack Starvation".
 
+
 MY_FINAL_HANDLER(c_df_handler, *my_df_entry, *my_asm_exc_page_fault);
+
+  __asm__("\
+  .text \n\t\
+  .align 16 \n\t\
+  .globl \t df_asm_handler \n\t\
+  df_asm_handler: \n\t\
+  movq   $0x6,(%rsp) \n\t\
+  push   %rax \n\t\
+  mov    $0xffffffff81e00ac0,%rax \n\t\
+  xor    (%rsp),%rax /*Arlo's trick*/ \n\t\
+  xor    %rax,(%rsp) \n\t\
+  xor    (%rsp),%rax \n\t\
+  ret \
+");
 
 void sym_interpose_on_df_c(unsigned char * my_idt){
   // Get ptr to df desc
@@ -135,14 +150,36 @@ void sym_interpose_on_df_c(unsigned char * my_idt){
   union idt_addr old_asm_exc_df;
   sym_load_addr_from_desc(desc_old, &old_asm_exc_df);
 
-  // Next line breaks
 
-  // swing addr to  bs_asm...
+  // get systm's df handler address
   orig_asm_exc_double_fault = old_asm_exc_df.raw;
 
   // New handler
   union idt_addr new_asm_exc_addr;
   new_asm_exc_addr.raw = (uint64_t) &c_df_handler;
+
+  // Set IDT to point to our new interposer
+  sym_load_desc_from_addr(desc_old, &new_asm_exc_addr);
+}
+
+// TODO: clean up this code duplication
+// TODO also arg types
+void sym_interpose_on_df_asm(unsigned char * my_idt, unsigned char *handler_pg){
+  // Get ptr to df desc
+  union idt_desc *desc_old;
+  desc_old = sym_get_idt_desc(my_idt, DF_IDX);
+
+  // save old asm_exc_pf ptr
+  union idt_addr old_asm_exc_df;
+  sym_load_addr_from_desc(desc_old, &old_asm_exc_df);
+
+
+  // get systm's df handler address
+  orig_asm_exc_double_fault = old_asm_exc_df.raw;
+
+  // New handler
+  union idt_addr new_asm_exc_addr;
+  new_asm_exc_addr.raw = (uint64_t) handler_pg;
 
   // Set IDT to point to our new interposer
   sym_load_desc_from_addr(desc_old, &new_asm_exc_addr);

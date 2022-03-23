@@ -34,7 +34,8 @@ void_fn_ptr get_fn_address(char *symbol){
 // Our version of the idt. Not sure about alignment.
 unsigned char my_idt [1<<12] __attribute__ ((aligned (1<<12) ));
 
-unsigned char *kern_pg_for_idt;
+unsigned char *kern_pg_for_idt = NULL;
+unsigned char *kern_pg_for_df_handler = NULL;
 
 // Store system idtr here for later restoration.
 struct dtr system_idtr;
@@ -266,8 +267,9 @@ void system_interpose_on_df(){
     sym_copy_system_idt(kern_pg_for_idt);
   }
   printf("About to interpose\n");
+  // TODO: sink these into sym lib
   sym_elevate();
-  sym_interpose_on_df_c(kern_pg_for_idt);
+  sym_interpose_on_df_asm(kern_pg_for_idt, kern_pg_for_df_handler);
   sym_lower();
   printf("About to swing idtr\n");
 
@@ -327,7 +329,9 @@ void show_using_idt_interpose_solves_DF(){
   interpose_on_df();
 
   sym_elevate();
-  sym_touch_stack();
+  push_a_lot();
+  // TODO figure out why below seems unreliable?
+  /* sym_touch_stack(); */
   sym_lower();
 }
 
@@ -344,6 +348,9 @@ void show_using_system_idt_interpose_solves_DF(){
 
 
   kern_pg_for_idt = get_aligned_kern_pg();
+  kern_pg_for_df_handler = get_aligned_kern_pg();
+
+  sym_memcpy(kern_pg_for_df_handler, &df_asm_handler, 0x1d );
 
   // XXX REINABLE
 #if 1
@@ -353,9 +360,11 @@ void show_using_system_idt_interpose_solves_DF(){
   // Test that DF doesn't occur
   sym_elevate(); push_a_lot(); sym_lower();
 
-  free_kern_mem(kern_pg_for_idt);
   // Get back on system idtr
   sym_load_idtr(&system_idtr);
+
+  free_kern_mem(kern_pg_for_idt);
+  free_kern_mem(kern_pg_for_df_handler);
 
 }
 
@@ -375,12 +384,12 @@ void check_idt_and_pf(){
 }
 
 /* #define NORMAL_PROCESS 1 */
-#define NAIVE_ELEVATION 1
+/* #define NAIVE_ELEVATION 1 */
 /* #define PREFAULT_ELEVATION 1 */
 /* #define IST_ELEVATION 1 */
 /* #define SYSTEM_IST_ELEVATION 1 */
 /* #define IDT_INTERPOSE 1 */
-/* #define SYSTEM_IDT_INTERPOSE 1 */
+#define SYSTEM_IDT_INTERPOSE 1
 
 int main(){
   printf("Starting main\n");
