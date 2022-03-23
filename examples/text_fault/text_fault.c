@@ -6,8 +6,14 @@
 
 #include <time.h>
 #include <string.h>
+#include <sys/mman.h>
+
+#include <errno.h>
+
 
 #include "LINF/sym_all.h"
+
+#define eprintf(...) fprintf (stderr, __VA_ARGS__)
 
 // Our version of the idt. Not sure about alignment.
 unsigned char my_idt [1<<12] __attribute__ ((aligned (1<<12) ));
@@ -61,7 +67,32 @@ void show_process_text_ft_works(){
 }
 
 void show_naive_elevation_breaks(){
+  /* fprintf(stderr, "Getting in foo\n"); */
+
+  /* int res = madvise((void *)&foo, (size_t)5*(1<<12), MADV_REMOVE); */
+  /* printf("Want to call madvise(%p, %lx, %d)\n", &foo, 5 *(1<<12), MADV_DONTNEED); */
+
+  /* uint64_t my_foo = (uint64_t) &foo; */
+  /* printf("foo at %lx\n", my_foo); */
+
+  /* my_foo = my_foo >> 12; */
+  /* my_foo = my_foo << 12; */
+
+  /* printf("lo bound pg at %lx\n", my_foo); */
+
+  /* my_foo += 1<<12; */
+  /* printf("next pg %lx\n", my_foo); */
+
+
+  /* if (res == -1) */
+  /*   err(1, NULL); */
+    /* printf("memadvise errno %d\n", errno); */
+
+
+
   sym_elevate(); foo(); sym_lower();
+  /* fprintf(stderr, "done foo\n"); */
+  /* sym_elevate(); printf("hi %d\n", 42); sym_lower(); */
 }
 
 void show_int_interposition_works(){
@@ -96,45 +127,45 @@ void free_kern_mem(void *p){
   kvfree_t kvfree  = (kvfree_t) get_fn_address("kvfree");
   sym_elevate(); kvfree(p); sym_lower();
 }
-/* extern void c_handler_page_fault(); */
-/* extern uint64_t c_handler_page_fault; */
+
 void lazy_hexdump(unsigned char *base, unsigned int amt){
-  printf("1st bytes at %p\n", base);
+  eprintf("1st bytes at %p\n", base);
   for(unsigned int i = 0; i<amt; i++){
     unsigned char * tmp = base + i;
     sym_elevate();
     unsigned char tmp_char = *tmp;
     sym_lower();
-    printf("%02X ", tmp_char);
+    eprintf("%02X ", tmp_char);
   }
-  printf("\n");
+  eprintf("\n");
 }
-void show_system_int_interposition_works(){
-  printf("start here\n");
 
+void show_system_int_interposition_works(){
   /* sym_elevate(); */
   /* printf("c_handler_page_fault lives at %p \n", &c_handler_page_fault); */
   /* printf("c_handler_page_fault lives at %p \n", &main); */
 
+  // Get a page to hold a copy of the system IDT
   void *idt_cp = get_aligned_kern_pg();
 
   sym_copy_system_idt(idt_cp);
-  /* sym_set_idtr((unsigned long) idt_cp, IDT_SZ_BYTES - 1); */
 
+  // Get a page to hold a copy of the c_handler_page_fault interposer
   void *handler_page = get_aligned_kern_pg();
 
   /* // Copy handler onto page */
-  // Reading from obj dump, make this better
-  unsigned char *c_handler_page_fault_ptr = (unsigned char *) 0x40a000;
-
-  /* lazy_hexdump(c_handler_page_fault_ptr, 80); */
+  unsigned char *c_handler_page_fault_ptr = (unsigned char *) c_handler_page_fault;
+#if DEBUG
+  lazy_hexdump(c_handler_page_fault_ptr, 80);
+#endif
 
   sym_elevate();
   memcpy(handler_page, c_handler_page_fault_ptr, 80);
   sym_lower();
 
-
-  /* lazy_hexdump(handler_page, 80); */
+#if DEBUG
+lazy_hexdump(handler_page, 80);
+#endif
 
   // confirm page is executable
   unsigned int level;
@@ -146,8 +177,9 @@ void show_system_int_interposition_works(){
   /* uint64_t my_pte = *handler_pte; */
 
   /* fprintf(stderr, "%s(%p) : %p pglvl: %d\n", __func__, handler_page, handler_pte, level); */
-
-  sym_print_pte(handler_pte);
+#if DEBUG
+sym_print_pte(handler_pte);
+#endif
   /* /\* printf("Try to get pte\n"); *\/ */
   /* if(sym_is_pte_execute_disable(handler_pte)){ */
   /*   printf("Pte is XD\n"); */
@@ -161,15 +193,17 @@ void show_system_int_interposition_works(){
 
 
   // Point idt_cp[pg_ft] at handler page
-  struct dtr check_idtr;
-  sym_store_idt_desc(&check_idtr);
-
+#if DEBUG
   printf("System idt pf desc\n");
-  sym_print_idt_desc((unsigned char *) check_idtr.base, PG_FT_IDX);
+  printf("System idtr base %lx\n", system_idtr.base);
+  sym_print_idt_desc((unsigned char *) system_idtr.base, PG_FT_IDX);
+#endif
 
+#if DEBUG
 
   printf("Cp to modify\n");
   sym_print_idt_desc((unsigned char *) idt_cp, PG_FT_IDX);
+#endif
 
   union idt_desc *sys_cp_pf_desc = sym_get_idt_desc((unsigned char *)idt_cp, PG_FT_IDX);
 
@@ -178,22 +212,33 @@ void show_system_int_interposition_works(){
   new_handler.raw = (uint64_t) handler_page;
 
   // Set idt_cp to point to new handler
-  sym_load_desc_from_addr(sys_cp_pf_desc, &new_handler);
+  // XXX comment me in!
+  /* sym_load_desc_from_addr(sys_cp_pf_desc, &new_handler); */
 
+#if DEBUG
   sym_print_idt_desc((unsigned char *) idt_cp, PG_FT_IDX);
-
+#endif
 
   /* // Swing idtr onto idt_cp */
   sym_set_idtr((unsigned long)idt_cp, IDT_SZ_BYTES - 1);
 
-  /* /\* interpose_on_pg_ft(); *\/ */
+  struct dtr check_idtr;
+  sym_store_idt_desc(&check_idtr);
+#if DEBUG
+  printf("New idtr base %lx\n", check_idtr.base);
+#endif
 
+
+  /* /\* interpose_on_pg_ft(); *\/ */
   /* // Try to force text fault */
+  /* sym_elevate(); bar(); sym_lower(); */
   sym_elevate(); foo(); sym_lower();
 
+  #if 0
   sym_load_idtr(&system_idtr);
   free_kern_mem(idt_cp);
   free_kern_mem(handler_page);
+  #endif
 }
 
 void make_nop_slide(){
@@ -234,22 +279,23 @@ void show_prefault_works(){
 #define SYSTEM_INT_INTERPOSITION 1
 /* #define NOP_SLIDE 1 */
 
+/* void invalidate_pte(){ */
+/*   printf("Let's see if bar is mapped\n"); */
+/*   printf("Bar lives at %p\n", &bar); */
+  
+/* } */
 
 extern uint64_t cr3_reg;
+
 int main(){
   printf("Starting main\n");
   sym_lib_init();
 
-  // Store system idtr here for later restoration.
-  struct dtr system_idtr;
- 
+  /* printf("pid is %d\n", getpid()); */
+  /* getchar(); */
+
   // Store initial system IDTR
   sym_store_idt_desc(&system_idtr);
-
-  sym_elevate();
-  asm("movq %%cr3,%0" : "=r"(cr3_reg));
-  sym_lower();
-
 
 #ifdef NORMAL_PROCESS
   printf("NORMAL_PROCESS\n");
