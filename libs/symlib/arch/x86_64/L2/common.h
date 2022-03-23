@@ -6,7 +6,7 @@
 
 
 #define MY_NEW_HANDLER(FN)                      \
-  __asm__(".text \n\t .align 16 \n\t" #FN ":");
+  __asm__(".text \n\t .align 16 \n\t .globl \t" #FN "\n\t" #FN ":");
 
 #define MY_GET_EXCP_FRAME __asm__("movq %rsp, ef");
 
