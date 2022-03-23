@@ -39,22 +39,28 @@ unsigned char *kern_pg_for_idt;
 // Store system idtr here for later restoration.
 struct dtr system_idtr;
 
-
-void show_process_stk_ft_works(){
-  sym_touch_stack();
-}
-
 void push_a_lot(){
-  int count = 1 << 19;
-
-  for(int i=0; i< count; i++){
+  /* uint64_t my_rsp; */
+  /* asm("movq %"); */
+  // HACK don't know why seg faults without register usage.
+  register int count = 1 << 13;
+  /* printf("pushing a lot \n"); */
+  for(register int i=0; i< count; i++){
     __asm__("pushq $42":::"memory");
   }
-  for(int i=0; i< count; i++){
+  /* printf("pushing a lot \n"); */
+  for(register int i=0; i< count; i++){
     __asm__("popq %%rax": /*no*/: /*no*/ : "rax");
   }
+  /* printf("pushing a lot \n"); */
 
 }
+
+void show_process_stk_ft_works(){
+  /* sym_touch_stack(); */
+  push_a_lot();
+}
+
 
 void show_naive_elevation_DFs(){
   /* sym_touch_every_page_text(); */
@@ -68,9 +74,7 @@ void show_naive_elevation_DFs(){
   /* printf("%lx\n", my_cr3_reg); */
 
   /* sym_touch_stack(); */
-  sym_elevate();
-  push_a_lot();
-  sym_lower();
+  sym_elevate(); push_a_lot(); sym_lower();
 }
 
 void show_prefault_solves_DF(){
@@ -371,10 +375,10 @@ void check_idt_and_pf(){
 }
 
 /* #define NORMAL_PROCESS 1 */
-/* #define NAIVE_ELEVATION 1 */
+#define NAIVE_ELEVATION 1
 /* #define PREFAULT_ELEVATION 1 */
 /* #define IST_ELEVATION 1 */
-#define SYSTEM_IST_ELEVATION 1
+/* #define SYSTEM_IST_ELEVATION 1 */
 /* #define IDT_INTERPOSE 1 */
 /* #define SYSTEM_IDT_INTERPOSE 1 */
 
