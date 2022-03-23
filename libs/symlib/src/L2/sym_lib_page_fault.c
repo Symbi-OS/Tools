@@ -95,7 +95,7 @@ void sym_lib_page_fault_init(){
 // Preserve caller saved GPRs.
 // Want RSP to be 16byte aligned after call.
 static uint64_t __attribute__((unused))my_entry = (uint64_t) &pg_ft_c_entry;
-extern uint64_t c_handler_page_fault;
+/* extern uint64_t c_handler_page_fault; */
 
 // NOTE: semicolons for editor only.
 // NOTE: This should really be abstracted into a single macro.
@@ -167,24 +167,31 @@ void sym_interpose_on_pg_ft_c(unsigned char * my_idt){
   sym_load_desc_from_addr(desc_old, &new_asm_exc_addr);
 }
 
-void sym_make_pg_ft_use_ist(unsigned char *my_idt){
+
+void sym_toggle_pg_ft_ist(unsigned char *my_idt, unsigned int enable){
   union idt_desc *desc_old;
   union idt_desc desc_new;
+
+  assert( (enable == 0) || (enable == 1) );
 
   // Get ptr to pf desc
   desc_old = sym_get_idt_desc(my_idt, PG_FT_IDX);
 
-  int DF_IST = 1;
   // Copy descriptor to local var
-  sym_elevate();
-  desc_new = *desc_old;
-  sym_lower();
+  sym_elevate(); desc_new = *desc_old; sym_lower();
 
   // Force IST usage
-  desc_new.fields.ist = DF_IST;
+  desc_new.fields.ist = enable;
 
   // Write into user table
+  sym_elevate();
   sym_set_idt_desc(my_idt, PG_FT_IDX, &desc_new);
+  sym_lower();
+}
+
+// TODO: Depricate this usage
+void sym_make_pg_ft_use_ist(unsigned char *my_idt){
+  sym_toggle_pg_ft_ist(my_idt, 1);
 }
 
 // This is just a type.

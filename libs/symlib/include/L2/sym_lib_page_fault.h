@@ -88,6 +88,8 @@ struct pte{
 };
 static_assert(sizeof(struct pte) ==8, "Size of pte is not correct");
 
+extern void c_handler_page_fault();
+
 void sym_print_pte(struct pte *pte);
 void sym_lib_page_fault_init();
 
@@ -141,5 +143,8 @@ void sym_interpose_on_pg_ft_c(unsigned char* new_idt);
 void sym_interpose_on_df_c(unsigned char* new_idt);
 
 void sym_make_pg_ft_use_ist(unsigned char *my_idt);
+
+// TODO figure out if this should be in l1
+void sym_toggle_pg_ft_ist(unsigned char *my_idt, unsigned int enable);
 
 #endif
