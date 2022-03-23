@@ -246,8 +246,7 @@ sym_get_pte(uint64_t addr, unsigned int *level)
   return ret;
 }
 void sym_print_pte(struct pte *pte){
-  printf("Pte is %p\n", pte);
-  sym_elevate(); uint64_t raw_pte = pte->raw; sym_lower();
+  sym_elevate(); uint64_t raw_pte = *(uint64_t *)pte; sym_lower();
   printf("PTE at %p contains %lx\n", pte, raw_pte);
 };
 

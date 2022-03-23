@@ -346,16 +346,32 @@ void show_using_system_idt_interpose_solves_DF(){
   // Init kallsym lib
   /* sym_lib_init(); */
 
-
   kern_pg_for_idt = get_aligned_kern_pg();
+  // The PTE for this page may not have execute enabled.
   kern_pg_for_df_handler = get_aligned_kern_pg();
+
+  unsigned int level;
+  struct pte *handler_pte = sym_get_pte((uint64_t) kern_pg_for_df_handler, &level);
+
+  sym_print_pte(handler_pte);
+
+  /* printf("Try to get pte\n"); */
+  if(sym_is_pte_execute_disable(handler_pte)){
+    printf("Pte is XD\n");
+    sym_clear_pte_execute_disable(handler_pte);
+    printf("PTE should now not be XD\n");
+    sym_print_pte(handler_pte);
+    // TODO Still need to invalidate
+    sym_elevate();
+    __asm__("movq %%cr3, %%rax" :: : "%rax");
+    __asm__("movq %rax, %cr3"); // does the flush
+    sym_lower();
+  }
+  printf("pte should be good\n");
 
   sym_memcpy(kern_pg_for_df_handler, &df_asm_handler, 0x1d );
 
-  // XXX REINABLE
-#if 1
   system_interpose_on_df();
-#endif
 
   // Test that DF doesn't occur
   sym_elevate(); push_a_lot(); sym_lower();

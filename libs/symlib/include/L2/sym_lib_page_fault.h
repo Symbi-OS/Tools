@@ -69,7 +69,7 @@ jmp *orig_asm_exc_page_fault
 #define DF_IDX 8
 
 struct pte{
-  union {
+  /* union { */
     uint64_t
     SEL : 1,
       RW : 1,
@@ -83,9 +83,9 @@ struct pte{
       PG_TBL_ADDR : 40,
       RES : 11,
       XD  : 1;
-    uint64_t raw;
-  };
-};
+    /* uint64_t raw; */
+  /* }; */
+}; //__attribute__((__packed__))
 static_assert(sizeof(struct pte) ==8, "Size of pte is not correct");
 
 extern void c_handler_page_fault();
