@@ -9,6 +9,7 @@
 // Memcpy the idt
 // This is the kernel location for the IDT, it's one page in length.
 void sym_copy_system_idt(unsigned char *sym_idt_base);
+void * sym_memcpy(void * dest, void *src, size_t sz);
 
 // Load idtr with raw base and bound
 void sym_set_idtr(unsigned long base, unsigned long bound);

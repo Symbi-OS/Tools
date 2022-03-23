@@ -67,6 +67,16 @@ void sym_copy_system_idt(unsigned char *sym_idt_base){
 
 }
 
+// TODO this should probably be in its own file common tools or something 
+void * sym_memcpy(void* dest, void *src, size_t sz){
+  void * ret;
+  sym_elevate();
+  ret = memcpy( dest, src, sz);
+  sym_lower();
+  return ret;
+}
+
+// TODO: Fix all these by making args void *
 // Returns pointer to idt entry. Does not allocate memory.
 union idt_desc *
 sym_get_idt_desc(unsigned char *idt_base, unsigned int idx){
