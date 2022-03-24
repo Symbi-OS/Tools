@@ -2,10 +2,15 @@
 #define __IDT_TOOL__
 
 #define NUM_IDT_ENTRIES 256
-enum pg_level {
+
+enum mod_options {
   MOD_IST_ENABLE,
   MOD_IST_DISABLE,
   MOD_ADDR
+};
+
+enum handler_options {
+  HDL_DF
 };
 
 struct params{
@@ -27,10 +32,10 @@ struct params{
   // We're modifying a descriptor
   bool mod_flag;
   // Which modification we are doing
-  unsigned int mod_option;
+  int mod_option;
   // This is the address of the handler we're installing
   void * mod_addr;
- 
+
   // Are we just printing?
   bool print_flag;
 
@@ -39,6 +44,13 @@ struct params{
 
   // Installing another IDT
   bool install_flag;
+
+  // Get a handler page
+  bool hdl_flag;
+
+  // What handler to use
+  int hdl_option;
+
 };
 
 typedef void * (*vzalloc_t)(unsigned long);

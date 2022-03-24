@@ -6,7 +6,8 @@
 #include <stdint.h>
 #include <assert.h>
 
-#define IDT_SZ_BYTES (1UL << 12)
+#define PG_SZ (1ULL << 12)
+#define IDT_SZ_BYTES PG_SZ
 
 // Descriptor table entry. For use with GDT, IDT
 struct dtr

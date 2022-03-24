@@ -135,6 +135,8 @@ void * modifier(struct params *p){
   printf("modifier\n");
   // vector not less than 0
 
+  assert(p->mod_option != -1);
+
   assert( (p->vector >= 0) && (p->vector < NUM_IDT_ENTRIES) );
 
   current_or_supplied_idt(p);
@@ -162,6 +164,64 @@ void * modifier(struct params *p){
   return (void *)(p->idt).base;
 }
 
+void sym_flush_tlb(){
+  // XXX TEST ME
+  sym_elevate();
+  __asm__("movq %%cr3, %%rax" :: : "%rax");
+  __asm__("movq %rax, %cr3"); // does the flush
+  sym_lower();
+}
+
+void sym_toggle_page_exe_disable(void * addr, bool disable){
+  // When set, XD bit in PTE makes referenced page
+  // execute disabled.
+
+  // TODO: We think this only works for kern addrs.
+  {
+    uint64_t tmp = (uint64_t) addr;
+    assert((tmp >> 63) == 1);
+  }
+
+  // make it executable
+  unsigned int level;
+  struct pte *pte = sym_get_pte((uint64_t) addr, &level);
+
+  sym_print_pte(addr);
+
+  sym_elevate(); pte->XD = disable; sym_lower();
+  sym_print_pte(addr);
+  // TODO Still need to invalidate
+  sym_flush_tlb();
+}
+
+void handler_pager(struct params *p){
+  assert(p->hdl_option != -1);
+
+  // allocate a page for handler
+  void * hdl_pg = get_aligned_kern_pg();
+
+  // copy appropriate handler onto it
+  void * src = NULL;
+  int sz = 0;
+  if(p->hdl_option == HDL_DF){
+    src = &df_asm_handler;
+    sz = 0x1d;
+  }
+
+  assert(src != NULL);
+  assert(sz != 0);
+  assert(sz <= (int) PG_SZ);
+
+  sym_memcpy(hdl_pg, src, sz);
+
+  int disable = 0;
+  sym_toggle_page_exe_disable(hdl_pg, disable);
+
+  // return address of page.
+  printf("%p\n", hdl_pg);
+}
+
+
 void init_params(struct params * p){
   // Zero struct
   // Apparently this isn't safe on machines that don't use
@@ -171,6 +231,9 @@ void init_params(struct params * p){
 
   // 0 is valid for vector offset, -1 is not
   p->vector = -1;
+
+  p->mod_option = -1;
+  p->hdl_option = -1;
 }
 
 void parse_args(int argc, char *argv[], struct params *p){
@@ -178,7 +241,7 @@ void parse_args(int argc, char *argv[], struct params *p){
   int c;
   // Ugly, has to be in order {d e p c} {n, v } {i, s}
   // Or something like that.
-  while ((c = getopt (argc, argv, "a:cdghilm:pv:")) != -1)
+  while ((c = getopt (argc, argv, "a:cdghilm:pv:z:")) != -1)
     switch (c)
       {
       case 'a':
@@ -241,6 +304,12 @@ void parse_args(int argc, char *argv[], struct params *p){
         /* int vector = strtoull(optarg, NULL, 10); */
         /* d_print_desc(vector); */
         break;
+      case 'z':
+        p->hdl_flag = 1;
+        if(!strcmp(optarg, "df")){
+          p->hdl_option = HDL_DF;
+        }
+        break;
 
       case '?':
         if (optopt == 'c')
@@ -298,6 +367,11 @@ int main(int argc, char *argv[]){
   // Installer
   if(p->install_flag){
     installer(p);
+  }
+
+  // Handler pager
+  if(p->hdl_flag){
+    handler_pager(p);
   }
 
   printf("done main\n");
