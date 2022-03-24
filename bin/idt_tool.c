@@ -11,6 +11,11 @@ enum pg_level {
   MOD_IST_ENABLE,
   MOD_IST_DISABLE
 };
+
+typedef void * (*vzalloc_t)(unsigned long);
+typedef void (*kvfree_t)(void *);
+typedef void (*void_fn_ptr)(unsigned long);
+
 #define eprintf(...) fprintf (stderr, __VA_ARGS__)
 
 void help(){
@@ -36,6 +41,7 @@ void print_idtr(){
   printf("IDT base:  %lx\n", my_idt.base);
   printf("IDT limit: %#x\n", my_idt.limit);
 }
+
 void print_desc(struct dtr *idt, int vector){
   assert(idt->base != 0);
   assert(vector >= 0);
@@ -43,7 +49,6 @@ void print_desc(struct dtr *idt, int vector){
   sym_print_idt_desc((unsigned char *) idt->base, (unsigned int)vector);
 }
 
-typedef void (*void_fn_ptr)(unsigned long);
 void_fn_ptr get_fn_address(char *symbol){
   struct kallsymlib_info *info;
 
@@ -53,8 +58,6 @@ void_fn_ptr get_fn_address(char *symbol){
   return (void_fn_ptr) info->addr;
 }
 
-typedef void * (*vzalloc_t)(unsigned long);
-typedef void (*kvfree_t)(void *);
 
 void * get_aligned_kern_pg(){
 
@@ -101,6 +104,17 @@ void * modify_idt(struct dtr *idt, int vector, unsigned int mod_option){
 
 void install_idt(struct dtr *idt){
   sym_load_idtr(idt);
+}
+
+struct tool_params{
+  // The relevant IDT
+
+  // Flags
+
+};
+
+void process_args(){
+  
 }
 
 int main(int argc, char *argv[]){
