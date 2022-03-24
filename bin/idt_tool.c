@@ -25,9 +25,6 @@ void help(){
   eprintf("\t-g get current idt:  print current idt \n");
 
   eprintf("given no a, will be relative to current\n");
-  /* eprintf("\t-i idt:  print current idt \n"); */
-
-  /* eprintf("\nparameters\n"); */
 }
 
 void get_current_idtr(struct dtr * idt){
@@ -106,35 +103,103 @@ void install_idt(struct dtr *idt){
   sym_load_idtr(idt);
 }
 
-struct tool_params{
+struct params{
+  // This should be initialized before use.
+  // See init_params
+
   // The relevant IDT
-
-  // Flags
-
-};
-
-void process_args(){
-  
-}
-
-int main(int argc, char *argv[]){
-  sym_lib_init();
-  /* sym_touch_every_page_text(); */
-
-  /* copy_and_install_idk_kern_page(); */
-  // NOTE assumes the existance of at least idt_maps/sys_default.idt
   struct dtr idt;
 
-  // User supplied idt
-  void * input_idt = NULL;
+  // Just return current idtr
+  bool get_idtr_flag;
 
-  int vector = -1;
-  bool print_flag = 0;
-  bool cp_flag = 0;
-  bool install_flag = 0;
+  // User supplied IDT
+  void * input_idt;
 
-  bool mod_flag = 0;
+  // Descriptor offset in IDT
+  int vector;
+
+  // We're modifying a descriptor
+  bool mod_flag;
+  // Which modification we are doing
   unsigned int mod_option;
+
+  // Are we just printing?
+  bool print_flag;
+
+  // Need to copy IDT
+  bool cp_flag;
+
+  // Installing another IDT
+  bool install_flag;
+};
+
+void current_or_supplied_idt(struct params *p){
+  if(p->input_idt){
+    p->idt.base= (uint64_t) p->input_idt;
+    p->idt.limit = IDT_SZ_BYTES - 1;
+  }else{
+    // No user supplied idt
+    get_current_idtr(&(p->idt));
+  }
+}
+
+void idtr_getter(struct params *p){
+  get_current_idtr(&(p->idt));
+  printf("%lx\n", (p->idt).base);
+}
+
+void printer(struct params * p){
+  // Printer.
+    current_or_supplied_idt(p);
+
+    // If no a flag, use current, otherwise use
+    print_desc(&(p->idt), p->vector);
+}
+
+void copier(struct params *p){
+  // If not a flag, use current, otherwise use
+  current_or_supplied_idt(p);
+
+  void * copied_idt = NULL;
+  copied_idt = copy_idt(&(p->idt));
+  printf("copied_idt %p\n", copied_idt);
+}
+
+void modifier(struct params *p){
+  current_or_supplied_idt(p);
+  modify_idt(&(p->idt), p->vector, p->mod_option);
+}
+
+void installer(struct params *p){
+  struct dtr old_idt;
+  get_current_idtr(&old_idt);
+
+  // If no a flag, use current, otherwise use
+  if(p->input_idt){
+    p->idt.base= (uint64_t) p->input_idt;
+    p->idt.limit = IDT_SZ_BYTES - 1;
+  }else{
+    // No user supplied idt
+    p->idt = old_idt;
+    /* get_current_idtr(&idt); */
+  }
+  install_idt(&(p->idt));
+  printf("%lx\n", old_idt.base);
+}
+
+void init_params(struct params * p){
+  // Zero struct
+  // Apparently this isn't safe on machines that don't use
+  // 0 as the NULL vector ... but do you really want to be
+  // working on such a machine?
+  memset(p, 0, sizeof(struct params));
+
+  // 0 is valid for vector offset, -1 is not
+  p->vector = -1;
+}
+
+void parse_args(int argc, char *argv[], struct params *p){
 
   int c;
   // Ugly, has to be in order {d e p c} {n, v } {i, s}
@@ -144,53 +209,51 @@ int main(int argc, char *argv[]){
       {
       case 'a':
         // Address
-        input_idt = (void *) strtoull(optarg, NULL, 16) ;
+        p->input_idt = (void *) strtoull(optarg, NULL, 16) ;
         break;
       case 'c':
         // Copy
-        cp_flag = 1;
+        p->cp_flag = 1;
         break;
       case 'd':
         // Delete
         break;
       case 'g':
         // get idtr
-        /* printf("%lx\n", get_current_idtr(&current_dtr)); */
-        get_current_idtr(&idt);
-        printf("%lx\n", idt.base);
-        return 0;
+        p->get_idtr_flag = 1;
+        break;
       case 'h':
         // help
         help();
-        return 0;
+        exit(0);
         break;
       case 'i':
         // Install
-        install_flag = 1;
+        p->install_flag = 1;
         break;
       case 'l':
         // List maybe only for shell script
         break;
       case 'm':
-        mod_flag = 1;
+        p->mod_flag = 1;
         // Modify
         if(!strcmp(optarg, "ist_enable")){
-          mod_option = MOD_IST_ENABLE;
+          p->mod_option = MOD_IST_ENABLE;
         }else if (!strcmp(optarg, "ist_disable")){
-          mod_option = MOD_IST_DISABLE;
+          p->mod_option = MOD_IST_DISABLE;
         }else {
           eprintf("Don't know that mod option\n");
-          return -1;
+          exit(-1);
         }
         break;
       case 'p':
         // Print
-        print_flag = 1;
+        p->print_flag = 1;
         break;
       case 'v':
         // Entry
 
-        vector = strtoull(optarg, NULL, 10) ;
+        p->vector = strtoull(optarg, NULL, 10) ;
         // Specify offset in dec
         /* int vector = strtoull(optarg, NULL, 10); */
         /* d_print_desc(vector); */
@@ -205,66 +268,53 @@ int main(int argc, char *argv[]){
           fprintf (stderr,
                    "Unknown option character `\\x%x'.\n",
                    optopt);
-        return 1;
+        exit(1);
       default:
         abort ();
       }
+}
 
-  // Printer.
-  if(print_flag && (vector != -1)){
-    // If no a flag, use current, otherwise use
-    if(input_idt){
-      idt.base= (uint64_t) input_idt;
-      idt.limit = IDT_SZ_BYTES - 1;
-    }else{
-      // No user supplied idt
-      get_current_idtr(&idt);
-    }
-    print_desc(&idt, vector);
+int main(int argc, char *argv[]){
+  sym_lib_init();
+  /* sym_touch_every_page_text(); */
+
+  /* copy_and_install_idk_kern_page(); */
+  // NOTE assumes the existance of at least idt_maps/sys_default.idt
+
+  // Don't operate on this directly, use pointer
+  struct params params;
+
+  // For consistency, always operate on pointer
+  struct params *p = &params;
+
+  init_params(p);
+
+  parse_args(argc, argv, p);
+
+  // IDTR Getter
+  if(p->get_idtr_flag){
+    idtr_getter(p);
+    return 0;
   }
 
-  void * copied_idt = NULL;
+  // Printer
+  if(p->print_flag && (p->vector != -1)){
+    printer(p);
+  }
+
   // Copier
-  if(cp_flag){
-    // If no a flag, use current, otherwise use
-    if(input_idt){
-      idt.base= (uint64_t) input_idt;
-      idt.limit = IDT_SZ_BYTES - 1;
-    }else{
-      // No user supplied idt
-      get_current_idtr(&idt);
-    }
-    copied_idt = copy_idt(&idt);
-    printf("copied_idt %p\n", copied_idt);
+  if(p->cp_flag){
+    copier(p);
   }
 
-  if(mod_flag && (vector != -1)){
-    // If no a flag, use current, otherwise use
-    if(input_idt){
-      idt.base= (uint64_t) input_idt;
-      idt.limit = IDT_SZ_BYTES - 1;
-    }else{
-      // No user supplied idt
-      get_current_idtr(&idt);
-    }
-    modify_idt(&idt, vector, mod_option);
+  // Modifier
+  if(p->mod_flag && (p->vector != -1)){
+    modifier(p);
   }
 
-  if(install_flag){
-    struct dtr old_idt;
-    get_current_idtr(&old_idt);
-
-    // If no a flag, use current, otherwise use
-    if(input_idt){
-      idt.base= (uint64_t) input_idt;
-      idt.limit = IDT_SZ_BYTES - 1;
-    }else{
-      // No user supplied idt
-      idt = old_idt;
-      /* get_current_idtr(&idt); */
-    }
-    install_idt(&idt);
-    printf("%lx\n", old_idt.base);
+  // Installer
+  if(p->install_flag){
+    installer(p);
   }
 
 }
