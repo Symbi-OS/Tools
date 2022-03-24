@@ -7,14 +7,7 @@
 #include <string.h>
 #include "../libs/symlib/include/LINF/sym_all.h"
 
-enum pg_level {
-  MOD_IST_ENABLE,
-  MOD_IST_DISABLE
-};
-
-typedef void * (*vzalloc_t)(unsigned long);
-typedef void (*kvfree_t)(void *);
-typedef void (*void_fn_ptr)(unsigned long);
+#include "idt_tool.h"
 
 #define eprintf(...) fprintf (stderr, __VA_ARGS__)
 
@@ -85,54 +78,9 @@ void * copy_idt(struct dtr* src_idt){
   return idt_cp;
 }
 
-void * modify_idt(struct dtr *idt, int vector, unsigned int mod_option){
-  assert(idt != NULL);
-  assert(vector >= 0);
-
-  if(mod_option == MOD_IST_ENABLE){
-    unsigned int enable = 1;
-    sym_toggle_pg_ft_ist((unsigned char *)idt->base, enable);
-  }else if(mod_option == MOD_IST_DISABLE){
-    unsigned int disable = 0;
-    sym_toggle_pg_ft_ist((unsigned char *)idt->base, disable);
-  }
-  return (void *)idt->base;
-}
-
 void install_idt(struct dtr *idt){
   sym_load_idtr(idt);
 }
-
-struct params{
-  // This should be initialized before use.
-  // See init_params
-
-  // The relevant IDT
-  struct dtr idt;
-
-  // Just return current idtr
-  bool get_idtr_flag;
-
-  // User supplied IDT
-  void * input_idt;
-
-  // Descriptor offset in IDT
-  int vector;
-
-  // We're modifying a descriptor
-  bool mod_flag;
-  // Which modification we are doing
-  unsigned int mod_option;
-
-  // Are we just printing?
-  bool print_flag;
-
-  // Need to copy IDT
-  bool cp_flag;
-
-  // Installing another IDT
-  bool install_flag;
-};
 
 void current_or_supplied_idt(struct params *p){
   if(p->input_idt){
@@ -166,11 +114,6 @@ void copier(struct params *p){
   printf("copied_idt %p\n", copied_idt);
 }
 
-void modifier(struct params *p){
-  current_or_supplied_idt(p);
-  modify_idt(&(p->idt), p->vector, p->mod_option);
-}
-
 void installer(struct params *p){
   struct dtr old_idt;
   get_current_idtr(&old_idt);
@@ -186,6 +129,37 @@ void installer(struct params *p){
   }
   install_idt(&(p->idt));
   printf("%lx\n", old_idt.base);
+}
+
+void * modifier(struct params *p){
+  printf("modifier\n");
+  // vector not less than 0
+
+  assert( (p->vector >= 0) && (p->vector < NUM_IDT_ENTRIES) );
+
+  current_or_supplied_idt(p);
+  // non null idt to modify
+  assert((p->idt).base != 0);
+
+  if(p->mod_option == MOD_IST_ENABLE){
+    unsigned int enable = 1;
+    sym_toggle_pg_ft_ist((unsigned char *) ( (p->idt).base ), enable);
+
+  }else if(p->mod_option == MOD_IST_DISABLE){
+    unsigned int disable = 0;
+    sym_toggle_pg_ft_ist((unsigned char *) ( (p->idt).base ), disable);
+
+  }else if(p->mod_option == MOD_ADDR){
+    assert(p->mod_addr != NULL);
+
+    // Get descriptor ptr
+    union idt_desc * desc = sym_get_idt_desc((unsigned char *) (p->idt).base, p->vector);
+
+    sym_update_desc_handler(desc, p->mod_addr);
+  }
+
+  // make sure handler addr isn't 0
+  return (void *)(p->idt).base;
 }
 
 void init_params(struct params * p){
@@ -236,11 +210,20 @@ void parse_args(int argc, char *argv[], struct params *p){
         break;
       case 'm':
         p->mod_flag = 1;
+
         // Modify
         if(!strcmp(optarg, "ist_enable")){
           p->mod_option = MOD_IST_ENABLE;
+
         }else if (!strcmp(optarg, "ist_disable")){
           p->mod_option = MOD_IST_DISABLE;
+
+        } else if(! strncmp(optarg, "addr:", 5)){
+          // If first 5 chars are "addr:"
+          char *c = optarg;
+          c += 5;
+          p->mod_option = MOD_ADDR;
+          p->mod_addr = (void *) strtoull(c, NULL, 16);
         }else {
           eprintf("Don't know that mod option\n");
           exit(-1);
@@ -317,4 +300,5 @@ int main(int argc, char *argv[]){
     installer(p);
   }
 
+  printf("done main\n");
 }

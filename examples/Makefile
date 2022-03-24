@@ -38,8 +38,8 @@ $(KALLSYMLIB):
 $(SYMLIB):
 	make -C $(SYMLIB_DIR)
 
-$(IDT)/idt_tool: $(IDT)/idt_tool.c | $(DEPENDENCY_LIBS)
-	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
+$(IDT)/idt_tool: $(IDT)/idt_tool.c $(IDT)/idt_tool.h | $(DEPENDENCY_LIBS)
+	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
 
 $(ECO)/client_RW: $(ECO)/client.c | $(DEPENDENCY_LIBS)
 	$(CC) -DUSE_READ_WRITE $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)

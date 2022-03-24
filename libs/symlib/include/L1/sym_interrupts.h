@@ -22,6 +22,9 @@ void sym_store_idt_desc(struct dtr *location);
 void sym_set_idt_desc(unsigned char *idt_base, unsigned int idx, union idt_desc *new_desc);
 union idt_desc * sym_get_idt_desc(unsigned char *idt_base, unsigned int idx);
 
+void * sym_get_addr_from_desc(union idt_desc *desc);
+void * sym_update_desc_handler(union idt_desc *desc, void *p);
+
 void sym_load_addr_from_desc(union idt_desc *desc, union idt_addr *addr);
 
 void sym_load_desc_from_addr(union idt_desc *desc, union idt_addr *addr);

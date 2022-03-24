@@ -100,11 +100,37 @@ void sym_set_idt_desc(unsigned char *idt_base, unsigned int idx, union idt_desc 
   sym_lower();
 }
 
+// TODO better name
+void * sym_get_addr_from_desc(union idt_desc *desc){
+
+  union idt_addr addr;
+  sym_elevate();
+  addr.dcmp.lo  = desc->fields.lo_addr;
+  addr.dcmp.mid = desc->fields.mid_addr;
+  addr.dcmp.hi  = desc->fields.hi_addr;
+  sym_lower();
+  return (void *) addr.raw;
+}
+
+// Loads desc from ptr.
+void sym_update_desc_handler(union idt_desc *desc, void *p){
+  union idt_addr addr;
+  addr.raw = (uint64_t) p;
+  sym_elevate();
+  desc->fields.lo_addr  = addr.dcmp.lo;
+  desc->fields.mid_addr = addr.dcmp.mid;
+  desc->fields.hi_addr  = addr.dcmp.hi;
+  sym_lower();
+}
+
+
 // Loads up an addr from a desc.
 void sym_load_addr_from_desc(union idt_desc *desc, union idt_addr *addr){
+  sym_elevate();
   addr->dcmp.lo  = desc->fields.lo_addr;
   addr->dcmp.mid = desc->fields.mid_addr;
   addr->dcmp.hi  = desc->fields.hi_addr;
+  sym_lower();
 }
 
 // Loads desc from an addr.
@@ -114,7 +140,6 @@ void sym_load_desc_from_addr(union idt_desc *desc, union idt_addr *addr){
   desc->fields.mid_addr = addr->dcmp.mid;
   desc->fields.hi_addr  = addr->dcmp.hi;
   sym_lower();
-
 }
 
 // TODO this is a stupid idt type. Try void *
@@ -126,9 +151,9 @@ void sym_print_idt_desc(unsigned char *idt, unsigned int idx){
 
   union idt_addr my_idt_addr;
 
-  sym_elevate();
   sym_load_addr_from_desc(my_desc, &my_idt_addr);
 
+  sym_elevate();
   printf("full addr: %lx\n", my_idt_addr.raw       );
   printf("segment:   %x\n",   my_desc->fields.seg_sel);
   printf("ist:       %x\n",   my_desc->fields.ist    );
