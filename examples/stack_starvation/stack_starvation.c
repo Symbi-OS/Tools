@@ -400,12 +400,12 @@ void check_idt_and_pf(){
 }
 
 /* #define NORMAL_PROCESS 1 */
-/* #define NAIVE_ELEVATION 1 */
+#define NAIVE_ELEVATION 1
 /* #define PREFAULT_ELEVATION 1 */
 /* #define IST_ELEVATION 1 */
 /* #define SYSTEM_IST_ELEVATION 1 */
 /* #define IDT_INTERPOSE 1 */
-#define SYSTEM_IDT_INTERPOSE 1
+/* #define SYSTEM_IDT_INTERPOSE 1 */
 
 int main(){
   printf("Starting main\n");
