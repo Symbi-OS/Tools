@@ -6,7 +6,7 @@
 
 void sym_lib_init(){
   // Init kall sym lib
-  printf("Manual Init symlib NYI\n");
+  /* printf("Manual Init symlib NYI\n"); */
 
   // HACK
   char *path = "/boot/System.map-5.14.0-symbiote+";
@@ -19,6 +19,7 @@ void sym_lib_init(){
     }
   }
 
+  return;
   // Init inner layers. Must be done after kallsym_lib
 
   // Init L2

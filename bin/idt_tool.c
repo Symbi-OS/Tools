@@ -111,7 +111,7 @@ void copier(struct params *p){
 
   void * copied_idt = NULL;
   copied_idt = copy_idt(&(p->idt));
-  printf("copied_idt %p\n", copied_idt);
+  printf("%lx\n", (uint64_t) copied_idt);
 }
 
 void installer(struct params *p){
@@ -186,10 +186,10 @@ void sym_toggle_page_exe_disable(void * addr, bool disable){
   unsigned int level;
   struct pte *pte = sym_get_pte((uint64_t) addr, &level);
 
-  sym_print_pte(pte);
+  /* sym_print_pte(pte); */
 
   sym_elevate(); pte->XD = disable; sym_lower();
-  sym_print_pte(pte);
+  /* sym_print_pte(pte); */
 
   // TODO Still need to invalidate
   sym_flush_tlb();
@@ -207,6 +207,10 @@ void handler_pager(struct params *p){
   if(p->hdl_option == HDL_DF){
     src = &df_asm_handler;
     sz = 0x1d;
+  }
+  if(p->hdl_option == HDL_TF){
+    src = &tf_asm_handler;
+    sz = 0x23;
   }
 
   assert(src != NULL);
@@ -310,6 +314,9 @@ void parse_args(int argc, char *argv[], struct params *p){
         if(!strcmp(optarg, "df")){
           p->hdl_option = HDL_DF;
         }
+        if(!strcmp(optarg, "tf")){
+          p->hdl_option = HDL_TF;
+        }
         break;
 
       case '?':
@@ -375,5 +382,5 @@ int main(int argc, char *argv[]){
     handler_pager(p);
   }
 
-  printf("done main\n");
+  /* printf("done main\n"); */
 }

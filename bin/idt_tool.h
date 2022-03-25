@@ -10,7 +10,8 @@ enum mod_options {
 };
 
 enum handler_options {
-  HDL_DF
+  HDL_DF,
+  HDL_TF
 };
 
 struct params{

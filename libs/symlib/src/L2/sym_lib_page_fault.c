@@ -126,7 +126,10 @@ extern uint64_t __attribute__((unused)) c_df_handler;
 
 
 MY_FINAL_HANDLER(c_df_handler, *my_df_entry, *my_asm_exc_page_fault);
-
+// 6 = user + write
+// Rest is to call into 8 byte address without clobbering any registers.
+// Push random reg to stack, put addr in that reg & swap w/o dirtying a reg.
+// Tell me if there's an easier way!
   __asm__("\
   .text \n\t\
   .align 16 \n\t\
@@ -134,6 +137,29 @@ MY_FINAL_HANDLER(c_df_handler, *my_df_entry, *my_asm_exc_page_fault);
   df_asm_handler: \n\t\
   movq   $0x6,(%rsp) \n\t\
   push   %rax \n\t\
+  mov    $0xffffffff81e00ac0,%rax \n\t\
+  xor    (%rsp),%rax /*Arlo's trick*/ \n\t\
+  xor    %rax,(%rsp) \n\t\
+  xor    (%rsp),%rax \n\t\
+  ret \
+");
+
+// Text fault handler
+// Save rsi
+// move ptr to ef into rsi
+// set user bit of error code to lie to kernel
+// Store error code back in ef
+// slide into normal pf handler
+__asm__("\
+  .text \n\t\
+  .align 16 \n\t\
+  .globl \t tf_asm_handler \n\t\
+  tf_asm_handler: \n\t\
+  pushq %rsi                    \n\t\
+  movq 8(%rsp),%rsi             \n\t\
+  orq $0x4, %rsi                \n\t\
+  movq %rsi, 8(%rsp)            \n\t\
+  popq %rsi                     \n\t\
   mov    $0xffffffff81e00ac0,%rax \n\t\
   xor    (%rsp),%rax /*Arlo's trick*/ \n\t\
   xor    %rax,(%rsp) \n\t\

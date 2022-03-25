@@ -90,6 +90,7 @@ static_assert(sizeof(struct pte) ==8, "Size of pte is not correct");
 
 extern void c_handler_page_fault();
 extern void df_asm_handler();
+extern void tf_asm_handler();
 
 void sym_print_pte(struct pte *pte);
 void sym_lib_page_fault_init();

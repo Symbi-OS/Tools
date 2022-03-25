@@ -273,9 +273,9 @@ void show_prefault_works(){
 */
 
 /* #define NORMAL_PROCESS 1 */
-/* #define NAIVE_ELEVATION 1 */
+#define NAIVE_ELEVATION 1
 /* #define PREFAULT_ELEVATION 1 */
-#define INT_INTERPOSITION 1
+/* #define INT_INTERPOSITION 1 */
 /* #define SYSTEM_INT_INTERPOSITION 1 */
 /* #define NOP_SLIDE 1 */
 
