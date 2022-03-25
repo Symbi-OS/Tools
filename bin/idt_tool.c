@@ -186,10 +186,11 @@ void sym_toggle_page_exe_disable(void * addr, bool disable){
   unsigned int level;
   struct pte *pte = sym_get_pte((uint64_t) addr, &level);
 
-  sym_print_pte(addr);
+  sym_print_pte(pte);
 
   sym_elevate(); pte->XD = disable; sym_lower();
-  sym_print_pte(addr);
+  sym_print_pte(pte);
+
   // TODO Still need to invalidate
   sym_flush_tlb();
 }
