@@ -27,7 +27,7 @@ IDT=../bin/
 
 
 EXECS=$(SSD)/stack_starvation $(TFD)/text_fault $(I3D)/int3_probe $(P3D)/print_cr3_static $(GPD)/getppid $(POLLD)/poller $(ECO)/client_RW $(ECO)/server_RW \
-	$(IDT)/idt_tool
+	$(IDT)/idt_tool $(IDT)/vm_tool
 
 all: $(EXECS)
 
@@ -37,6 +37,9 @@ $(KALLSYMLIB):
 
 $(SYMLIB):
 	make -C $(SYMLIB_DIR)
+
+$(IDT)/vm_tool: $(IDT)/vm_tool.c $(IDT)/vm_tool.h | $(DEPENDENCY_LIBS)
+	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
 
 $(IDT)/idt_tool: $(IDT)/idt_tool.c $(IDT)/idt_tool.h | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
