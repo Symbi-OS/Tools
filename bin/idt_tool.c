@@ -11,6 +11,140 @@
 
 #define eprintf(...) fprintf (stderr, __VA_ARGS__)
 
+// XXX all this needs to get pulled into symbiote lib
+
+// TODO: data structure jmp table fixed pos for each symbol
+
+// TODO: GDB for kern code with 0xcc
+// TODO: TLB SHOOTDOWN tool
+// TODO: cacheline flush
+
+struct ef{
+  uint64_t ec;
+  uint64_t ip;
+  uint64_t cs;
+  uint64_t rf;
+  uint64_t sp;
+  uint64_t ss;
+};
+#define MY_PUSH_REGS                            \
+  __asm__("\
+  pushq   %rdi		/* pt_regs->di */ \n\t\
+  pushq   %rsi		/* pt_regs->si */ \n\t\
+  pushq	  %rdx		/* pt_regs->dx */ \n\t\
+  pushq   %rcx		/* pt_regs->cx */ \n\t\
+  pushq   %rax		/* pt_regs->ax */ \n\t\
+  pushq   %r8		/* pt_regs->r8 */ \n\t\
+  pushq   %r9		/* pt_regs->r9 */ \n\t\
+  pushq   %r10		/* pt_regs->r10 */ \n\t\
+  pushq   %r11		/* pt_regs->r11 */ \n\t\
+  pushq	  %rbx		/* pt_regs->rbx */ \n\t\
+  pushq	  %rbp		/* pt_regs->rbp */ \n\t\
+  pushq	  %r12		/* pt_regs->r12 */ \n\t\
+  pushq	  %r13		/* pt_regs->r13 */ \n\t\
+  pushq	  %r14		/* pt_regs->r14 */ \n\t\
+  pushq	  %r15		/* pt_regs->r15 */ \
+");
+#define MY_POP_REGS                             \
+  __asm__("\
+	popq %r15 \n\t\
+	popq %r14 \n\t\
+	popq %r13 \n\t\
+	popq %r12 \n\t\
+	popq %rbp \n\t\
+	popq %rbx \n\t\
+	popq %r11 \n\t\
+	popq %r10 \n\t\
+	popq %r9  \n\t\
+	popq %r8  \n\t\
+	popq %rax \n\t\
+	popq %rcx \n\t\
+	popq %rdx \n\t\
+	popq %rsi \n\t\
+	popq %rdi \
+");
+
+#define MAKE_FAKE_EF                             \
+  __asm__("\
+                   /*Pretend excep frame*/                              \
+  pushq   $0xbad5                                                \n\t   \
+  pushq   $0xbad4                                                \n\t   \
+  pushq   $0xbad3                                                \n\t   \
+  pushq   $0xbad1                                                \n\t   \
+  pushq   $0xbad1                                                \n\t   \
+  pushq   $0xbad0                                                 \n\t  \
+");
+
+#define DEFINE_TF_INTERPOSER \
+__asm__("\
+                  /*prologue*/                                       \
+  .text                                                          \n\t\
+  .align 16                                                      \n\t\
+  .globl \t tf_interposer_asm                                    \n\t\
+  tf_interposer_asm:                                             \n\t\
+");
+
+extern void tf_interposer_asm();
+// NOTE Define fn in assembly
+DEFINE_TF_INTERPOSER
+
+// NOTE Produce fake exception frame
+/* MAKE_FAKE_EF */
+
+// NOTE Want to pass ef pointer to interposer C code
+__asm__(" \
+  pushq %rdi                 /*Preserve rdi */ \n\t\
+  movq %rsp, %rdi            /*Get rsp for 1st arg to c fn */ \n\t\
+  add $8, %rdi               /* Push set us back 8 */ \n\t");
+
+// NOTE Save all regs.
+MY_PUSH_REGS
+
+// NOTE Call into C code
+__asm__("  call sym_tf_set_user_bit");
+
+// NOTE Restore regs
+MY_POP_REGS
+
+__asm__("                     \
+  popq %rdi                   /*Done with 1st arg, restore user rdi  */ \n\t\
+\
+  push   %rax                      \n\t\
+  mov    $0xffffffff81e00ac0,%rax  /* asm_exc_page_fault */ \n\t   \
+  xor    (%rsp),%rax               /*Arlo's trick*/ \n\t\
+  xor    %rax,(%rsp)               \n\t\
+  xor    (%rsp),%rax               \n\t\
+  ret \
+");
+
+
+// XXX this fn must be on the same page as tf_interposer_asm
+void sym_tf_set_user_bit(struct ef * s){
+  /* Are we an instruction fetch? */
+  if( s->ec & INS_FETCH){
+    // We don't need to special case when in ring 3.
+    if(! (s->ec & USER_FT) )  {
+        // Are we user code?
+        // Could look in cr2, but by def rip caused the fault here.
+        // This is modeled after kern:fault_in_kernel_space
+        if( s->ip < ( (1UL << 47) - PG_SZ) ){
+          /// Lie that code was running in user mode.
+          s->ec |= USER_FT;
+          /* myprintk("swinging err code for\n"); */
+          /* print_ef(); */
+          /* myprintki("my_ctr %d\n", my_ctr++); */
+        }
+    }
+  }
+
+  /* printf("ss %lx\n", ((struct ef *)s)->ss); */
+  /* printf("sp %lx\n", ((struct ef *)s)->sp); */
+  /* printf("rf %lx\n", ((struct ef *)s)->rf); */
+  /* printf("cs %lx\n", ((struct ef *)s)->cs); */
+  /* printf("ip %lx\n", ((struct ef *)s)->ip); */
+  /* printf("ec %lx\n", ((struct ef *)s)->ec); */
+}
+
 void help(){
   eprintf("./idt_tool hi");
   eprintf("options: \n");
@@ -209,14 +343,16 @@ void handler_pager(struct params *p){
     sz = 0x1d;
   }
   if(p->hdl_option == HDL_TF){
-    src = &tf_asm_handler;
-    sz = 0x23;
+    /* src = &tf_asm_handler; */
+    src = &tf_interposer_asm;
+    sz = PG_SZ;
   }
 
   assert(src != NULL);
   assert(sz != 0);
   assert(sz <= (int) PG_SZ);
 
+  // Do this with a non-temporal store?
   sym_memcpy(hdl_pg, src, sz);
 
   int disable = 0;
