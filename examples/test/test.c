@@ -180,15 +180,10 @@ void alloc(){
 
   // write some code in
   unsigned char * tempCode = (unsigned char *) (virtualCodeAddress);
+
   memcpy(tempCode, tf_interposer_asm, 4096 );
 
-  /* tempCode[0] = 0xb8; */
-  /* tempCode[1] = 0x00; */
-  /* tempCode[2] = 0x11; */
-  /* tempCode[3] = 0xdd; */
-  /* tempCode[4] = 0xee; */
-  /* // ret code! Very important! */
-  /* tempCode[5] = 0xc3; */
+  // TODO Flush data cache: flush, write barrier, ins barrier (cpuid)
 
   asmFunc myFunc = (asmFunc) (virtualCodeAddress);
 
