@@ -32,8 +32,6 @@ struct ef{
   uint64_t ss;
 };
 
-
-
 /*
   Exception frame:
 
@@ -49,82 +47,93 @@ struct ef{
   low mem, high stack
  */
 
-extern void tf_interposer_asm();
+#define MY_PUSH_REGS                            \
+  __asm__("\
+  pushq   %rdi		/* pt_regs->di */ \n\t\
+  pushq   %rsi		/* pt_regs->si */ \n\t\
+  pushq	  %rdx		/* pt_regs->dx */ \n\t\
+  pushq   %rcx		/* pt_regs->cx */ \n\t\
+  pushq   %rax		/* pt_regs->ax */ \n\t\
+  pushq   %r8		/* pt_regs->r8 */ \n\t\
+  pushq   %r9		/* pt_regs->r9 */ \n\t\
+  pushq   %r10		/* pt_regs->r10 */ \n\t\
+  pushq   %r11		/* pt_regs->r11 */ \n\t\
+  pushq	  %rbx		/* pt_regs->rbx */ \n\t\
+  pushq	  %rbp		/* pt_regs->rbp */ \n\t\
+  pushq	  %r12		/* pt_regs->r12 */ \n\t\
+  pushq	  %r13		/* pt_regs->r13 */ \n\t\
+  pushq	  %r14		/* pt_regs->r14 */ \n\t\
+  pushq	  %r15		/* pt_regs->r15 */ \
+");
+#define MY_POP_REGS                             \
+  __asm__("\
+	popq %r15 \n\t\
+	popq %r14 \n\t\
+	popq %r13 \n\t\
+	popq %r12 \n\t\
+	popq %rbp \n\t\
+	popq %rbx \n\t\
+	popq %r11 \n\t\
+	popq %r10 \n\t\
+	popq %r9  \n\t\
+	popq %r8  \n\t\
+	popq %rax \n\t\
+	popq %rcx \n\t\
+	popq %rdx \n\t\
+	popq %rsi \n\t\
+	popq %rdi \
+");
+
+#define MAKE_FAKE_EF                             \
+  __asm__("\
+                   /*Pretend excep frame*/                              \
+  pushq   $0xbad5                                                \n\t   \
+  pushq   $0xbad4                                                \n\t   \
+  pushq   $0xbad3                                                \n\t   \
+  pushq   $0xbad1                                                \n\t   \
+  pushq   $0xbad1                                                \n\t   \
+  pushq   $0xbad0                                                 \n\t  \
+");
+
+#define DEFINE_TF_INTERPOSER \
 __asm__("\
                   /*prologue*/                                       \
   .text                                                          \n\t\
   .align 16                                                      \n\t\
   .globl \t tf_interposer_asm                                    \n\t\
   tf_interposer_asm:                                             \n\t\
-                   /*Pretend excep frame*/                           \
-  pushq   $0xbad5                                                \n\t\
-  pushq   $0xbad4                                                \n\t\
-  pushq   $0xbad3                                                \n\t\
-  pushq   $0xbad1                                                \n\t\
-  pushq   $0xbad1                                                \n\t\
-  pushq   $0xbad0                                                 \n\t\
-                      /*Software really begins here*/ \n\t\
-                      /*Preserve rdi */ \n\t\
-pushq %rdi \n\t\
-                      /*Get rsp for 1st arg to c fn */ \n\t\
-movq %rsp, %rdi \n\t\
-                      /* Push set us back 8 */ \n\t \
-add $8, %rdi \n\t\
-                   /*push regs*/                                 \n\t\
-  pushq   %rdi                                                   \n\t\
-  pushq   %rsi                                                   \n\t\
-  pushq	  %rdx                                                   \n\t\
-  pushq   %rcx                                                   \n\t\
-  pushq   %rax                                                   \n\t\
-  pushq   %r8	                                                   \n\t\
-  pushq   %r9	                                                   \n\t\
-  pushq   %r10                                                   \n\t\
-  pushq   %r11                                                   \n\t\
-  pushq	  %rbx                                                   \n\t\
-  pushq	  %rbp                                                   \n\t\
-  pushq	  %r12                                                   \n\t\
-  pushq	  %r13                                                   \n\t\
-  pushq	  %r14                                                   \n\t\
-  pushq	  %r15                                                   \n\t\
-              /*safe to call c.  */        \
-  call sym_tf_set_user_bit \n\t\
-                      /*pop regs */                                  \
-  popq    %r15                                                   \n\t\
-  popq    %r14                                                   \n\t\
-  popq    %r13                                                   \n\t\
-  popq    %r12                                                   \n\t\
-  popq    %rbp                                                   \n\t\
-  popq    %rbx                                                   \n\t\
-  popq    %r11                                                   \n\t\
-  popq    %r10                                                   \n\t\
-  popq    %r9                                                    \n\t\
-  popq    %r8                                                    \n\t\
-  popq    %rax                                                   \n\t\
-  popq    %rcx                                                   \n\t\
-  popq    %rdx                                                   \n\t\
-  popq    %rsi                                                   \n\t\
-  popq    %rdi                                                   \n\t\
-                      /*Done with 1st arg, restore user rdi  */ \n\t\
-popq %rdi \n\t\
-                      /*Forget ef */                                 \
-  addq $48, %rsp \n\t\
-                      /*Branch to real pfh */   \
-  ret \
-  ");
+");
+
+extern void tf_interposer_asm();
+// NOTE Define fn in assembly
+DEFINE_TF_INTERPOSER
+
+// NOTE Produce fake exception frame
+MAKE_FAKE_EF
+
+// NOTE Want to pass ef pointer to interposer C code
+__asm__(" \
+  pushq %rdi                 /*Preserve rdi */ \n\t\
+  movq %rsp, %rdi            /*Get rsp for 1st arg to c fn */ \n\t\
+  add $8, %rdi               /* Push set us back 8 */ \n\t");
+
+// NOTE Save all regs.
+MY_PUSH_REGS
+
+// NOTE Call into C code
+__asm__("  call sym_tf_set_user_bit");
+
+// NOTE Restore regs
+MY_POP_REGS
+
+__asm__("                     \
+  popq %rdi                   /*Done with 1st arg, restore user rdi  */ \n\t\
+  addq $48, %rsp              /*Forget ef */ \n\t\
+  ret                         /*Branch to real pfh */ ");
+
+
 // XXX this fn must be on the same page as tf_interposer_asm
 void sym_tf_set_user_bit(struct ef * s){
-  // Lay this bad boy backwards cus it's on the stack
-  /* uint64_t s; */
-
-  /* __asm__("movq %%rsp,%0"                          \ */
-  /*         : "=r" (s)                          \ */
-  /*         : : "memory") ; */
-
-  /* // Hard code our way back to the "hw" pushed ef. */
-  /* s += 8 + 16;      // pushes rbp and allocates s. Subs 0x10, alignment? */
-  /* s += 8;         // RIP for caller // XXX remove when not called */
-  /* s += 120;      // 15 saved regs */
-
   /* Are we an instruction fetch? */
   if( s->ec & INS_FETCH){
     // We don't need to special case when in ring 3.
@@ -142,12 +151,12 @@ void sym_tf_set_user_bit(struct ef * s){
       }
   }
 
-  /* printf("ss %lx\n", ((struct ef *)s)->ss); */
-  /* printf("sp %lx\n", ((struct ef *)s)->sp); */
-  /* printf("rf %lx\n", ((struct ef *)s)->rf); */
-  /* printf("cs %lx\n", ((struct ef *)s)->cs); */
-  /* printf("ip %lx\n", ((struct ef *)s)->ip); */
-  /* printf("ec %lx\n", ((struct ef *)s)->ec); */
+  printf("ss %lx\n", ((struct ef *)s)->ss);
+  printf("sp %lx\n", ((struct ef *)s)->sp);
+  printf("rf %lx\n", ((struct ef *)s)->rf);
+  printf("cs %lx\n", ((struct ef *)s)->cs);
+  printf("ip %lx\n", ((struct ef *)s)->ip);
+  printf("ec %lx\n", ((struct ef *)s)->ec);
 }
 /* push %rax \n\t\ */
 /* mov $0xffffffff81e00ac0, %rax      \n\t\ */
@@ -192,3 +201,4 @@ int main(){
   tf_interposer_asm();
   /* alloc(); */
 }
+
