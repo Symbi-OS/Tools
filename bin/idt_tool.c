@@ -146,12 +146,25 @@ void sym_tf_set_user_bit(struct ef * s){
 }
 
 void help(){
-  eprintf("./idt_tool hi");
-  eprintf("options: \n");
-  eprintf("\t-h help: this help menu\n");
-  eprintf("\t-g get current idt:  print current idt \n");
+  eprintf("./idt_tool:\n");
+  eprintf("options:\n");
+  eprintf("\t-a <addr>: address of idt, current loaded assumed if not provided\n");
+  eprintf("\tc:         copy idt return ptr to copy on kern pg\n");
+  eprintf("\tg:         get current idtr\n");
+  eprintf("\th:         print this help msg\n");
+  eprintf("\ti:         install idt (swing idtr)\n");
+  eprintf("\tm <ist_enable|ist_disable|addr:0xaddr>: modify idt entry\n");
+  eprintf("\tp:         print\n");
+  eprintf("\tv <dec#>:  vector number for print / modify\n");
+  eprintf("\tz <df|tf>: which mitigation to copy to kern page\n");
 
-  eprintf("given no a, will be relative to current\n");
+  eprintf("examples: \n");
+
+  eprintf("taskset -c 1 ./idt_tool -g\n");
+  eprintf("taskset -c 1 ./idt_tool -c\n");
+  eprintf("./idt_tool -z tf\n");
+  eprintf("./idt_tool -a ffffc90000986000 -m addr:0xffffc9000098d000\n");
+  eprintf("taskset -c 1 ./idt_tool -a ffffc90000986000 -i\n");
 }
 
 void get_current_idtr(struct dtr * idt){
