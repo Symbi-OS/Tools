@@ -266,9 +266,7 @@ void installer(struct params *p){
 }
 
 void * modifier(struct params *p){
-  printf("modifier\n");
   // vector not less than 0
-
   assert(p->mod_option != -1);
 
   assert( (p->vector >= 0) && (p->vector < NUM_IDT_ENTRIES) );
@@ -294,6 +292,7 @@ void * modifier(struct params *p){
     sym_update_desc_handler(desc, p->mod_addr);
   }
 
+  printf("%lx\n", (p->idt).base );
   // make sure handler addr isn't 0
   return (void *)(p->idt).base;
 }
