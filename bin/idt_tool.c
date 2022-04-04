@@ -158,13 +158,13 @@ void help(){
   eprintf("\tv <dec#>:  vector number for print / modify\n");
   eprintf("\tz <df|tf>: which mitigation to copy to kern page\n");
 
-  eprintf("examples: \n");
+  eprintf("\nexamples:\n");
 
-  eprintf("taskset -c 1 ./idt_tool -g\n");
-  eprintf("taskset -c 1 ./idt_tool -c\n");
-  eprintf("./idt_tool -z tf\n");
-  eprintf("./idt_tool -a ffffc90000986000 -m addr:0xffffc9000098d000\n");
-  eprintf("taskset -c 1 ./idt_tool -a ffffc90000986000 -i\n");
+  eprintf("\ttaskset -c 1 ./idt_tool -g\n");
+  eprintf("\ttaskset -c 1 ./idt_tool -c\n");
+  eprintf("\t./idt_tool -z tf\n");
+  eprintf("\t./idt_tool -a ffffc90000986000 -m addr:0xffffc9000098d000 -v 14\n");
+  eprintf("\ttaskset -c 1 ./idt_tool -a ffffc90000986000 -i\n");
 }
 
 void get_current_idtr(struct dtr * idt){
