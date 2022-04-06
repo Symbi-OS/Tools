@@ -504,7 +504,8 @@ void parse_args(int argc, char *argv[], struct params *p){
 
 int main(int argc, char *argv[]){
   sym_lib_init();
-  /* sym_touch_every_page_text(); */
+  sym_touch_every_page_text();
+  sym_touch_stack();
 
   /* copy_and_install_idk_kern_page(); */
   // NOTE assumes the existance of at least idt_maps/sys_default.idt
