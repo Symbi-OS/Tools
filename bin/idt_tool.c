@@ -120,6 +120,26 @@ __asm__("                     \
 
 // XXX this fn must be on the same page as tf_interposer_asm
 void sym_tf_set_user_bit(struct ef * s){
+  /* Are we a read fault? */
+  if( s->ec & WR_FT){
+    // NYI write fault
+    // TODO: implement me
+
+  } else{
+    // read fault
+
+    // kern mode
+    if(! (s->ec & USER_FT) )  {
+
+      // User half
+      if( s->ip < ( (1UL << 47) - PG_SZ) ){
+        // Lie about it being user mode.
+        s->ec |= USER_FT;
+      }
+    }
+  }
+
+
   /* Are we an instruction fetch? */
   if( s->ec & INS_FETCH){
     // We don't need to special case when in ring 3.
