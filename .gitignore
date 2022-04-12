@@ -11,5 +11,7 @@ examples/stack_starvation/stack_starvation
 examples/sym_poll/poller
 examples/test/test
 examples/text_fault/text_fault
+examples/clock/clock
+examples/elevate_lower/elevate_lower
 libs/depricated/dynam_constructors/depricated/libelevate.so
 libs/symlib/build/
