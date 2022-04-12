@@ -15,6 +15,7 @@ DEPENDENCY_LIBS=$(KALLSYMLIB) $(SYMLIB)
 # TODO: Add all executables here.
 # Stack Starvation DIR
 SSD=stack_starvation
+ELO=elevate_lower
 TFD=text_fault
 I3D=int3_probe
 P3D=print
@@ -27,8 +28,9 @@ CLK=clock
 IDT=../bin/
 
 
-EXECS=$(SSD)/stack_starvation $(TFD)/text_fault $(I3D)/int3_probe $(P3D)/print_cr3_static $(GPD)/getppid $(POLLD)/poller $(ECO)/client_RW $(ECO)/server_RW \
-	$(IDT)/idt_tool $(IDT)/vm_tool $(CLK)/clock
+EXECS=$(SSD)/stack_starvation $(TFD)/text_fault $(I3D)/int3_probe $(P3D)/print_cr3_static $(GPD)/getppid \
+	$(POLLD)/poller $(ECO)/client_RW $(ECO)/server_RW $(IDT)/idt_tool $(IDT)/vm_tool $(CLK)/clock \
+	$(ELO)/elevate_lower
 
 all: $(EXECS)
 
@@ -38,6 +40,9 @@ $(KALLSYMLIB):
 
 $(SYMLIB):
 	make -C $(SYMLIB_DIR)
+
+$(ELO)/elevate_lower: $(ELO)/elevate_lower.c | $(DEPENDENCY_LIBS)
+	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
 
 $(IDT)/vm_tool: $(IDT)/vm_tool.c $(IDT)/vm_tool.h | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
