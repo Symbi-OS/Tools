@@ -4,6 +4,7 @@
 #include "LINF/sym_all.h"
 
 int main(int argc, char *argv[]){
+  sym_touch_stack();
   int count = atoi(argv[1]);
   assert(count >= 1);
   for(int i = 0; i<count; i++ ){
