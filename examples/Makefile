@@ -21,13 +21,14 @@ P3D=print
 GPD=getppid
 POLLD=sym_poll
 ECO=echo_server
+CLK=clock
 
 # Tools
 IDT=../bin/
 
 
 EXECS=$(SSD)/stack_starvation $(TFD)/text_fault $(I3D)/int3_probe $(P3D)/print_cr3_static $(GPD)/getppid $(POLLD)/poller $(ECO)/client_RW $(ECO)/server_RW \
-	$(IDT)/idt_tool $(IDT)/vm_tool
+	$(IDT)/idt_tool $(IDT)/vm_tool $(CLK)/clock
 
 all: $(EXECS)
 
@@ -51,6 +52,9 @@ $(ECO)/client_RW: $(ECO)/client.c | $(DEPENDENCY_LIBS)
 
 $(ECO)/server_RW: $(ECO)/server.c | $(DEPENDENCY_LIBS)
 	gcc -DUSE_READ_WRITE $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
+
+$(CLK)/clock: $(CLK)/clock.c | $(DEPENDENCY_LIBS)
+	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
 
 $(POLLD)/poller: $(POLLD)/poller.c | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
