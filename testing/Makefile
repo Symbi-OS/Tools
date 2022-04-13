@@ -18,9 +18,6 @@ elevate_lower_bash_loop:
 	for i in $$(seq 1 1000) ; do $(EL) 1000 ; done
 	echo done
 
-target:
-	for number in 1 2 3 4 ; do echo $$number ; done
-
 # Print cr3
 P3=$(EX)/print/print_cr3_static
 
@@ -37,18 +34,36 @@ print_cr3_bash_loop:
 
 # clock
 CL=$(EX)/clock/clock
+all_clock: clock clock_loop clock_bash_loop
+
 clock:
 	$(CL) 1
 
-# Steal syscall handler
+clock_loop:
+	$(CL) 10000000
 
-# Stack starvation interpostions
+clock_bash_loop:
+	for i in $$(seq 1 1000); do $(CL) 10000; done
 
-# text fault interposition
+GP=$(EX)/getppid/getppid
+all_getppid: getppid getppid_loop getppid_bash_loop
+# getppid shortcut
+getppid:
+	$(GP) 1
 
-# int3 interposition
+getppid_loop:
+	$(GP) 10000000
+
+getppid_bash_loop:
+	for i in $$(seq 1 10); do $(GP) 100000; done
+
+# lebench
+LE_DIR=../../new_lebench
+lebench:
+	make -C $(LE_DIR) sym_run_all
 
 # read
+
 
 # write
 
@@ -56,7 +71,6 @@ clock:
 
 # write short cut
 
-# getppid shortcut
 
 # fork
 
@@ -64,10 +78,17 @@ clock:
 
 # stack starvation mitigation
 
-# lebench
+# Stack starvation interpostions
+
+# text fault interposition
+
+# int3 interposition
+
 
 # echo server
 
 # redis
 
 # memcached
+
+# Steal syscall handler
