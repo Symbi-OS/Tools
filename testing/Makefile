@@ -57,6 +57,66 @@ getppid_loop:
 getppid_bash_loop:
 	for i in $$(seq 1 10); do $(GP) 100000; done
 
+# IDT tool
+IDT=../bin/idt_tool
+idt_get:
+	taskset -c 0 $(IDT) -g
+
+# hardcoding
+idt_set:
+	taskset	-c 0 $(IDT) -a fffffe0000000000 -i
+
+# Identity, get the idt and set it.
+idt_get_set:
+	$(eval IDT_ADDR=$(shell sh -c "taskset -c 0 $(IDT) -g" ))
+	taskset -c 0 $(IDT) -a $(IDT_ADDR) -i
+
+idt_get_set_loop:
+	for i in $$(seq 0 10); do make idt_get_set; done
+
+idt_get_loop:
+	for i in $$(seq 0 $$(( $$(nproc) - 1 )) ); do echo $$i && taskset -c $$i $(IDT) -g; done
+
+idt_set_loop:
+	$(eval IDT_ADDR=$(shell sh -c "taskset -c 0 $(IDT) -g" ))
+	for i in $$(seq 0 $$(( $$(nproc) - 1 )) ); do echo $$i && taskset -c $$i $(IDT) -a $(IDT_ADDR) -i; done
+
+MG=../bin/recipes/
+mitigate_cores:
+	cd $(MG) && ./mitigate_all.sh
+
+mitigate_cores_loop:
+	for i in $$(seq 0 100); do make mitigate_cores && make idt_reset; done
+
+
+# Happens to reset all cores to default idt
+idt_reset:
+	make idt_set
+	make idt_set_loop
+
+
+# TEST=$$(echo hi)
+# VAL=dog
+# idt_test:
+# # echo $(IDT_ADDR)
+# # $(TEST)
+# 	$(eval VAL= $(shell sh -c "echo cat"))
+# # VAL=$(echo hi) ; echo $$VAL
+# 	echo $(VAL)
+# 	VAL=$$(echo bye)
+# 	echo $(VAL)
+
+# getpodname:
+#     # Getting pod name
+#     @eval $$(minikube docker-env) ;\
+#     $(eval PODNAME=$(shell sh -c "kubectl get pods | grep profile-posts-api | grep Running" | awk '{print $$1}'))
+#     echo $(PODNAME)
+
+# dependency on .PHONY prevents Make from 
+# thinking there's `nothing to be done`
+# set_opts: .PHONY
+#   $(eval DOCKER_OPTS = -v $(shell mktemp -d -p /scratch):/output)
+
 # lebench
 LE_DIR=../../new_lebench
 lebench:
