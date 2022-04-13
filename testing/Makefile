@@ -21,11 +21,24 @@ elevate_lower_bash_loop:
 target:
 	for number in 1 2 3 4 ; do echo $$number ; done
 
-# Elevate and lower in a loop
-
 # Print cr3
+P3=$(EX)/print/print_cr3_static
+
+all_print_cr3: print_cr3 print_cr3_loop print_cr3_bash_loop
+
+print_cr3:
+	$(P3) 1
+
+print_cr3_loop:
+	$(P3) 100000000
+
+print_cr3_bash_loop:
+	for i in $$(seq 1 100); do $(P3) 100000; done
 
 # clock
+CL=$(EX)/clock/clock
+clock:
+	$(CL) 1
 
 # Steal syscall handler
 

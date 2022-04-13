@@ -2,12 +2,12 @@
 #include <sys/mman.h>
 #include <string.h>
 #include <time.h>
+#include <stdlib.h>
 
 #include "LINF/sym_all.h"
 
 /* #define ONE_TIMER */
 /* #define SYM_ELEVATE */
-
 
 FILE *fp;
 
@@ -32,11 +32,10 @@ struct Record
 	struct timespec end;
 };
 
-  void clock_bench(void) {
+void clock_bench(int loop) {
 
 	struct timespec diff = {0, 0};
 	int l;
-	int loop = 1<<23;
 
 #ifndef ONE_TIMER
 	struct Record *runs;
@@ -82,6 +81,19 @@ struct Record
 	return;
 }
 
-int main(void){
-  clock_bench();
+void elevated_clock(int count){
+  struct Record outer;
+
+  sym_elevate();
+	for (int  i=0; i < count; i++) {
+    clock_gettime(CLOCK_MONOTONIC, &outer.start);
+  }
+  sym_lower();
+}
+
+int main(int argc, char *argv[]){
+  int count = atoi(argv[1]);
+  assert(count >= 1);
+  /* clock_bench(); */
+  elevated_clock(count);
 }
