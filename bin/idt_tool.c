@@ -117,10 +117,47 @@ __asm__("                     \
   ret \
 ");
 
+#ifdef CTRS
+int wr_ctr = 0;
+int rd_ctr = 0;
+int ins_ctr = 0;
+
+int user_mode_ctr = 0;
+int kern_mode_ctr = 0;
+
+int user_area_ctr = 0;
+int interpose_ctr = 0;
+#endif
 
 // XXX this fn must be on the same page as tf_interposer_asm
 void sym_tf_set_user_bit(struct ef * s){
-#if 0
+
+#ifdef CTRS
+  // Ins fetch
+  if( s->ec & INS_FETCH){
+    ins_ctr++;
+  }
+  if( s->ec & WR_FT){
+    wr_ctr++;
+  } else{
+    rd_ctr++;
+  }
+    // We don't need to special case when in ring 3.
+  if(! (s->ec & USER_FT) )  {
+    user_mode_ctr++;
+  }else{
+    kern_mode_ctr++;
+  }
+
+  // User side of addr space
+  if( s->ip < ( (1UL << 47) - PG_SZ) ){
+    user_area_ctr++;
+  }else{
+    kern_area_ctr++;
+  }
+  interpose_ctr++;
+#endif
+
   /* Are we a read fault? */
   if( s->ec & WR_FT){
     // NYI write fault
