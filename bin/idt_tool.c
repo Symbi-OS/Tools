@@ -176,7 +176,6 @@ void sym_tf_set_user_bit(struct ef * s){
       }
     }
   }
-#endif
 
 
   /* Are we an instruction fetch? */
