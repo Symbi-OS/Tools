@@ -23,6 +23,7 @@ GPD=getppid
 POLLD=sym_poll
 ECO=echo_server
 CLK=clock
+GSM=gs_mitigate
 
 # Tools
 IDT=../bin/
@@ -30,7 +31,7 @@ IDT=../bin/
 
 EXECS=$(SSD)/stack_starvation $(TFD)/text_fault $(I3D)/int3_probe $(P3D)/print_cr3_static $(GPD)/getppid \
 	$(POLLD)/poller $(ECO)/client_RW $(ECO)/server_RW $(IDT)/idt_tool $(IDT)/vm_tool $(CLK)/clock \
-	$(ELO)/elevate_lower
+	$(ELO)/elevate_lower $(GSM)/gs_mitigate
 
 all: $(EXECS)
 
@@ -40,6 +41,9 @@ $(KALLSYMLIB):
 
 $(SYMLIB):
 	make -C $(SYMLIB_DIR)
+
+$(GSM)/gs_mitigate: $(GSM)/gs_mitigate.c | $(DEPENDENCY_LIBS)
+	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
 
 $(ELO)/elevate_lower: $(ELO)/elevate_lower.c | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
