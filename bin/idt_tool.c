@@ -157,7 +157,7 @@ void sym_tf_set_user_bit(struct ef * s){
   }
   interpose_ctr++;
 #endif
-
+#if 0
   /* Are we a read fault? */
   if( s->ec & WR_FT){
     // NYI write fault
@@ -176,6 +176,7 @@ void sym_tf_set_user_bit(struct ef * s){
       }
     }
   }
+#endif
 
 
   /* Are we an instruction fetch? */
