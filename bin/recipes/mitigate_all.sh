@@ -7,9 +7,12 @@ do
     # can bug like this
     # (./interposing_mitigator.sh -m df -t $i && \
     #      ./interposing_mitigator.sh -m tf -t $i ) &
+    {
     echo mitigating core $i
     ./interposing_mitigator.sh -m df -t $i
     ./interposing_mitigator.sh -m tf -t $i
+    echo done mitigation core $i
+    }&
 done
 
 wait
