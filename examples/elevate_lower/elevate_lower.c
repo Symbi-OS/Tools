@@ -15,7 +15,7 @@ void push_a_lot(){
   }
 
 }
-#define USE_MODE_SHIFT
+/* #define USE_MODE_SHIFT */
 
 int main(int argc, char *argv[]){
   uint64_t cr3_reg = 0;
@@ -29,10 +29,10 @@ int main(int argc, char *argv[]){
 #ifdef USE_MODE_SHIFT
   sym_mode_shift(SYM_ELEVATE_FLAG | SYM_INT_DISABLE_FLAG | SYM_INT_DISABLE_FLAG );
   // NOTE: interrupts disabled
-  /* asm("swapgs"); // get onto kern */
-  /* asm("rdgsbase %0" : "=r"(kern_gs)); */
-  /* asm("swapgs"); // get onto user */
-  /* asm("wrgsbase %0" : : "r"(kern_gs)); */
+  asm("swapgs"); // get onto kern
+  asm("rdgsbase %0" : "=r"(kern_gs));
+  asm("swapgs"); // get onto user
+  asm("wrgsbase %0" : : "r"(kern_gs));
   sym_mode_shift(SYM_LOWER_FLAG);
 #else
   sym_elevate();
