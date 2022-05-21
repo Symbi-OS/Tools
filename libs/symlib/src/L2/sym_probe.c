@@ -3,6 +3,8 @@
 #include "L1/sym_interrupts.h"
 #include "L2/sym_lib_page_fault.h"
 
+#include <string.h>
+
 #include "LIDK/idk.h"
 
 // This is the old handler we jmp to after our interposer.
@@ -15,7 +17,31 @@ static void (*myprintk)(char *);
 
 unsigned char reset_byte = 0xf;
 
+uint64_t int3_count = 0;
+uint64_t int3_rdi = 0;
+uint64_t int3_rsi = 0;
+uint64_t int3_rdx = 0;
+
+uint64_t addr_msg = 0;
+
 static void tu_c_entry(){
+  // HACK: safe way is to generate pointer into pt_regs
+  // This looks safe for first 3 args for now.
+  // RAX def gets clobbered XXX
+
+  // tcp_sendmsg
+  unsigned char *ucp = (unsigned char *) 0xffffffff81b50d00;
+  *ucp = 0xf;
+  int3_count++;
+
+  // looks good in objdump
+  asm("\t mov %%rdi,%0" : "=rm"(int3_rdi));
+  asm("\t mov %%rsi,%0" : "=rm"(int3_rsi));
+  asm("\t mov %%rdx,%0" : "=rm"(int3_rdx));
+
+  memcpy((void *)addr_msg, (void*)int3_rsi, 96);
+  return;
+
   myprintk("hey\n");
 
   uint64_t my_cr3;

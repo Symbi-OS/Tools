@@ -8,6 +8,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include <fcntl.h>
+
 #include "LINF/sym_all.h"
 
 #include "../../libs/kallsymlib/kallsymlib.h"
@@ -77,9 +79,15 @@ extern uint64_t cr3_reg;
 // Store system idtr here for later restoration.
 struct dtr system_idtr;
 void show_int_interposition_works(){
+  char l[80];
+  int f=open("/home/sym/Symbi-OS/Apps/examples/int3_probe/test",O_RDONLY);
+  printf("l lives at %p\n", l);
+  int n;
+
   // Elevation is used somewhat carefully here.
 
-  uint64_t addr__do_sys_getpid = get_fn_address("__do_sys_getpid");
+  /* uint64_t addr__do_sys_getpid = get_fn_address("__do_sys_getpid"); */
+  uint64_t addr__do_sys_getpid = get_fn_address("ksys_read");
   interpose_on_int3_ft();
 
   check_on_probe(addr__do_sys_getpid);
@@ -93,12 +101,16 @@ void show_int_interposition_works(){
   /* sym_make_pg_unwritable(addr__do_sys_getpid); */
 
   // NOTE: Hmm, shouldn't this fault as text is not writable?
-  getpid();
+
+
+  n=read(f,l,80);
+  /* getpid(); */
 
   check_on_probe(addr__do_sys_getpid);
 
   // Totally normal invocation
-  getpid();
+  /* getpid(); */
+  n=read(f,l,80);
 
   check_on_probe(addr__do_sys_getpid);
 }
@@ -123,16 +135,38 @@ void interpose_on_pg_ft(){
   sym_set_idtr((unsigned long)my_idt, IDT_SZ_BYTES - 1);
 }
 
+extern uint64_t int3_count;
+extern uint64_t int3_rdi;
+extern uint64_t int3_rsi;
+extern uint64_t int3_rdx;
 int main(){
+  struct dtr check_idtr;
+  sym_store_idt_desc(&check_idtr);
+
   printf("Starting main\n");
+
+  printf("int3_count:%#lx\n",int3_count );
+  printf("int3_rdi  :%#lx\n",int3_rdi   );
+  printf("int3_rsi  :%#lx\n",int3_rsi   );
+  printf("int3_rdx  :%#lx\n",int3_rdx   );
+
+
   sym_lib_init();
 
-  sym_mitigate_pf();
+  /* sym_mitigate_pf(); */
 
   // Where all the real work happens.
   show_int_interposition_works();
 
-  sym_mitigate_pf_cleanup();
+  /* sym_mitigate_pf_cleanup(); */
+
+  printf("int3_count:%#lx\n",int3_count );
+  printf("int3_rdi  :%#lx\n",int3_rdi   );
+  printf("int3_rsi  :%#lx\n",int3_rsi   );
+  printf("int3_rdx  :%#lx\n",int3_rdx   );
 
   printf("Done main\n");
+
+
+  sym_set_idtr((unsigned long)check_idtr.base, IDT_SZ_BYTES - 1);
 }

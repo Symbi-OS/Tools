@@ -102,6 +102,16 @@ dist_clean: clean
 	make -C $(SYMLIB_DIR) clean
 	make -C $(KALLSYMDIR) clean
 
+# Convenience
+show_cmdline:
+	cat /proc/cmdline
+
+mitigate_cores:
+	../bin/recipes/mitigate_all.sh
+
+rebuild_all:
+	make -C ../
+
 # MY_INCLUDES=-I../../linux/arch/x86/include/generated  -I../../linux/include -I../../linux/arch/x86/include/uapi -I../../linux/arch/x86/include/generated/uapi -I../../linux/include/uapi -I../../linux/include/generated/uapi -I../../linux/include
 
 # write_syscall_loop_static: write_syscall_loop.c ../lib_constructors/elevate.c
