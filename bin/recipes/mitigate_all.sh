@@ -1,4 +1,5 @@
 #!/bin/bash
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 # --all is very important if using isolcpu
 NUM_CPUS=$(nproc --all)
@@ -9,8 +10,8 @@ do
     #      ./interposing_mitigator.sh -m tf -t $i ) &
     {
     echo mitigating core $i
-    ./interposing_mitigator.sh -m df -t $i
-    ./interposing_mitigator.sh -m tf -t $i
+    ${SCRIPT_DIR}/interposing_mitigator.sh -m df -t $i
+    ${SCRIPT_DIR}/interposing_mitigator.sh -m tf -t $i
     echo done mitigation core $i
     }&
 done

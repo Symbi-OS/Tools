@@ -154,7 +154,8 @@ function install_idt () {
 
 # START HERE
 
-IDT_TOOL=$(pwd)/../idt_tool
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+IDT_TOOL=${SCRIPT_DIR}/../idt_tool
 
 parse_args "$@"
 
