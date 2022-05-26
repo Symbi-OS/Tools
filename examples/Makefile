@@ -18,6 +18,7 @@ SSD=stack_starvation
 ELO=elevate_lower
 TFD=text_fault
 I3D=int3_probe
+DBP=db_probe
 P3D=print
 GPD=getppid
 POLLD=sym_poll
@@ -31,7 +32,7 @@ IDT=../bin/
 
 EXECS=$(SSD)/stack_starvation $(TFD)/text_fault $(I3D)/int3_probe $(I3D)/trivial_int3 $(P3D)/print_cr3_static \
 $(GPD)/getppid $(POLLD)/poller $(ECO)/client_RW $(ECO)/server_RW $(IDT)/idt_tool $(IDT)/vm_tool $(CLK)/clock \
-	$(ELO)/elevate_lower $(GSM)/gs_mitigate
+	$(ELO)/elevate_lower $(GSM)/gs_mitigate $(DBP)/db_probe
 
 all: $(EXECS)
 
@@ -86,6 +87,9 @@ $(I3D)/int3_probe: $(I3D)/int3_probe.c | $(DEPENDENCY_LIBS)
 $(I3D)/trivial_int3: $(I3D)/trivial_int3.c | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR) $(KALLSYMLIB)
 
+$(DBP)/db_probe: $(DBP)/db_probe.c | $(DEPENDENCY_LIBS)
+	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR) $(KALLSYMLIB)
+
 run_ss:
 	taskset -c 0 $(SSD)/stack_starvation
 
@@ -112,6 +116,9 @@ run_i3:
 	sync
 	sync
 	taskset -c 0 $(I3D)/int3_probe
+
+run_db:
+	taskset -c 0 $(DBP)/db_probe
 
 cp_execs:
 	cp_to_disk.sh $(VM_DISK) $(EXECS)

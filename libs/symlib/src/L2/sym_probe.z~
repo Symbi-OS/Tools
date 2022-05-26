@@ -13,6 +13,7 @@ uint64_t orig_asm_exc_db;
 
 uint64_t cr3_reg = 0;
 
+
 static void (*myprintk)(char *);
 
 unsigned char reset_byte = 0xf;
@@ -24,42 +25,22 @@ uint64_t int3_rdx = 0;
 
 uint64_t addr_msg = 0;
 
-TRAP_HANDLER(int3_jmp_to_c, bp_c_entry);
-
-// NOTE: This function is not used in C code, but is used in inline assembly.
-// This asks the compiler not to warn about it being unused.
-static __attribute((unused)) void bp_c_entry(struct pt_regs *pt_r){
+static void tu_c_entry(){
   // HACK: safe way is to generate pointer into pt_regs
   // This looks safe for first 3 args for now.
   // RAX def gets clobbered XXX
 
   // tcp_sendmsg
-
-  // Assume we got here on an int3
-
-  // NOTE: PC has moved past int3. Need it there again to replace byte
-  // and to execute the instruction we replaced.
-  pt_r->rip -= 1;
-  unsigned char *ucp = (unsigned char *) pt_r->rip;
-  /*   // assert that val we got here on was 0xcc, or int3 */
-  while(*ucp != 0xcc);
-
-  // Fixup instruction assuming it's an 0xf
+  unsigned char *ucp = (unsigned char *) 0xffffffff81b50d00;
   *ucp = 0xf;
+  int3_count++;
 
+  // looks good in objdump
+  asm("\t mov %%rdi,%0" : "=rm"(int3_rdi));
+  asm("\t mov %%rsi,%0" : "=rm"(int3_rsi));
+  asm("\t mov %%rdx,%0" : "=rm"(int3_rdx));
 
-
-  return;
-
-  /* memcpy((void *)addr_msg, (void*)int3_rsi, 96); */
-
-  // Our simulated memcpy
-  char *csrc = (char *)int3_rsi;
-  char *cdest = (char *)addr_msg;
-  int n = 96;
-  for (int i=0; i<n; i++)
-    cdest[i] = csrc[i];
-
+  memcpy((void *)addr_msg, (void*)int3_rsi, 96);
   return;
 
   myprintk("hey\n");
@@ -84,28 +65,26 @@ uint64_t db_rdx = 0;
 uint64_t dr6;
 
 static void rs_c_entry(){
+	
+  //printf("DEBUG EXCEPTION FIRE\n");
 
   asm("\t mov %%rdi,%0" : "=rm"(db_rdi));
   asm("\t mov %%rsi,%0" : "=rm"(db_rsi));
   asm("\t mov %%rdx,%0" : "=rm"(db_rdx));
   asm("mov %%db6, %0" : "=r"(dr6));
 
-  if(dr6 & 1)
-    // do something for DR0
+  /*if(dr6 & 1)
+    printf("DR0 HIT\n");
   if(dr6 & 2)
-    // do something for DR1
+    printf("DR1 HIT\n");
   if(dr6 & 4)
-    // do something for DR2
+    printf("DR2 HIT\n");
   if(dr6 & 8)
-    // do something for DR3
-  
-  dr6 = dr6^0xF;
+    printf("DR3 HIT\n");
+  */
+  dr6 = dr6^1;
   asm("mov %0,%%db6" :: "r"(dr6));
-
-  // TODO: CLEAN IDT PRIOR TO RETURN
-  
-  
-  return;
+  printf("DR6: %lx\n", dr6);
 }
 
 // NOTE: This function is not used in C code, but is used in inline assembly.
@@ -122,7 +101,7 @@ MY_DB_HANDLER(db_jmp_to_c, *rs_entry);
 // This is the name of our assembly we're adding to the text section.
 // It will be defined at link time, but use this to allow compile time
 // inclusion in C code.
-/* extern uint64_t bs_asm_exc_int3; */
+extern uint64_t bs_asm_exc_int3;
 
 extern uint64_t bs_asm_exc_db;
 
@@ -186,10 +165,6 @@ unsigned char sym_set_probe(uint64_t addr){
   sym_elevate();
   unsigned char ret = *(unsigned char *) addr;
   sym_lower();
-  if (ret != 0xf){
-    fprintf(stderr, "Error, byte to be replaced by int3 0xcc was not 0xf as needed by hard coded interposer.\n");
-    while(1);
-  }
   sym_make_pg_writable(addr);
 
   sym_elevate();
