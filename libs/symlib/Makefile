@@ -58,6 +58,11 @@ boldprint = @printf '\e[1m%s\e[0m\n' $1
 
 all: $(ALL_LIBS)
 
+dynam_L0:
+	mkdir -p dynam_build/L0/
+	gcc -g -D DYNAM -D CONFIG_X86_64 -Wall -Wextra -fPIC  -c src/L0/sym_lib.c -o dynam_build/L0/sym_lib.o -I include
+	gcc -shared -fPIC -o dynam_build/L0/libelevate.so dynam_build/L0/sym_lib.o
+
 # NOTE: Inf and libsym are the same :)
 $(LIB_SYM): $(LIB_LINF)
 	cp $(LIB_LINF) $@
@@ -102,3 +107,4 @@ $(LIB_LIDK): $(LIB_L0) $(LIB_L1) $(OBJ_L2) $(OBJ_LINF) $(OBJ_LIDK) | $(BUILD_DIR
 
 clean:
 	rm -rf $(BUILD_DIR)
+	rm -rf dynam_build
