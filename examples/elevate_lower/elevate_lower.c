@@ -46,11 +46,11 @@ int main(int argc, char *argv[]){
 #else
     sym_elevate();
 #endif
-    asm("nop");
-    asm("movq %%cr3,%0"
-        : "=r"(cr3_reg)
-        );
-    asm("nop");
+    /* asm("nop"); */
+    /* asm("movq %%cr3,%0" */
+    /*     : "=r"(cr3_reg) */
+    /*     ); */
+    /* asm("nop"); */
 #ifdef USE_MODE_SHIFT
     /* sym_mode_shift(SYM_LOWER_FLAG | SYM_DEBUG_FLAG); */
     sym_mode_shift(SYM_LOWER_FLAG);
@@ -59,5 +59,5 @@ int main(int argc, char *argv[]){
 #endif
 
   }
-  printf("prove elevation worked by printing cr3 %lx\n", cr3_reg);
+  /* printf("prove elevation worked by printing cr3 %lx\n", cr3_reg); */
 }
