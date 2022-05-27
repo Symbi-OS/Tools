@@ -90,6 +90,11 @@ run_tf:
 	taskset -c 0 $(TFD)/text_fault
 
 run_i3:
+	make -C ../testing/ mitigate_cores
+	make -C ../
+	sync
+	sync
+	sync
 	taskset -c 0 $(I3D)/int3_probe
 
 cp_execs:
