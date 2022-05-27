@@ -66,6 +66,11 @@ int func(){
 	return y;
 }
 
+extern uint64_t dr0_hit;
+extern uint64_t dr1_hit;
+extern uint64_t dr2_hit;
+extern uint64_t dr3_hit;
+
 int main() {
 
   struct dtr check_idtr;
@@ -74,18 +79,22 @@ int main() {
   sym_lib_init();
   sym_probe_init();
   interpose_on_db_ft();
-  sym_set_db_probe((uint64_t)&func);
+  sym_set_db_probe((uint64_t)&func, 0);
   
-  printf("SET TRIGGER TO: %p\n", &func); 
+  // printf("SET TRIGGER TO: %p\n", &func); 
 
-  uint64_t addr;
-  sym_elevate();
-  asm("\t mov %%db0,%0" : "=rm"(addr));
-  sym_lower();
-  printf("DR0: %p\n", (void *)addr);
+  printf("\ndr0_hit  :%#lx\n", dr0_hit);
+  printf("dr1_hit  :%#lx\n", dr1_hit);
+  printf("dr2_hit  :%#lx\n", dr2_hit);
+  printf("dr3_hit  :%#lx\n\n", dr3_hit);
 
   func();
 
-  printf("DONE MAIN\n");
+  printf("\ndr0_hit  :%#lx\n", dr0_hit);
+  printf("dr1_hit  :%#lx\n", dr1_hit);
+  printf("dr2_hit  :%#lx\n", dr2_hit);
+  printf("dr3_hit  :%#lx\n", dr3_hit);
+
+  printf("\nDONE MAIN\n");
   sym_set_idtr((unsigned long)check_idtr.base, IDT_SZ_BYTES - 1);
 }

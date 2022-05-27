@@ -14,7 +14,7 @@
 #define X86_TRAP_DB		 1
 
 
-#define TRAP_HANDLER(LAB, TARG)                \
+#define INT3_HANDLER(LAB, TARG)                \
   NEW_HANDLER(LAB)                             \
     PUSH_FAKE_ERROR                               \
     PUSH_REGS                                  \
@@ -31,11 +31,13 @@
     MY_POP_REGS                                 \
     MY_MY_IRET
 
+#define DB_REGS		4
+
 void sym_probe_init();
 
 // Place a software interrupt generating instruction at addr.
 unsigned char sym_set_probe(uint64_t addr);
-unsigned char sym_set_db_probe(uint64_t addr);
+unsigned char sym_set_db_probe(uint64_t addr, uint64_t reg);
 
 // Replace software interrupt generating instruction with byte.
 void sym_remove_probe(void *addr, unsigned char old_byte);

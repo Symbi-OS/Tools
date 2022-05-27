@@ -118,6 +118,9 @@ run_i3:
 	taskset -c 0 $(I3D)/int3_probe
 
 run_db:
+	sync
+	sync
+	sync
 	taskset -c 0 $(DBP)/db_probe
 
 cp_execs:

@@ -4,6 +4,7 @@
 #include "L2/sym_lib_page_fault.h"
 
 #include <string.h>
+#include <stdlib.h>
 
 #include "LIDK/idk.h"
 
@@ -77,34 +78,39 @@ static __attribute((unused)) void bp_c_entry(struct pt_regs *pt_r){
   }
 }
 
-uint64_t db_rdi = 0;
-uint64_t db_rsi = 0;
-uint64_t db_rdx = 0;
+uint64_t dr0_hit = 0;
+uint64_t dr1_hit = 0;
+uint64_t dr2_hit = 0;
+uint64_t dr3_hit = 0;
 
-uint64_t dr6;
 
 static void rs_c_entry(){
-
-  asm("\t mov %%rdi,%0" : "=rm"(db_rdi));
-  asm("\t mov %%rsi,%0" : "=rm"(db_rsi));
-  asm("\t mov %%rdx,%0" : "=rm"(db_rdx));
+  struct DR7 dr7;
+  struct DR6 dr6;
   asm("mov %%db6, %0" : "=r"(dr6));
-
-  if(dr6 & 1)
-    // do something for DR0
-  if(dr6 & 2)
-    // do something for DR1
-  if(dr6 & 4)
-    // do something for DR2
-  if(dr6 & 8)
-    // do something for DR3
+  //asm("mov %%db7, %0" : "=r"(dr7));
   
-  dr6 = dr6^0xF;
+  if(dr6.B0){
+    dr0_hit = 1;
+    dr6.B0 = 0;
+  }
+  if(dr6.B1){
+    dr1_hit = 1;
+    dr6.B1 = 0;
+  }
+  if(dr6.B2){
+    dr2_hit = 1;
+    dr6.B2 = 0;
+  }
+  if(dr6.B3){
+    dr3_hit = 1;
+    dr6.B3 = 0;
+  }
+  
+  dr7.val = 0;
+  asm("mov %0,%%db7" :: "r"(dr7));
   asm("mov %0,%%db6" :: "r"(dr6));
 
-  // TODO: CLEAN IDT PRIOR TO RETURN
-  
-  
   return;
 }
 
@@ -156,7 +162,7 @@ void sym_interpose_on_int3_ft_c(unsigned char * my_idt){
 }
 
 void sym_interpose_on_db_ft_c(unsigned char * my_idt){
-  sym_print_idt_desc(my_idt, X86_TRAP_DB);
+  // sym_print_idt_desc(my_idt, X86_TRAP_DB);
 
   // Get ptr to pf desc
   union idt_desc *desc_old;
@@ -173,12 +179,10 @@ void sym_interpose_on_db_ft_c(unsigned char * my_idt){
   union idt_addr new_asm_exc_addr;
   new_asm_exc_addr.raw = (uint64_t) &db_jmp_to_c;
 
-  printf("SET IDT HANDLER ADDR: %p\n", (void *)&db_jmp_to_c);
-  
   // Set IDT to point to our new interposer
   sym_load_desc_from_addr(desc_old, &new_asm_exc_addr);
 
-  sym_print_idt_desc(my_idt, X86_TRAP_DB);
+  // sym_print_idt_desc(my_idt, X86_TRAP_DB);
 }
 
 unsigned char sym_set_probe(uint64_t addr){
@@ -200,15 +204,35 @@ unsigned char sym_set_probe(uint64_t addr){
   return ret;
 }
 
-unsigned char sym_set_db_probe(uint64_t addr){
+unsigned char sym_set_db_probe(uint64_t addr, uint64_t reg){
   // TODO if write spans pages, this will fail.
+  struct DR7 dr7;
+  dr7.val = 2;
+//  asm("mov %%db7, %0" : "=r"(dr7));
+  if(reg >= DB_REGS)
+    exit(-1);
   sym_elevate();
   unsigned char ret = *(unsigned char *) addr;
   sym_lower();
-  uint64_t dr7 = 2;
   sym_elevate();
-  // place addr into DR0
-  asm("\t mov %0,%%db0" :: "r"(addr));
+  switch(reg) {
+    case 0:
+      // place addr into DR0
+      asm("\t mov %0,%%db0" :: "r"(addr));
+      break;
+    case 1:
+      // place addr into DR0
+      asm("\t mov %0,%%db1" :: "r"(addr));
+      break;
+    case 2:
+      // place addr into DR0
+      asm("\t mov %0,%%db2" :: "r"(addr));
+      break;
+    case 3:
+      // place addr into DR0
+      asm("\t mov %0,%%db3" :: "r"(addr));
+      break;
+  }
   asm("\t mov %0,%%db7" :: "r"(dr7));
   sym_lower();
 
