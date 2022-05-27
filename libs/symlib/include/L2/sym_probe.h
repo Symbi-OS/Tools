@@ -51,4 +51,6 @@ void int3_jmp_to_c(void);
 void sym_interpose_on_db_ft_asm(unsigned char* new_idt);
 void sym_interpose_on_db_ft_c(unsigned char* new_idt);
 
+void clear_db_reg();
+
 #endif

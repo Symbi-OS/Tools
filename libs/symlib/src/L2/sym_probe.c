@@ -83,31 +83,41 @@ uint64_t dr1_hit = 0;
 uint64_t dr2_hit = 0;
 uint64_t dr3_hit = 0;
 
+uint64_t dr6_val = 0;
 
 static void rs_c_entry(){
   struct DR7 dr7;
   struct DR6 dr6;
   asm("mov %%db6, %0" : "=r"(dr6));
-  //asm("mov %%db7, %0" : "=r"(dr7));
-  
-  if(dr6.B0){
+  asm("mov %%db7, %0" : "=r"(dr7));
+//  dr7.val = 0;
+  dr6_val = dr6.val;
+
+  if(dr6.B0 && dr7.G0){
     dr0_hit = 1;
     dr6.B0 = 0;
+    dr7.G0 = 0;
+    dr7.RW0 = 0;
   }
-  if(dr6.B1){
+  if(dr6.B1 && dr7.G1){
     dr1_hit = 1;
     dr6.B1 = 0;
+    dr7.G1 = 0;
+    dr7.RW1 = 0;
   }
-  if(dr6.B2){
+  if(dr6.B2 && dr7.G2){
     dr2_hit = 1;
     dr6.B2 = 0;
+    dr7.G2 = 0;
+    dr7.RW2 = 0;
   }
-  if(dr6.B3){
+  if(dr6.B3 && dr7.G3){
     dr3_hit = 1;
     dr6.B3 = 0;
+    dr7.G3 = 0;
+    dr7.RW3 = 0;
   }
   
-  dr7.val = 0;
   asm("mov %0,%%db7" :: "r"(dr7));
   asm("mov %0,%%db6" :: "r"(dr6));
 
@@ -207,34 +217,50 @@ unsigned char sym_set_probe(uint64_t addr){
 unsigned char sym_set_db_probe(uint64_t addr, uint64_t reg){
   // TODO if write spans pages, this will fail.
   struct DR7 dr7;
-  dr7.val = 2;
-//  asm("mov %%db7, %0" : "=r"(dr7));
+
   if(reg >= DB_REGS)
     exit(-1);
   sym_elevate();
   unsigned char ret = *(unsigned char *) addr;
   sym_lower();
+
+  dr7.val = 0;
+
   sym_elevate();
   switch(reg) {
     case 0:
       // place addr into DR0
       asm("\t mov %0,%%db0" :: "r"(addr));
+      dr7.G0 = 1;
       break;
     case 1:
       // place addr into DR0
       asm("\t mov %0,%%db1" :: "r"(addr));
+      dr7.G1 = 1;
       break;
     case 2:
       // place addr into DR0
       asm("\t mov %0,%%db2" :: "r"(addr));
+      dr7.G2 = 1;
       break;
     case 3:
       // place addr into DR0
       asm("\t mov %0,%%db3" :: "r"(addr));
+      dr7.G3 = 1;
       break;
   }
   asm("\t mov %0,%%db7" :: "r"(dr7));
   sym_lower();
 
   return ret;
+}
+
+void clear_db_reg(){
+  uint64_t null = 0;
+  sym_elevate();
+  asm("\t mov %0,%%db0" :: "r"(null));
+  asm("\t mov %0,%%db1" :: "r"(null));
+  asm("\t mov %0,%%db2" :: "r"(null));
+  asm("\t mov %0,%%db3" :: "r"(null));
+  sym_lower();
 }
