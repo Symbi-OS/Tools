@@ -92,6 +92,18 @@ run_ss:
 run_tf:
 	taskset -c 0 $(TFD)/text_fault
 
+
+run_ti3:
+	sync
+	sync
+	sync
+	make -C ../testing/ mitigate_cores
+	make -C ../
+	sync
+	sync
+	sync
+	taskset -c 0 $(I3D)/trivial_int3
+
 run_i3:
 	make -C ../testing/ mitigate_cores
 	make -C ../

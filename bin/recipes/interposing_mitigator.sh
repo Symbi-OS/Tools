@@ -13,6 +13,7 @@ function print_help () {
     echo examples:
     echo ./copy_idt_interpose_tf.sh -m tf -t 1 -d
     echo ./copy_idt_interpose_tf.sh -m df -t 1 -d
+    echo ./copy_idt_interpose_tf.sh -m i3 -t 1 -d
 }
 function parse_args () {
     # Call getopt to validate the provided input. 

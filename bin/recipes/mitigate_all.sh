@@ -12,6 +12,7 @@ do
     echo mitigating core $i
     ${SCRIPT_DIR}/interposing_mitigator.sh -m df -t $i
     ${SCRIPT_DIR}/interposing_mitigator.sh -m tf -t $i
+    ${SCRIPT_DIR}/interposing_mitigator.sh -m i3 -t $i
     echo done mitigation core $i
     }&
 done
