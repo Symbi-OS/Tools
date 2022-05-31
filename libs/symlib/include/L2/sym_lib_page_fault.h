@@ -48,6 +48,7 @@ movq %rsi, 8(%rsp)          Throw val back in error code on stack.
 popq %rsi                   Restore user rsi.
 jmp *orig_asm_exc_page_fault
 */
+extern void tf_interposer_asm();
 
 // NOTE: Haven't really thought about stringification
 #define MY_FINAL_HANDLER(LAB, TARG, OLD_HAND) \

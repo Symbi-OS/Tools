@@ -24,6 +24,15 @@ uint64_t int3_rdx = 0;
 
 uint64_t addr_msg = 0;
 
+
+// NOTE: This function is not used in C code, but is used in inline assembly.
+// This asks the compiler not to warn about it being unused.
+/* static uint64_t __attribute((unused)) my_entry = (uint64_t) &tu_c_entry; */
+
+/* extern uint64_t int3_jmp_to_c; */
+/* MY_INT3_HANDLER(int3_jmp_to_c, *my_entry); */
+MY_INT3_HANDLER(int3_jmp_to_c, tu_c_entry);
+
 static void tu_c_entry(){
   // HACK: safe way is to generate pointer into pt_regs
   // This looks safe for first 3 args for now.
@@ -39,7 +48,15 @@ static void tu_c_entry(){
   asm("\t mov %%rsi,%0" : "=rm"(int3_rsi));
   asm("\t mov %%rdx,%0" : "=rm"(int3_rdx));
 
-  memcpy((void *)addr_msg, (void*)int3_rsi, 96);
+  /* memcpy((void *)addr_msg, (void*)int3_rsi, 96); */
+
+  // Our simulated memcpy
+  char *csrc = (char *)int3_rsi;
+  char *cdest = (char *)addr_msg;
+  int n = 96;
+  for (int i=0; i<n; i++)
+    cdest[i] = csrc[i];
+
   return;
 
   myprintk("hey\n");
@@ -57,17 +74,10 @@ static void tu_c_entry(){
   }
 }
 
-// NOTE: This function is not used in C code, but is used in inline assembly.
-// This asks the compiler not to warn about it being unused.
-static uint64_t __attribute((unused)) my_entry = (uint64_t) &tu_c_entry;
-
-extern uint64_t int3_jmp_to_c;
-MY_INT3_HANDLER(int3_jmp_to_c, *my_entry);
-
 // This is the name of our assembly we're adding to the text section.
 // It will be defined at link time, but use this to allow compile time
 // inclusion in C code.
-extern uint64_t bs_asm_exc_int3;
+/* extern uint64_t bs_asm_exc_int3; */
 
 void sym_probe_init(){
   printf("Init SP\n");

@@ -35,6 +35,9 @@ function parse_args () {
                     "df")
                         VECTOR=8
                         ;;
+                    "i3")
+                        VECTOR=3
+                        ;;
                     *)
                         echo "Incorrect -m option provided:" $MITIGATION
                         echo bad mitigation: $MITIGATION

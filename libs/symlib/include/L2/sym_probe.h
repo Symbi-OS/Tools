@@ -33,4 +33,6 @@ void sym_remove_probe(void *addr, unsigned char old_byte);
 void sym_interpose_on_int3_ft_asm(unsigned char* new_idt);
 void sym_interpose_on_int3_ft_c(unsigned char* new_idt);
 
+void int3_jmp_to_c(void);
+
 #endif

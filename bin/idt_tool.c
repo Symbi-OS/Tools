@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <string.h>
+
 #include "../libs/symlib/include/LINF/sym_all.h"
 
 #include "idt_tool.h"
@@ -19,190 +20,8 @@
 // TODO: TLB SHOOTDOWN tool
 // TODO: cacheline flush
 
-struct ef{
-  uint64_t ec;
-  uint64_t ip;
-  uint64_t cs;
-  uint64_t rf;
-  uint64_t sp;
-  uint64_t ss;
-};
-#define MY_PUSH_REGS                            \
-  __asm__("\
-  pushq   %rdi		/* pt_regs->di */ \n\t\
-  pushq   %rsi		/* pt_regs->si */ \n\t\
-  pushq	  %rdx		/* pt_regs->dx */ \n\t\
-  pushq   %rcx		/* pt_regs->cx */ \n\t\
-  pushq   %rax		/* pt_regs->ax */ \n\t\
-  pushq   %r8		/* pt_regs->r8 */ \n\t\
-  pushq   %r9		/* pt_regs->r9 */ \n\t\
-  pushq   %r10		/* pt_regs->r10 */ \n\t\
-  pushq   %r11		/* pt_regs->r11 */ \n\t\
-  pushq	  %rbx		/* pt_regs->rbx */ \n\t\
-  pushq	  %rbp		/* pt_regs->rbp */ \n\t\
-  pushq	  %r12		/* pt_regs->r12 */ \n\t\
-  pushq	  %r13		/* pt_regs->r13 */ \n\t\
-  pushq	  %r14		/* pt_regs->r14 */ \n\t\
-  pushq	  %r15		/* pt_regs->r15 */ \
-");
-#define MY_POP_REGS                             \
-  __asm__("\
-	popq %r15 \n\t\
-	popq %r14 \n\t\
-	popq %r13 \n\t\
-	popq %r12 \n\t\
-	popq %rbp \n\t\
-	popq %rbx \n\t\
-	popq %r11 \n\t\
-	popq %r10 \n\t\
-	popq %r9  \n\t\
-	popq %r8  \n\t\
-	popq %rax \n\t\
-	popq %rcx \n\t\
-	popq %rdx \n\t\
-	popq %rsi \n\t\
-	popq %rdi \
-");
+// TODO: Can this be replaced by symbiote lib version?
 
-#define MAKE_FAKE_EF                             \
-  __asm__("\
-                   /*Pretend excep frame*/                              \
-  pushq   $0xbad5                                                \n\t   \
-  pushq   $0xbad4                                                \n\t   \
-  pushq   $0xbad3                                                \n\t   \
-  pushq   $0xbad1                                                \n\t   \
-  pushq   $0xbad1                                                \n\t   \
-  pushq   $0xbad0                                                 \n\t  \
-");
-
-#define DEFINE_TF_INTERPOSER \
-__asm__("\
-                  /*prologue*/                                       \
-  .text                                                          \n\t\
-  .align 16                                                      \n\t\
-  .globl \t tf_interposer_asm                                    \n\t\
-  tf_interposer_asm:                                             \n\t\
-");
-
-extern void tf_interposer_asm();
-// NOTE Define fn in assembly
-DEFINE_TF_INTERPOSER
-
-// NOTE Produce fake exception frame
-/* MAKE_FAKE_EF */
-
-// NOTE Want to pass ef pointer to interposer C code
-__asm__(" \
-  pushq %rdi                 /*Preserve rdi */ \n\t\
-  movq %rsp, %rdi            /*Get rsp for 1st arg to c fn */ \n\t\
-  add $8, %rdi               /* Push set us back 8 */ \n\t");
-
-// NOTE Save all regs.
-MY_PUSH_REGS
-
-// NOTE Call into C code
-__asm__("  call sym_tf_set_user_bit");
-
-// NOTE Restore regs
-MY_POP_REGS
-
-__asm__("                     \
-  popq %rdi                   /*Done with 1st arg, restore user rdi  */ \n\t\
-\
-  push   %rax                      \n\t\
-  mov    $0xffffffff81e00ac0,%rax  /* asm_exc_page_fault */ \n\t   \
-  xor    (%rsp),%rax               /*Arlo's trick*/ \n\t\
-  xor    %rax,(%rsp)               \n\t\
-  xor    (%rsp),%rax               \n\t\
-  ret \
-");
-
-#ifdef CTRS
-int wr_ctr = 0;
-int rd_ctr = 0;
-int ins_ctr = 0;
-
-int user_mode_ctr = 0;
-int kern_mode_ctr = 0;
-
-int user_area_ctr = 0;
-int interpose_ctr = 0;
-#endif
-
-// XXX this fn must be on the same page as tf_interposer_asm
-void sym_tf_set_user_bit(struct ef * s){
-
-#ifdef CTRS
-  // Ins fetch
-  if( s->ec & INS_FETCH){
-    ins_ctr++;
-  }
-  if( s->ec & WR_FT){
-    wr_ctr++;
-  } else{
-    rd_ctr++;
-  }
-    // We don't need to special case when in ring 3.
-  if(! (s->ec & USER_FT) )  {
-    user_mode_ctr++;
-  }else{
-    kern_mode_ctr++;
-  }
-
-  // User side of addr space
-  if( s->ip < ( (1UL << 47) - PG_SZ) ){
-    user_area_ctr++;
-  }else{
-    kern_area_ctr++;
-  }
-  interpose_ctr++;
-#endif
-#if 0
-  /* Are we a read fault? */
-  if( s->ec & WR_FT){
-    // NYI write fault
-    // TODO: implement me
-
-  } else{
-    // read fault
-
-    // kern mode
-    if(! (s->ec & USER_FT) )  {
-
-      // User half
-      if( s->ip < ( (1UL << 47) - PG_SZ) ){
-        // Lie about it being user mode.
-        s->ec |= USER_FT;
-      }
-    }
-  }
-#endif
-
-
-  /* Are we an instruction fetch? */
-  if( s->ec & INS_FETCH){
-    // We don't need to special case when in ring 3.
-    if(! (s->ec & USER_FT) )  {
-        // Are we user code?
-        // Could look in cr2, but by def rip caused the fault here.
-        // This is modeled after kern:fault_in_kernel_space
-        if( s->ip < ( (1UL << 47) - PG_SZ) ){
-          /// Lie that code was running in user mode.
-          s->ec |= USER_FT;
-          /* myprintk("swinging err code for\n"); */
-          /* print_ef(); */
-          /* myprintki("my_ctr %d\n", my_ctr++); */
-        }
-    }
-  }
-
-  /* printf("ss %lx\n", ((struct ef *)s)->ss); */
-  /* printf("sp %lx\n", ((struct ef *)s)->sp); */
-  /* printf("rf %lx\n", ((struct ef *)s)->rf); */
-  /* printf("cs %lx\n", ((struct ef *)s)->cs); */
-  /* printf("ip %lx\n", ((struct ef *)s)->ip); */
-  /* printf("ec %lx\n", ((struct ef *)s)->ec); */
-}
 
 void help(){
   eprintf("./idt_tool:\n");
@@ -224,6 +43,14 @@ void help(){
   eprintf("\t./idt_tool -z tf\n");
   eprintf("\t./idt_tool -a ffffc90000986000 -m addr:0xffffc9000098d000 -v 14\n");
   eprintf("\ttaskset -c 1 ./idt_tool -a ffffc90000986000 -i\n");
+
+  eprintf("\ndf mitigation workflow:\n");
+  eprintf("\ttaskset -c 0 ./idt_tool -g\n");
+  eprintf("\ttaskset -c 0 ./idt_tool -c\n");
+  eprintf("\t./idt_tool -z df\n");
+  eprintf("\t./idt_tool -a ffffc900002ef000 -m addr:0xffffc90000317000 -v 8\n");
+  eprintf("\ttaskset -c 0 ./idt_tool -a ffffc900002ef000 -i\n");
+
 }
 
 void get_current_idtr(struct dtr * idt){
@@ -261,7 +88,7 @@ void * get_aligned_kern_pg(){
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-function-type"
   vzalloc_t vzalloc = (vzalloc_t) get_fn_address("vzalloc");
-#pragma GCC diagnostic pop 
+#pragma GCC diagnostic pop
 
   sym_elevate();
   void * p = vzalloc(IDT_SZ_BYTES);
@@ -418,6 +245,11 @@ void handler_pager(struct params *p){
     src = &tf_interposer_asm;
     sz = PG_SZ;
   }
+  if(p->hdl_option == HDL_I3){
+    /* src = &int3_interposer_asm; */
+    src = &int3_jmp_to_c;
+    sz = PG_SZ; // 0xC8 bytes on last check
+  }
 
   assert(src != NULL);
   assert(sz != 0);
@@ -524,6 +356,9 @@ void parse_args(int argc, char *argv[], struct params *p){
         if(!strcmp(optarg, "tf")){
           p->hdl_option = HDL_TF;
         }
+        if(!strcmp(optarg, "i3")){
+          p->hdl_option = HDL_I3;
+        }
         break;
 
       case '?':
@@ -543,6 +378,7 @@ void parse_args(int argc, char *argv[], struct params *p){
 
 int main(int argc, char *argv[]){
   sym_lib_init();
+  // Use these hacks as a bootstrap
   sym_touch_every_page_text();
   sym_touch_stack();
 
@@ -590,5 +426,4 @@ int main(int argc, char *argv[]){
     handler_pager(p);
   }
 
-  /* printf("done main\n"); */
 }

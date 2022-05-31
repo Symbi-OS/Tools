@@ -80,6 +80,131 @@ static void pg_ft_c_entry(){
   }
 }
 
+#define DEFINE_TF_INTERPOSER \
+__asm__("\
+                  /*prologue*/                                       \
+  .text                                                          \n\t\
+  .align 16                                                      \n\t\
+  .globl \t tf_interposer_asm                                    \n\t\
+  tf_interposer_asm:                                             \n\t\
+");
+
+// NOTE Define fn in assembly
+DEFINE_TF_INTERPOSER
+
+// NOTE Want to pass ef pointer to interposer C code
+__asm__(" \
+  pushq %rdi                 /*Preserve rdi */ \n\t\
+  movq %rsp, %rdi            /*Get rsp for 1st arg to c fn */ \n\t\
+  add $8, %rdi               /* Push set us back 8 */ \n\t");
+
+// NOTE Save all regs.
+MY_PUSH_REGS
+
+// NOTE Call into C code
+__asm__("  call sym_tf_set_user_bit");
+
+// NOTE Restore regs
+MY_POP_REGS
+
+__asm__("                     \
+  popq %rdi                   /*Done with 1st arg, restore user rdi  */ \n\t\
+\
+  push   %rax                      \n\t\
+  mov    $0xffffffff81e00ac0,%rax  /* asm_exc_page_fault */ \n\t   \
+  xor    (%rsp),%rax               /*Arlo's trick*/ \n\t\
+  xor    %rax,(%rsp)               \n\t\
+  xor    (%rsp),%rax               \n\t\
+  ret \
+");
+
+#ifdef CTRS
+int wr_ctr = 0;
+int rd_ctr = 0;
+int ins_ctr = 0;
+
+int user_mode_ctr = 0;
+int kern_mode_ctr = 0;
+
+int user_area_ctr = 0;
+int interpose_ctr = 0;
+#endif
+
+// XXX this fn must be on the same page as tf_interposer_asm
+void sym_tf_set_user_bit(struct excep_frame * s){
+
+#ifdef CTRS
+  // Ins fetch
+  if( s->err & INS_FETCH){
+    ins_ctr++;
+  }
+  if( s->err & WR_FT){
+    wr_ctr++;
+  } else{
+    rd_ctr++;
+  }
+    // We don't need to special case when in ring 3.
+  if(! (s->err & USER_FT) )  {
+    user_mode_ctr++;
+  }else{
+    kern_mode_ctr++;
+  }
+
+  // User side of addr space
+  if( s->rip < ( (1UL << 47) - PG_SZ) ){
+    user_area_ctr++;
+  }else{
+    kern_area_ctr++;
+  }
+  interpose_ctr++;
+#endif
+#if 0
+  /* Are we a read fault? */
+  if( s->err & WR_FT){
+    // NYI write fault
+    // TODO: implement me
+
+  } else{
+    // read fault
+
+    // kern mode
+    if(! (s->err & USER_FT) )  {
+
+      // User half
+      if( s->rip < ( (1UL << 47) - PG_SZ) ){
+        // Lie about it being user mode.
+        s->err |= USER_FT;
+      }
+    }
+  }
+#endif
+
+
+  /* Are we an instruction fetch? */
+  if( s->err & INS_FETCH){
+    // We don't need to special case when in ring 3.
+    if(! (s->err & USER_FT) )  {
+        // Are we user code?
+        // Could look in cr2, but by def rip caused the fault here.
+        // This is modeled after kern:fault_in_kernel_space
+        if( s->rip < ( (1UL << 47) - PG_SZ) ){
+          /// Lie that code was running in user mode.
+          s->err |= USER_FT;
+          /* myprintk("swinging err code for\n"); */
+          /* print_ef(); */
+          /* myprintki("my_ctr %d\n", my_ctr++); */
+        }
+    }
+  }
+
+  /* printf("ss %lx\n", ((struct ef *)s)->ss); */
+  /* printf("sp %lx\n", ((struct ef *)s)->sp); */
+  /* printf("rf %lx\n", ((struct ef *)s)->rf); */
+  /* printf("cs %lx\n", ((struct ef *)s)->cs); */
+  /* printf("ip %lx\n", ((struct ef *)s)->ip); */
+  /* printf("ec %lx\n", ((struct ef *)s)->ec); */
+}
+
 
 void sym_lib_page_fault_init(){
   printf("Init SLPF\n");
