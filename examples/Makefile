@@ -29,8 +29,8 @@ GSM=gs_mitigate
 IDT=../bin/
 
 
-EXECS=$(SSD)/stack_starvation $(TFD)/text_fault $(I3D)/int3_probe $(P3D)/print_cr3_static $(GPD)/getppid \
-	$(POLLD)/poller $(ECO)/client_RW $(ECO)/server_RW $(IDT)/idt_tool $(IDT)/vm_tool $(CLK)/clock \
+EXECS=$(SSD)/stack_starvation $(TFD)/text_fault $(I3D)/int3_probe $(I3D)/trivial_int3 $(P3D)/print_cr3_static \
+$(GPD)/getppid $(POLLD)/poller $(ECO)/client_RW $(ECO)/server_RW $(IDT)/idt_tool $(IDT)/vm_tool $(CLK)/clock \
 	$(ELO)/elevate_lower $(GSM)/gs_mitigate
 
 all: $(EXECS)
@@ -81,6 +81,9 @@ $(TFD)/text_fault: $(TFD)/text_fault.c $(TFD)/foo.c | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) -I $(SYMLIB_INCLUDE_DIR) $(KALLSYMLIB)
 
 $(I3D)/int3_probe: $(I3D)/int3_probe.c | $(DEPENDENCY_LIBS)
+	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR) $(KALLSYMLIB)
+
+$(I3D)/trivial_int3: $(I3D)/trivial_int3.c | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR) $(KALLSYMLIB)
 
 run_ss:
