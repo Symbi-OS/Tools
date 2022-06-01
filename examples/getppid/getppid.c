@@ -54,7 +54,7 @@ int bench_time_internal(int count){
   clock_t start, end;
   double cpu_time_used;
 
-  getppid_t getppid_elevated = (getppid_t) get_fn_address("__x64_sys_getppid");
+  getppid_t getppid_elevated = sym_get_fn_address("__x64_sys_getppid");
 
   start = clock();
   /* Do the work. */

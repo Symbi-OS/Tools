@@ -177,7 +177,7 @@ typedef void * (*vzalloc_t)(unsigned long);
 typedef void (*kvfree_t)(void *);
 
 void * get_aligned_kern_pg(){
-  vzalloc_t vzalloc = get_fn_address("vzalloc");
+  vzalloc_t vzalloc = sym_get_fn_address("vzalloc");
   /* printf("About to alloc kern page\n"); */
 
   sym_elevate();
@@ -192,7 +192,7 @@ void * get_aligned_kern_pg(){
 
 void free_kern_mem(void *p){
   // Free page vzalloc'd
-  kvfree_t kvfree  = (kvfree_t) get_fn_address("kvfree");
+  kvfree_t kvfree  = sym_get_fn_address("kvfree");
   sym_elevate(); kvfree(p); sym_lower();
 }
 

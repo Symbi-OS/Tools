@@ -6,7 +6,7 @@
 // compiler fence.
 /* asm ("" ::: "memory") */
 
-int main(int argc, char *argv[]){
+int main(__attribute((unused))int argc, __attribute((unused))char *argv[]){
   // Assumes some mitigation is used.
   uint64_t symbiote_flags = SYM_ELEVATE_FLAG | SYM_INT_DISABLE_FLAG;
 

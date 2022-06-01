@@ -17,10 +17,11 @@ void push_a_lot(){
 }
 /* #define USE_MODE_SHIFT */
 
-int main(int argc, char *argv[]){
-  uint64_t cr3_reg = 0;
+int main(__attribute((unused))int argc, char *argv[]){
   // Assumes some mitigation is used.
+#ifdef USE_MODE_SHIFT
   uint64_t kern_gs;
+#endif
   /* uint64_t zero_gs = 0; */
   int count = atoi(argv[1]);
   assert(count >= 1);

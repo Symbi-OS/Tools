@@ -91,7 +91,7 @@ void elevated_clock(int count){
   sym_lower();
 }
 
-int main(int argc, char *argv[]){
+int main(__attribute((unused))int argc, char *argv[]){
   int count = atoi(argv[1]);
   assert(count >= 1);
   /* clock_bench(); */

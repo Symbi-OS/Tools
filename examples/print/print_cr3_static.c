@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "../../libs/symlib/include/LINF/sym_all.h"
 
-int main(int argc, char *argv[]){
+int main(__attribute((unused)) int argc, char *argv[]){
   int count = atoi(argv[1]);
   assert(count >= 1);
   uint64_t cr3_reg;

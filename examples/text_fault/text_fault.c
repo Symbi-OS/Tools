@@ -108,7 +108,7 @@ typedef void (*kvfree_t)(void *);
 
 void * get_aligned_kern_pg(){
   // TODO fix warning
-  vzalloc_t vzalloc = (vzalloc_t) get_fn_address("vzalloc");
+  vzalloc_t vzalloc = sym_get_fn_address("vzalloc");
   /* printf("About to alloc kern page\n"); */
 
   sym_elevate();
@@ -124,7 +124,7 @@ void * get_aligned_kern_pg(){
 void free_kern_mem(void *p){
   // Free page vzalloc'd
   // TODO: fix warning
-  kvfree_t kvfree  = (kvfree_t) get_fn_address("kvfree");
+  kvfree_t kvfree  = sym_get_fn_address("kvfree");
   sym_elevate(); kvfree(p); sym_lower();
 }
 
@@ -168,16 +168,17 @@ lazy_hexdump(handler_page, 80);
 #endif
 
   // confirm page is executable
-  unsigned int level;
+  /* unsigned int level; */
   /* printf("about to get pte\n"); */
 
 
-  struct pte *handler_pte = sym_get_pte((uint64_t) handler_page, &level);
   /* printf("Got pte\n"); */
   /* uint64_t my_pte = *handler_pte; */
 
   /* fprintf(stderr, "%s(%p) : %p pglvl: %d\n", __func__, handler_page, handler_pte, level); */
 #if DEBUG
+  // XXX moved this here to suppress warning, hopefully doesn't break something else.
+  struct pte *handler_pte = sym_get_pte((uint64_t) handler_page, &level);
 sym_print_pte(handler_pte);
 #endif
   /* /\* printf("Try to get pte\n"); *\/ */
@@ -205,11 +206,12 @@ sym_print_pte(handler_pte);
   sym_print_idt_desc((unsigned char *) idt_cp, PG_FT_IDX);
 #endif
 
-  union idt_desc *sys_cp_pf_desc = sym_get_idt_desc((unsigned char *)idt_cp, PG_FT_IDX);
+  // XXX comment me in!
+  /* union idt_desc *sys_cp_pf_desc = sym_get_idt_desc((unsigned char *)idt_cp, PG_FT_IDX); */
 
   // Prepare new handler.
-  union idt_addr new_handler;
-  new_handler.raw = (uint64_t) handler_page;
+  /* union idt_addr new_handler; */
+  /* new_handler.raw = (uint64_t) handler_page; */
 
   // Set idt_cp to point to new handler
   // XXX comment me in!
