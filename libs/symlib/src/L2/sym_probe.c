@@ -12,7 +12,6 @@ uint64_t orig_asm_exc_int3;
 
 uint64_t cr3_reg = 0;
 
-
 static void (*myprintk)(char *);
 
 unsigned char reset_byte = 0xf;
@@ -24,14 +23,11 @@ uint64_t int3_rdx = 0;
 
 uint64_t addr_msg = 0;
 
+INT3_HANDLER(int3_jmp_to_c, bp_c_entry);
 
 // NOTE: This function is not used in C code, but is used in inline assembly.
 // This asks the compiler not to warn about it being unused.
-/* static uint64_t __attribute((unused)) my_entry = (uint64_t) &tu_c_entry; */
-
-INT3_HANDLER(int3_jmp_to_c, bp_c_entry);
-
-static void bp_c_entry(struct pt_regs *pt_r){
+static __attribute((unused)) void bp_c_entry(struct pt_regs *pt_r){
   // HACK: safe way is to generate pointer into pt_regs
   // This looks safe for first 3 args for now.
   // RAX def gets clobbered XXX
