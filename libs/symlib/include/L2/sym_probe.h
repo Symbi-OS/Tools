@@ -9,18 +9,18 @@
 // Author: Thomas Unger
 // Level: 2
 
-#define X86_TRAP_BP		 3
 
-#define MY_DECREMENT_RETURN_RIP __asm__("decq (%rsp)");
-#define MY_MY_IRET __asm__("iretq");
 
-#define MY_INT3_HANDLER(LAB, TARG)              \
-  MY_NEW_HANDLER(LAB)                           \
-    MY_DECREMENT_RETURN_RIP                     \
-    MY_PUSH_REGS                                \
-    MY_MY_CALL(TARG)                            \
-    MY_POP_REGS                                 \
-    MY_MY_IRET
+/* MY_DECREMENT_RETURN_RIP                     \ */
+#define MY_INT3_HANDLER(LAB, TARG)                \
+  NEW_HANDLER(LAB)                             \
+    PUSH_FAKE_ERROR                               \
+    PUSH_REGS                                  \
+    GET_PT_REG_PTR                                \
+    CALL_TARG(TARG)                              \
+    POP_REGS                                   \
+    DROP_FAKE_ERROR                               \
+    IRET
 
 void sym_probe_init();
 

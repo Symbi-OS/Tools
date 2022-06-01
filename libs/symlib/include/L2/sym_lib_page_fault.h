@@ -52,11 +52,11 @@ extern void tf_interposer_asm();
 
 // NOTE: Haven't really thought about stringification
 #define MY_FINAL_HANDLER(LAB, TARG, OLD_HAND) \
-  MY_NEW_HANDLER(LAB)                         \
+  NEW_HANDLER(LAB)                         \
   MY_GET_EXCP_FRAME                           \
-  MY_PUSH_REGS                                \
-  MY_MY_CALL(TARG)                            \
-  MY_POP_REGS                                 \
+  PUSH_REGS                                \
+  CALL_TARG(TARG)                            \
+  POP_REGS                                 \
   MY_JUMP(OLD_HAND)
 
 // NOTE Err codes:
@@ -128,14 +128,6 @@ static inline int sym_is_pte_readaable(struct pte pte) {
   return pte.RW == 0;
 }
 
-struct excep_frame{
-  uint64_t err;
-  uint64_t rip;
-  uint64_t cs;
-  uint64_t flag;
-  uint64_t rsp;
-  uint64_t ss;
-};
 
 void sym_make_pg_writable(uint64_t addr);
 void sym_make_pg_unwritable(uint64_t addr);

@@ -31,22 +31,30 @@ uint64_t addr_msg = 0;
 
 /* extern uint64_t int3_jmp_to_c; */
 /* MY_INT3_HANDLER(int3_jmp_to_c, *my_entry); */
-MY_INT3_HANDLER(int3_jmp_to_c, tu_c_entry);
+MY_INT3_HANDLER(int3_jmp_to_c, bp_c_entry);
 
-static void tu_c_entry(){
+static void bp_c_entry(struct pt_regs *pt_r){
   // HACK: safe way is to generate pointer into pt_regs
   // This looks safe for first 3 args for now.
   // RAX def gets clobbered XXX
 
   // tcp_sendmsg
-  unsigned char *ucp = (unsigned char *) 0xffffffff81b50d00;
-  *ucp = 0xf;
-  int3_count++;
 
-  // looks good in objdump
-  asm("\t mov %%rdi,%0" : "=rm"(int3_rdi));
-  asm("\t mov %%rsi,%0" : "=rm"(int3_rsi));
-  asm("\t mov %%rdx,%0" : "=rm"(int3_rdx));
+  // Assume we got here on an int3
+
+  // NOTE: PC has moved past int3. Need it there again to replace byte
+  // and to execute the instruction we replaced.
+  pt_r->rip -= 1;
+  unsigned char *ucp = (unsigned char *) pt_r->rip;
+  /*   // assert that val we got here on was 0xcc, or int3 */
+  while(*ucp != 0xcc);
+
+  // Fixup instruction assuming it's an 0xf
+  *ucp = 0xf;
+
+
+
+  return;
 
   /* memcpy((void *)addr_msg, (void*)int3_rsi, 96); */
 
@@ -113,6 +121,10 @@ unsigned char sym_set_probe(uint64_t addr){
   sym_elevate();
   unsigned char ret = *(unsigned char *) addr;
   sym_lower();
+  if (ret != 0xf){
+    fprintf(stderr, "Error, byte to be replaced by int3 0xcc was not 0xf as needed by hard coded interposer.\n");
+    while(1);
+  }
   sym_make_pg_writable(addr);
 
   sym_elevate();

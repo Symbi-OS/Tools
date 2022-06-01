@@ -5,12 +5,12 @@
 #define MY_JUMP(TARG) __asm__("jmpq " #TARG);
 
 
-#define MY_NEW_HANDLER(FN)                      \
+#define NEW_HANDLER(FN)                      \
   __asm__(".text \n\t .align 16 \n\t .globl \t" #FN "\n\t" #FN ":");
 
 #define MY_GET_EXCP_FRAME __asm__("movq %rsp, ef");
 
-#define MY_PUSH_REGS \
+#define PUSH_REGS \
   __asm__("\
   pushq   %rdi		/* pt_regs->di */ \n\t\
   pushq   %rsi		/* pt_regs->si */ \n\t\
@@ -30,7 +30,7 @@
 ");
 
 
-#define MY_POP_REGS \
+#define POP_REGS \
 __asm__("\
 	popq %r15 \n\t\
 	popq %r14 \n\t\
@@ -49,6 +49,57 @@ __asm__("\
 	popq %rdi \
 ");
 
+struct excep_frame{
+  uint64_t err;
+  uint64_t rip;
+  uint64_t cs;
+  uint64_t flag;
+  uint64_t rsp;
+  uint64_t ss;
+};
+
+struct pt_regs {
+  /*
+   * C ABI says these regs are callee-preserved. They aren't saved on kernel entry
+   * unless syscall needs a complete, fully filled "struct pt_regs".
+   */
+	uint64_t r15;
+	uint64_t r14;
+	uint64_t r13;
+	uint64_t r12;
+	uint64_t rbp;
+	uint64_t rbx;
+  /* These regs are callee-clobbered. Always saved on kernel entry. */
+  uint64_t r11;
+  uint64_t r10;
+  uint64_t r9;
+  uint64_t r8;
+  uint64_t rax;
+  uint64_t rcx;
+  uint64_t rdx;
+  uint64_t rsi;
+  uint64_t rdi;
+  /*
+   * On syscall entry, this is syscall#. On CPU exception, this is error code.
+   * On hw interrupt, it's IRQ number:
+   * on int3 -> #bp no error code pushed (all traps?).
+   */
+  union{
+    uint64_t error_code;
+    uint64_t syscall_num;
+    uint64_t irq_num;
+  };
+  /* Return frame for iretq */
+	uint64_t rip;
+	uint64_t cs;
+	uint64_t flags;
+	uint64_t rsp;
+	uint64_t ss;
+  /* top of stack page */
+};
+
+static_assert(sizeof(struct pt_regs) == (21 * 8), "Size of pt_regs is not correct");
+// TODO: Add sz assert.
 /* #define MY_NEW_HANDLER(FN)                      \ */
 /*   __asm__("\ */
 /*      .text \n\t                                 \ */
@@ -56,7 +107,7 @@ __asm__("\
 /*           #FN ":\ */
 /* "); */
 
-#define MY_MY_CALL(FN) \
+#define CALL_TARG(FN) \
 __asm__("call " #FN);
 
 #define GET_CR3(VAR) __asm__("movq %%cr3,%0" : "=r"( VAR ));

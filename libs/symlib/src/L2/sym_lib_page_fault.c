@@ -99,13 +99,13 @@ __asm__(" \
   add $8, %rdi               /* Push set us back 8 */ \n\t");
 
 // NOTE Save all regs.
-MY_PUSH_REGS
+PUSH_REGS
 
 // NOTE Call into C code
 __asm__("  call sym_tf_set_user_bit");
 
 // NOTE Restore regs
-MY_POP_REGS
+POP_REGS
 
 __asm__("                     \
   popq %rdi                   /*Done with 1st arg, restore user rdi  */ \n\t\

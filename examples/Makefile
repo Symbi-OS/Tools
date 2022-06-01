@@ -97,8 +97,9 @@ run_ti3:
 	sync
 	sync
 	sync
-	make -C ../testing/ mitigate_cores
 	make -C ../
+# have to do after lib build
+	make -C ../testing/ mitigate_cores
 	sync
 	sync
 	sync
