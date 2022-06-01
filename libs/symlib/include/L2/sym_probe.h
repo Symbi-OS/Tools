@@ -11,8 +11,7 @@
 
 
 
-/* MY_DECREMENT_RETURN_RIP                     \ */
-#define MY_INT3_HANDLER(LAB, TARG)                \
+#define INT3_HANDLER(LAB, TARG)                \
   NEW_HANDLER(LAB)                             \
     PUSH_FAKE_ERROR                               \
     PUSH_REGS                                  \

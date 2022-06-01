@@ -224,7 +224,7 @@ static uint64_t __attribute__((unused))my_entry = (uint64_t) &pg_ft_c_entry;
 
 // NOTE: semicolons for editor only.
 // NOTE: This should really be abstracted into a single macro.
-MY_FINAL_HANDLER(c_handler_page_fault, *my_entry, *orig_asm_exc_page_fault);
+FINAL_HANDLER(c_handler_page_fault, *my_entry, *orig_asm_exc_page_fault);
 
 
 __attribute__((aligned (16)))
@@ -250,7 +250,7 @@ extern uint64_t __attribute__((unused)) c_df_handler;
 // See kernel mode linux "Stack Starvation".
 
 
-MY_FINAL_HANDLER(c_df_handler, *my_df_entry, *my_asm_exc_page_fault);
+FINAL_HANDLER(c_df_handler, *my_df_entry, *my_asm_exc_page_fault);
 // 6 = user + write
 // Rest is to call into 8 byte address without clobbering any registers.
 // Push random reg to stack, put addr in that reg & swap w/o dirtying a reg.

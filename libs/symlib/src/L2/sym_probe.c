@@ -29,9 +29,7 @@ uint64_t addr_msg = 0;
 // This asks the compiler not to warn about it being unused.
 /* static uint64_t __attribute((unused)) my_entry = (uint64_t) &tu_c_entry; */
 
-/* extern uint64_t int3_jmp_to_c; */
-/* MY_INT3_HANDLER(int3_jmp_to_c, *my_entry); */
-MY_INT3_HANDLER(int3_jmp_to_c, bp_c_entry);
+INT3_HANDLER(int3_jmp_to_c, bp_c_entry);
 
 static void bp_c_entry(struct pt_regs *pt_r){
   // HACK: safe way is to generate pointer into pt_regs

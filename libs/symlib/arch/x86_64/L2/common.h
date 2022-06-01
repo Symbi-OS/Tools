@@ -2,13 +2,13 @@
 #define __ARCH_X86_64_L2_COMMON__
 
 
-#define MY_JUMP(TARG) __asm__("jmpq " #TARG);
+#define JUMP(TARG) __asm__("jmpq " #TARG);
 
 
 #define NEW_HANDLER(FN)                      \
   __asm__(".text \n\t .align 16 \n\t .globl \t" #FN "\n\t" #FN ":");
 
-#define MY_GET_EXCP_FRAME __asm__("movq %rsp, ef");
+#define GET_EXCP_FRAME __asm__("movq %rsp, ef");
 
 #define PUSH_REGS \
   __asm__("\
@@ -99,13 +99,6 @@ struct pt_regs {
 };
 
 static_assert(sizeof(struct pt_regs) == (21 * 8), "Size of pt_regs is not correct");
-// TODO: Add sz assert.
-/* #define MY_NEW_HANDLER(FN)                      \ */
-/*   __asm__("\ */
-/*      .text \n\t                                 \ */
-/*      .align 16 \n\t\ "                          \ */
-/*           #FN ":\ */
-/* "); */
 
 #define CALL_TARG(FN) \
 __asm__("call " #FN);

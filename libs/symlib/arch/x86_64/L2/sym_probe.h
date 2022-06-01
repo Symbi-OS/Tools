@@ -7,7 +7,7 @@
 
 #include "./common.h"
 
-#define MY_DECREMENT_RETURN_RIP __asm__("decq (%rsp)");
+#define DECREMENT_RETURN_RIP __asm__("decq (%rsp)");
 #define IRET __asm__("iretq");
 
 #define PUSH_FAKE_ERROR __asm__("push $0xbadbad");
