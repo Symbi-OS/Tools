@@ -126,11 +126,7 @@ static void rs_c_entry(){
 
 // NOTE: This function is not used in C code, but is used in inline assembly.
 // This asks the compiler not to warn about it being unused.
-static uint64_t __attribute((unused)) my_entry = (uint64_t) &tu_c_entry;
 static uint64_t __attribute((unused)) rs_entry = (uint64_t) &rs_c_entry;
-
-extern uint64_t int3_jmp_to_c;
-MY_INT3_HANDLER(int3_jmp_to_c, *my_entry);
 
 extern uint64_t db_jmp_to_c;
 MY_DB_HANDLER(db_jmp_to_c, *rs_entry);
@@ -139,8 +135,6 @@ MY_DB_HANDLER(db_jmp_to_c, *rs_entry);
 // It will be defined at link time, but use this to allow compile time
 // inclusion in C code.
 /* extern uint64_t bs_asm_exc_int3; */
-
-extern uint64_t bs_asm_exc_db;
 
 void sym_probe_init(){
   printf("Init SP\n");

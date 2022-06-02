@@ -25,11 +25,12 @@
     IRET
 
 #define MY_DB_HANDLER(LAB, TARG)                \
-  MY_NEW_HANDLER(LAB)                           \
-    MY_PUSH_REGS                                \
-    MY_MY_CALL(TARG)                            \
-    MY_POP_REGS                                 \
-    MY_MY_IRET
+  NEW_HANDLER(LAB)                           \
+    PUSH_REGS                                \
+    GET_PT_REG_PTR				\
+    CALL_TARG(TARG)                            \
+    POP_REGS                                 \
+    IRET
 
 #define DB_REGS		4
 
