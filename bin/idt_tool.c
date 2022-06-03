@@ -255,8 +255,8 @@ void handler_pager(struct params *p){
     /* hdl_pg +=8; // XXX */
   }
   if(p->hdl_option == HDL_DB){
-    src = &df_jmp_to_c;
-    /* src = &db_jmp_to_c; */
+    /* src = &df_jmp_to_c; */
+    src = &db_jmp_to_c;
     sz = PG_SZ; // 0xC8 bytes on last check
   }
 

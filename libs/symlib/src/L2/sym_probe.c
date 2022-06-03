@@ -77,7 +77,7 @@ static __attribute((unused)) void bp_c_entry(struct pt_regs *pt_r){
     myprintk("Bummer, no match\n");
   }
 }
-
+/*
 void get_dr6(struct DR6* dr6){
   //uint64_t dr6;
   asm("mov %%db6, %0" : "=r"(*dr6));
@@ -91,53 +91,55 @@ void get_dr7(struct DR7* dr7){
 static void set_dr7(struct DR7 val){
   asm("mov %0,%%db7" :: "r"(val));
 }
-
+*/
+/*
   uint64_t dr0_hit = 0;
   uint64_t dr1_hit = 0;
   uint64_t dr2_hit = 0;
   uint64_t dr3_hit = 0;
 
   uint64_t dr6_val = 0;
+*/
 
 DB_HANDLER(db_jmp_to_c, db_c_entry);
 
-
-
 static __attribute((unused)) void db_c_entry(struct pt_regs *pt_r){
-  
+  /*
   struct DR7 dr7;
   get_dr7(&dr7);
   struct DR6 dr6;
   get_dr6(&dr6);
 
-  dr6_val = dr6.val;
+  //dr6_val = dr6.val;
 
   if(dr6.B0 && dr7.G0){
-    dr0_hit = 1;
-    dr6.B0 = 0;
+    //dr0_hit = 1;
+    //dr6.B0 = 0;
     dr7.G0 = 0;
     dr7.RW0 = 0;
   }
   if(dr6.B1 && dr7.G1){
-    dr1_hit = 1;
-    dr6.B1 = 0;
+    //dr1_hit = 1;
+    //dr6.B1 = 0;
     dr7.G1 = 0;
     dr7.RW1 = 0;
   }
   if(dr6.B2 && dr7.G2){
-    dr2_hit = 1;
-    dr6.B2 = 0;
+    //dr2_hit = 1;
+    //dr6.B2 = 0;
     dr7.G2 = 0;
     dr7.RW2 = 0;
   }
   if(dr6.B3 && dr7.G3){
-    dr3_hit = 1;
-    dr6.B3 = 0;
+    //dr3_hit = 1;
+    //dr6.B3 = 0;
     dr7.G3 = 0;
     dr7.RW3 = 0;
   }
-
-  set_dr7(dr7);
+  //set_dr7(dr7);
+*/
+  uint64_t val = 0;
+  asm("mov %0,%%db7" :: "r"(val));
   return;
 }
 
