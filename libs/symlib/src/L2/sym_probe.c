@@ -78,19 +78,38 @@ static __attribute((unused)) void bp_c_entry(struct pt_regs *pt_r){
   }
 }
 
-uint64_t dr0_hit = 0;
-uint64_t dr1_hit = 0;
-uint64_t dr2_hit = 0;
-uint64_t dr3_hit = 0;
+void get_dr6(struct DR6* dr6){
+  //uint64_t dr6;
+  asm("mov %%db6, %0" : "=r"(*dr6));
+  //return dr6;
+}
+void get_dr7(struct DR7* dr7){
+  //uint64_t dr7;
+  asm("mov %%db7, %0" : "=r"(*dr7));
+  //return dr7;
+}
+static void set_dr7(struct DR7 val){
+  asm("mov %0,%%db7" :: "r"(val));
+}
 
-uint64_t dr6_val = 0;
+  uint64_t dr0_hit = 0;
+  uint64_t dr1_hit = 0;
+  uint64_t dr2_hit = 0;
+  uint64_t dr3_hit = 0;
 
-static void rs_c_entry(){
+  uint64_t dr6_val = 0;
+
+DB_HANDLER(db_jmp_to_c, db_c_entry);
+
+
+
+static __attribute((unused)) void db_c_entry(struct pt_regs *pt_r){
+  
   struct DR7 dr7;
+  get_dr7(&dr7);
   struct DR6 dr6;
-  asm("mov %%db6, %0" : "=r"(dr6));
-  asm("mov %%db7, %0" : "=r"(dr7));
-//  dr7.val = 0;
+  get_dr6(&dr6);
+
   dr6_val = dr6.val;
 
   if(dr6.B0 && dr7.G0){
@@ -117,24 +136,10 @@ static void rs_c_entry(){
     dr7.G3 = 0;
     dr7.RW3 = 0;
   }
-  
-  asm("mov %0,%%db7" :: "r"(dr7));
-  asm("mov %0,%%db6" :: "r"(dr6));
 
+  set_dr7(dr7);
   return;
 }
-
-// NOTE: This function is not used in C code, but is used in inline assembly.
-// This asks the compiler not to warn about it being unused.
-static uint64_t __attribute((unused)) rs_entry = (uint64_t) &rs_c_entry;
-
-extern uint64_t db_jmp_to_c;
-MY_DB_HANDLER(db_jmp_to_c, *rs_entry);
-
-// This is the name of our assembly we're adding to the text section.
-// It will be defined at link time, but use this to allow compile time
-// inclusion in C code.
-/* extern uint64_t bs_asm_exc_int3; */
 
 void sym_probe_init(){
   printf("Init SP\n");
@@ -247,14 +252,4 @@ unsigned char sym_set_db_probe(uint64_t addr, uint64_t reg){
   sym_lower();
 
   return ret;
-}
-
-void clear_db_reg(){
-  uint64_t null = 0;
-  sym_elevate();
-  asm("\t mov %0,%%db0" :: "r"(null));
-  asm("\t mov %0,%%db1" :: "r"(null));
-  asm("\t mov %0,%%db2" :: "r"(null));
-  asm("\t mov %0,%%db3" :: "r"(null));
-  sym_lower();
 }

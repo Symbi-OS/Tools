@@ -24,7 +24,7 @@
     DROP_FAKE_ERROR                               \
     IRET
 
-#define MY_DB_HANDLER(LAB, TARG)                \
+#define DB_HANDLER(LAB, TARG)                \
   NEW_HANDLER(LAB)                           \
     PUSH_REGS                                \
     GET_PT_REG_PTR				\
@@ -48,10 +48,9 @@ void sym_interpose_on_int3_ft_asm(unsigned char* new_idt);
 void sym_interpose_on_int3_ft_c(unsigned char* new_idt);
 
 void int3_jmp_to_c(void);
+void db_jmp_to_c(void);
 
 void sym_interpose_on_db_ft_asm(unsigned char* new_idt);
 void sym_interpose_on_db_ft_c(unsigned char* new_idt);
-
-void clear_db_reg();
 
 #endif
