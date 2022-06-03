@@ -227,27 +227,39 @@ void sym_toggle_page_exe_disable(void * addr, bool disable){
   sym_flush_tlb();
 }
 
+// This copies a handler from the sym lib onto an allocated kernel page.
 void handler_pager(struct params *p){
   assert(p->hdl_option != -1);
 
   // allocate a page for handler
   void * hdl_pg = get_aligned_kern_pg();
+  /* void * scratch_pg; */
 
   // copy appropriate handler onto it
   void * src = NULL;
   int sz = 0;
   if(p->hdl_option == HDL_DF){
-    src = &df_asm_handler;
-    sz = 0x1d;
+    /* src = &df_asm_handler; */
+    src = &df_jmp_to_c;
+    sz = PG_SZ;
   }
   if(p->hdl_option == HDL_TF){
     /* src = &tf_asm_handler; */
     src = &tf_interposer_asm;
+    /* src = &tf_jmp_to_c; */
     sz = PG_SZ;
   }
   if(p->hdl_option == HDL_I3){
     /* src = &int3_interposer_asm; */
     src = &int3_jmp_to_c;
+    sz = PG_SZ; // 0xC8 bytes on last check
+    /* scratch_pg = get_aligned_kern_pg(); */
+    /* *(uint64_t)hdl_pg = pointer_to_scratch_page; */
+    /* hdl_pg +=8; // XXX */
+  }
+  if(p->hdl_option == HDL_DB){
+    src = &df_jmp_to_c;
+    /* src = &db_jmp_to_c; */
     sz = PG_SZ; // 0xC8 bytes on last check
   }
 
@@ -358,6 +370,9 @@ void parse_args(int argc, char *argv[], struct params *p){
         }
         if(!strcmp(optarg, "i3")){
           p->hdl_option = HDL_I3;
+        }
+        if(!strcmp(optarg, "db")){
+          p->hdl_option = HDL_DB;
         }
         break;
 

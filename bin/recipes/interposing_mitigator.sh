@@ -11,9 +11,10 @@ function print_help () {
     echo "flags: -m \"tf\df\" -t <core> -d <debug> "
     echo
     echo examples:
-    echo ./copy_idt_interpose_tf.sh -m tf -t 1 -d
-    echo ./copy_idt_interpose_tf.sh -m df -t 1 -d
-    echo ./copy_idt_interpose_tf.sh -m i3 -t 1 -d
+    echo ./interposing_mitigator.sh -m tf -t 1 -d
+    echo ./interposing_mitigator.sh -m df -t 1 -d
+    echo ./interposing_mitigator.sh -m i3 -t 1 -d
+    echo ./interposing_mitigator.sh -m db -t 1 -d
 }
 function parse_args () {
     # Call getopt to validate the provided input. 
@@ -38,6 +39,9 @@ function parse_args () {
                         ;;
                     "i3")
                         VECTOR=3
+                        ;;
+                    "db")
+                        VECTOR=1
                         ;;
                     *)
                         echo "Incorrect -m option provided:" $MITIGATION

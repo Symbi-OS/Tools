@@ -12,7 +12,8 @@ enum mod_options {
 enum handler_options {
   HDL_DF,
   HDL_TF,
-  HDL_I3
+  HDL_I3,
+  HDL_DB
 };
 
 struct params{
