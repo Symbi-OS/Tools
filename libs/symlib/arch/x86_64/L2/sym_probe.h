@@ -11,7 +11,6 @@
 #define IRET __asm__("iretq");
 
 #define PUSH_FAKE_ERROR __asm__("push $0xbadbad");
-#define GET_PT_REG_PTR  __asm__("movq %rsp, %rdi");
 #define DROP_FAKE_ERROR __asm__("add $8, %rsp");
 
 #define X86_TRAP_BP		 3

@@ -223,19 +223,19 @@ static uint64_t __attribute__((unused))my_entry = (uint64_t) &pg_ft_c_entry;
 /* extern uint64_t c_handler_page_fault; */
 
 // NOTE: semicolons for editor only.
-// NOTE: This should really be abstracted into a single macro.
 FINAL_HANDLER(c_handler_page_fault, *my_entry, *orig_asm_exc_page_fault);
 
 
+FINAL_HANDLER(c_df_handler, *my_df_entry, *my_asm_exc_page_fault);
 __attribute__((aligned (16)))
-static void df_c_entry(){
-  // Error code on DF is 0, 
+static void df_c_entry_dep(){
+  // Error code on DF is 0,
   ef->err = USER_FT | WR_FT;
 }
 
 // NOTE: This function is not used in C code, but is used in inline assembly.
 // This asks the compiler not to warn about it being unused.
-static uint64_t __attribute__((unused)) my_df_entry = (uint64_t) &df_c_entry;
+static uint64_t __attribute__((unused)) my_df_entry = (uint64_t) &df_c_entry_dep;
 // This is the name of our assembly we're adding to the text section.
 // It will be defined at link time, but use this to allow compile time
 // inclusion in C code.
@@ -250,7 +250,19 @@ extern uint64_t __attribute__((unused)) c_df_handler;
 // See kernel mode linux "Stack Starvation".
 
 
-FINAL_HANDLER(c_df_handler, *my_df_entry, *my_asm_exc_page_fault);
+
+DF_HANDLER(df_jmp_to_c, df_c_entry);
+__attribute__((aligned (16)))
+static __attribute((unused)) void df_c_entry(struct pt_regs *pt_r){
+  // Error code on DF is 0
+  pt_r->error_code = USER_FT | WR_FT;
+}
+
+TF_HANDLER(tf_jmp_to_c, tf_c_entry);
+static __attribute((unused)) void tf_c_entry(struct pt_regs *pt_r){
+  pt_r->error_code = USER_FT;
+}
+
 // 6 = user + write
 // Rest is to call into 8 byte address without clobbering any registers.
 // Push random reg to stack, put addr in that reg & swap w/o dirtying a reg.

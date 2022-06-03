@@ -10,6 +10,17 @@
 
 #define GET_EXCP_FRAME __asm__("movq %rsp, ef");
 
+#define GET_PT_REG_PTR  __asm__("movq %rsp, %rdi");
+
+#define RET_TO_PG_FT                            \
+  __asm__(" push   %rax                     \n\t\
+  mov    $0xffffffff81e00ac0,%rax           \n\t\
+  xor    (%rsp),%rax /*Arlo's trick*/       \n\t\
+  xor    %rax,(%rsp)                        \n\t\
+  xor    (%rsp),%rax                        \n\t\
+  ret                                           \
+");
+
 #define PUSH_REGS \
   __asm__("\
   pushq   %rdi		/* pt_regs->di */ \n\t\

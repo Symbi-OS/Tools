@@ -59,6 +59,22 @@ extern void tf_interposer_asm();
   POP_REGS                                 \
   JUMP(OLD_HAND)
 
+#define DF_HANDLER(LAB, TARG)      \
+  NEW_HANDLER(LAB)                              \
+    PUSH_REGS                                   \
+    GET_PT_REG_PTR                              \
+    CALL_TARG(TARG)                             \
+    POP_REGS                                    \
+    RET_TO_PG_FT
+
+#define TF_HANDLER(LAB, TARG)                   \
+  NEW_HANDLER(LAB)                              \
+    PUSH_REGS                                   \
+    GET_PT_REG_PTR                              \
+    CALL_TARG(TARG)                             \
+    POP_REGS                                    \
+    RET_TO_PG_FT
+
 // NOTE Err codes:
 #define PRESENT 1
 #define WR_FT   1<<1
@@ -91,6 +107,8 @@ static_assert(sizeof(struct pte) ==8, "Size of pte is not correct");
 
 extern void c_handler_page_fault();
 extern void df_asm_handler();
+extern void df_jmp_to_c();
+extern void tf_jmp_to_c();
 extern void tf_asm_handler();
 
 void sym_print_pte(struct pte *pte);
