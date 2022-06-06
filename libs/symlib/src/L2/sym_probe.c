@@ -104,42 +104,43 @@ static void set_dr7(struct DR7 val){
 DB_HANDLER(db_jmp_to_c, db_c_entry);
 
 static __attribute((unused)) void db_c_entry(struct pt_regs *pt_r){
-  /*
   struct DR7 dr7;
-  get_dr7(&dr7);
+  asm("mov %%db7, %0" : "=r"(dr7));
+  //get_dr7(&dr7);
   struct DR6 dr6;
-  get_dr6(&dr6);
+  asm("mov %%db6, %0" : "=r"(dr6));
+  //get_dr6(&dr6);
+  uint64_t dr_hit = 9;
 
-  //dr6_val = dr6.val;
+  // void *scratch_pad = (void *)(0xffffc90003271000 + 0xC);
 
   if(dr6.B0 && dr7.G0){
-    //dr0_hit = 1;
-    //dr6.B0 = 0;
+    dr_hit = 0;
     dr7.G0 = 0;
     dr7.RW0 = 0;
   }
   if(dr6.B1 && dr7.G1){
-    //dr1_hit = 1;
-    //dr6.B1 = 0;
+    dr_hit = 1;
     dr7.G1 = 0;
     dr7.RW1 = 0;
   }
   if(dr6.B2 && dr7.G2){
-    //dr2_hit = 1;
-    //dr6.B2 = 0;
+    dr_hit = 2;
     dr7.G2 = 0;
     dr7.RW2 = 0;
   }
   if(dr6.B3 && dr7.G3){
-    //dr3_hit = 1;
-    //dr6.B3 = 0;
+    dr_hit = 3;
     dr7.G3 = 0;
     dr7.RW3 = 0;
   }
+
+  //sym_memcpy(scratch_pad, &dr_hit, sizeof(int));
   //set_dr7(dr7);
-*/
-  uint64_t val = 0;
-  asm("mov %0,%%db7" :: "r"(val));
+  asm("mov %0,%%db7" :: "r"(dr7));
+  asm("mov %0,%%rax" :: "r"(dr_hit));
+  /*uint64_t val = 0;
+  asm("mov %0,%%db7" :: "r"(val));*/
   return;
 }
 

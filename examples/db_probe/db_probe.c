@@ -76,7 +76,8 @@ int main() {
 
   // struct dtr check_idtr;
   // sym_store_idt_desc(&check_idtr);
-
+  // void *scratch_pad = (void *)(0xffffc90003271000 + 0xC);
+  uint64_t x = 9;
   sym_lib_init();
   sym_probe_init();
   //interpose_on_db_ft();
@@ -98,6 +99,11 @@ int main() {
   printf("dr3_hit  :%#lx\n", dr3_hit);
   printf("dr6_val  :%#lx\n", dr6_val);
 */
+  sym_elevate();
+  asm("mov %%rax, %0" : "=r"(x));
+  sym_lower();
+
+  printf("\nDEBUG REGISTER %ld HIT\n", x);
   printf("\nDONE MAIN\n");
 
   // sym_set_idtr((unsigned long)check_idtr.base, IDT_SZ_BYTES - 1);
