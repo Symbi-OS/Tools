@@ -239,14 +239,11 @@ void handler_pager(struct params *p){
   void * src = NULL;
   int sz = 0;
   if(p->hdl_option == HDL_DF){
-    /* src = &df_asm_handler; */
     src = &df_jmp_to_c;
     sz = PG_SZ;
   }
   if(p->hdl_option == HDL_TF){
-    /* src = &tf_asm_handler; */
-    src = &tf_interposer_asm;
-    /* src = &tf_jmp_to_c; */
+    src = &tf_jmp_to_c;
     sz = PG_SZ;
   }
   if(p->hdl_option == HDL_I3){

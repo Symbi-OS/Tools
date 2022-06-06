@@ -1,6 +1,8 @@
 # Test symbiote functionality in roughly more challenging contexts.
 EX=../examples/
 
+all: mitigate_cores all_clock all_elevate_lower all_getppid all_print_cr3 lebench
+
 # Elevate and lower
 EL=$(EX)/elevate_lower/elevate_lower
 
@@ -120,6 +122,7 @@ idt_reset:
 # lebench
 LE_DIR=../../new_lebench
 lebench:
+	make -C $(LE_DIR) sym_clean_all
 	make -C $(LE_DIR) sym_run_all
 
 # read
