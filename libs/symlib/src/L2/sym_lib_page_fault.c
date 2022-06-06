@@ -260,7 +260,7 @@ static __attribute((unused)) void df_c_entry(struct pt_regs *pt_r){
 
 TF_HANDLER(tf_jmp_to_c, tf_c_entry);
 static __attribute((unused)) void tf_c_entry(struct pt_regs *pt_r){
-  pt_r->error_code = USER_FT;
+  pt_r->error_code |= USER_FT;
 }
 
 // 6 = user + write
