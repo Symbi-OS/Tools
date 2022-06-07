@@ -234,7 +234,7 @@ void handler_pager(struct params *p){
   // allocate a page for handler
   void * hdl_pg = get_aligned_kern_pg();
   void * scratchpad = get_aligned_kern_pg();
-  uint64_t * sp_pg = (uint64_t*)hdl_pg + 0xC;
+  uint64_t sp_pg = ((uint64_t)hdl_pg) + (PG_SZ - sizeof(void *));
   
   // copy appropriate handler onto it
   void * src = NULL;
@@ -267,15 +267,16 @@ void handler_pager(struct params *p){
 
   // Do this with a non-temporal store?
   sym_memcpy(hdl_pg, src, sz);
-  sym_elevate();
-  *sp_pg = (uint64_t)scratchpad;
-  sym_lower();
+  //sym_elevate();
+  //*sp_pg = (uint64_t)scratchpad;
+  //sym_lower();
 
   int disable = 0;
   sym_toggle_page_exe_disable(hdl_pg, disable);
 
   // return address of page.
   printf("%p\n", hdl_pg);
+  fprintf(stderr, "SCRATCHPAD LOCATION: %lx\n", sp_pg);
 }
 
 

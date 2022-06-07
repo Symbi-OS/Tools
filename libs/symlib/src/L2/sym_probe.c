@@ -106,19 +106,20 @@ DB_HANDLER(db_jmp_to_c, db_c_entry);
 static __attribute((unused)) void db_c_entry(struct pt_regs *pt_r){
   struct DR7 dr7;
   asm("mov %%db7, %0" : "=r"(dr7));
-  //get_dr7(&dr7);
   struct DR6 dr6;
   asm("mov %%db6, %0" : "=r"(dr6));
-  //get_dr6(&dr6);
   uint64_t dr_hit = 9;
-
+  int x = 1;
   // get RIP = hdl_pg address
-  uint64_t rip;
-  asm volatile("1: lea 1b(%%rip), %0;": "=a"(rip));
-  // void* hdl_pg;
-  uint64_t *sp_ptr, sp;
-  // sym_memcpy(hdl_pg, (void*) rip, 8);
+  uint64_t hdl_pg;
+  asm volatile ("call here2\n\t"
+                  "here2:\n\t"
+                  "pop %0"
+                  : "=m" (hdl_pg));
   
+  uint64_t sp_ptr;
+  void * scratchpad;
+
   if(dr6.B0 && dr7.G0){
     dr_hit = 0;
     dr7.G0 = 0;
@@ -139,13 +140,21 @@ static __attribute((unused)) void db_c_entry(struct pt_regs *pt_r){
     dr7.G3 = 0;
     dr7.RW3 = 0;
   }
-  
+
   // align sp_ptr and get scratchpad pointer
-  sp_ptr = (uint64_t*)((rip - (rip % IDT_SZ_BYTES)));
-  sp = *sp_ptr;
+  sp_ptr = (hdl_pg - (hdl_pg % PG_SZ));
+  sp_ptr += (PG_SZ - 8);
+  uint64_t * ptr = (uint64_t *) sp_ptr;
+  scratchpad = (void *)(*ptr);
   
-  // copy the contents of pt_r into the scratchpad
-  sym_memcpy((void*) sp, pt_r, sizeof(struct pt_regs));
+  // while(1) {}
+/*
+  char *csrc = (char *)pt_r;
+  char *cdest = (char *)scratchpad;
+  int n = sizeof(struct pt_regs);
+  for (int i=0; i<n; i++)
+    cdest[i] = csrc[i];
+*/
 
   asm("mov %0,%%db7" :: "r"(dr7));
 
