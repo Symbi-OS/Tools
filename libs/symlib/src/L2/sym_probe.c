@@ -112,8 +112,13 @@ static __attribute((unused)) void db_c_entry(struct pt_regs *pt_r){
   //get_dr6(&dr6);
   uint64_t dr_hit = 9;
 
-  // void *scratch_pad = (void *)(0xffffc90003271000 + 0xC);
-
+  // get RIP = hdl_pg address
+  uint64_t rip;
+  asm volatile("1: lea 1b(%%rip), %0;": "=a"(rip));
+  // void* hdl_pg;
+  uint64_t *sp_ptr, sp;
+  // sym_memcpy(hdl_pg, (void*) rip, 8);
+  
   if(dr6.B0 && dr7.G0){
     dr_hit = 0;
     dr7.G0 = 0;
@@ -134,13 +139,16 @@ static __attribute((unused)) void db_c_entry(struct pt_regs *pt_r){
     dr7.G3 = 0;
     dr7.RW3 = 0;
   }
+  
+  // align sp_ptr and get scratchpad pointer
+  sp_ptr = (uint64_t*)((rip - (rip % IDT_SZ_BYTES)));
+  sp = *sp_ptr;
+  
+  // copy the contents of pt_r into the scratchpad
+  sym_memcpy((void*) sp, pt_r, sizeof(struct pt_regs));
 
-  //sym_memcpy(scratch_pad, &dr_hit, sizeof(int));
-  //set_dr7(dr7);
   asm("mov %0,%%db7" :: "r"(dr7));
-  asm("mov %0,%%rax" :: "r"(dr_hit));
-  /*uint64_t val = 0;
-  asm("mov %0,%%db7" :: "r"(val));*/
+
   return;
 }
 

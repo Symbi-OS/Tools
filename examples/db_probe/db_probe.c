@@ -100,7 +100,6 @@ int main() {
   printf("dr6_val  :%#lx\n", dr6_val);
 */
   sym_elevate();
-  asm("mov %%rax, %0" : "=r"(x));
   sym_lower();
 
   printf("\nDEBUG REGISTER %ld HIT\n", x);
