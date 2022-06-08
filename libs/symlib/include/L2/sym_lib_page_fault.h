@@ -59,15 +59,7 @@ extern void tf_interposer_asm();
   POP_REGS                                 \
   JUMP(OLD_HAND)
 
-#define DF_HANDLER(LAB, TARG)      \
-  NEW_HANDLER(LAB)                              \
-    PUSH_REGS                                   \
-    GET_PT_REG_PTR                              \
-    CALL_TARG(TARG)                             \
-    POP_REGS                                    \
-    RET_TO_PG_FT
-
-#define TF_HANDLER(LAB, TARG)                   \
+#define INTERPOSER_HANDLER(LAB, TARG)      \
   NEW_HANDLER(LAB)                              \
     PUSH_REGS                                   \
     GET_PT_REG_PTR                              \

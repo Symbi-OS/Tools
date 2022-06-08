@@ -23,7 +23,7 @@ uint64_t int3_rdx = 0;
 
 uint64_t addr_msg = 0;
 
-INT3_HANDLER(int3_jmp_to_c, bp_c_entry);
+TRAP_HANDLER(int3_jmp_to_c, bp_c_entry);
 
 // NOTE: This function is not used in C code, but is used in inline assembly.
 // This asks the compiler not to warn about it being unused.

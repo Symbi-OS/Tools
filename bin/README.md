@@ -2,6 +2,9 @@
 
 idt_tool uses the elevate mechanism to provide a user with priviliged information about the current address and contents of an IDT, and allows the user to carry out privileged actions on a given IDT. This tool is built on symbiote library functionality that enables a user to read information from the current IDT, make copies of a given IDT, modify entries, and install an IDT from the command line. It also provides functionality for allocating kernel pages and installing custom interposing or replacement handlers for a given entry in the IDT. 
 
+## Known Issues
+The interposing_mitigator tool in the recipes dir produces a metadata log of per core handler virtual address locations. It is only updated through use of the interposint_mitigator and should not be considered robust to hand invocations of idt_tool.
+
 ## USAGE
 
 idt_tool [OPTIONS]

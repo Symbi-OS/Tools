@@ -11,7 +11,7 @@
 
 
 
-#define INT3_HANDLER(LAB, TARG)                \
+#define TRAP_HANDLER(LAB, TARG)                \
   NEW_HANDLER(LAB)                             \
     PUSH_FAKE_ERROR                               \
     PUSH_REGS                                  \
