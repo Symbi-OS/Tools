@@ -110,6 +110,17 @@ struct pt_regs {
 };
 
 static_assert(sizeof(struct pt_regs) == (21 * 8), "Size of pt_regs is not correct");
+struct rs_struct {
+  struct pt_regs pt_r;
+  uint64_t dr_hit;
+  uint64_t dr7;
+};
+
+struct scratchpad {
+  struct rs_struct s0;
+  struct rs_struct s1;
+  struct rs_struct s2;
+};
 
 #define CALL_TARG(FN) \
 __asm__("call " #FN);

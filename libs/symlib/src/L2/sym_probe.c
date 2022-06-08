@@ -108,8 +108,9 @@ static __attribute((unused)) void db_c_entry(struct pt_regs *pt_r){
   asm("mov %%db7, %0" : "=r"(dr7));
   struct DR6 dr6;
   asm("mov %%db6, %0" : "=r"(dr6));
+  
   uint64_t dr_hit = 9;
-  int x = 1;
+
   // get RIP = hdl_pg address
   uint64_t hdl_pg;
   asm volatile ("call here2\n\t"
@@ -118,7 +119,7 @@ static __attribute((unused)) void db_c_entry(struct pt_regs *pt_r){
                   : "=m" (hdl_pg));
   
   uint64_t sp_ptr;
-  void * scratchpad;
+  struct scratchpad * sp;
 
   if(dr6.B0 && dr7.G0){
     dr_hit = 0;
@@ -145,16 +146,19 @@ static __attribute((unused)) void db_c_entry(struct pt_regs *pt_r){
   sp_ptr = (hdl_pg - (hdl_pg % PG_SZ));
   sp_ptr += (PG_SZ - 8);
   uint64_t * ptr = (uint64_t *) sp_ptr;
-  scratchpad = (void *)(*ptr);
+  sp = (struct scratchpad *)(*ptr);
   
-  // while(1) {}
-/*
+  // copy some register values and what DB register was hit onto the scratchpad
+  sp->s0.dr_hit = dr_hit;
+  sp->s0.dr7 = dr7.val;
+
+  // hacky memcpy for the pt_regs struct
   char *csrc = (char *)pt_r;
-  char *cdest = (char *)scratchpad;
+  char *cdest = (char *)(&(sp->s0.pt_r));
   int n = sizeof(struct pt_regs);
   for (int i=0; i<n; i++)
     cdest[i] = csrc[i];
-*/
+  
 
   asm("mov %0,%%db7" :: "r"(dr7));
 

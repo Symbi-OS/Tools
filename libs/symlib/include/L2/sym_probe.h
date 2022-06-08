@@ -26,10 +26,12 @@
 
 #define DB_HANDLER(LAB, TARG)                \
   NEW_HANDLER(LAB)                           \
+    PUSH_FAKE_ERROR                               \
     PUSH_REGS                                \
     GET_PT_REG_PTR				\
     CALL_TARG(TARG)                            \
     POP_REGS                                 \
+    DROP_FAKE_ERROR                               \
     IRET
 
 #define DB_REGS		4
