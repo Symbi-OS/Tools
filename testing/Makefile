@@ -1,62 +1,67 @@
 # Test symbiote functionality in roughly more challenging contexts.
 EX=../examples/
 
-all: mitigate_cores all_clock all_elevate_lower all_getppid all_print_cr3 lebench
+all: sudo_check rebuild_all mitigate_cores all_clock all_elevate_lower all_getppid all_print_cr3 lebench stack_starvation trivial_int3
+
+sudo_check:
+	sudo echo hi
+rebuild_all:
+	make -C ../
 
 # Elevate and lower
 EL=$(EX)/elevate_lower/elevate_lower
 
 all_elevate_lower: elevate_lower elevate_lower_loop elevate_lower_bash_loop
 
-elevate_lower:
+elevate_lower: .mitigated_all
 	$(EL) 1
 	echo done
 
-elevate_lower_loop:
+elevate_lower_loop: .mitigated_all
 	$(EL) 1000000
 	echo done
 
-elevate_lower_bash_loop:
+elevate_lower_bash_loop: .mitigated_all
 	for i in $$(seq 1 1000) ; do $(EL) 1000 ; done
 	echo done
 
 # Print cr3
 P3=$(EX)/print/print_cr3_static
 
-all_print_cr3: print_cr3 print_cr3_loop print_cr3_bash_loop
+all_print_cr3: .mitigated_all print_cr3 print_cr3_loop print_cr3_bash_loop
 
-print_cr3:
+print_cr3: .mitigated_all
 	$(P3) 1
 
-print_cr3_loop:
+print_cr3_loop: .mitigated_all
 	$(P3) 100000000
 
-print_cr3_bash_loop:
+print_cr3_bash_loop: .mitigated_all
 	for i in $$(seq 1 100); do $(P3) 100000; done
 
 # clock
 CL=$(EX)/clock/clock
-all_clock: clock clock_loop clock_bash_loop
+all_clock: .mitigated_all clock clock_loop clock_bash_loop
 
-clock:
+clock: .mitigated_all
 	$(CL) 1
 
-clock_loop:
+clock_loop: .mitigated_all
 	$(CL) 10000000
 
-clock_bash_loop:
+clock_bash_loop: .mitigated_all
 	for i in $$(seq 1 1000); do $(CL) 10000; done
 
 GP=$(EX)/getppid/getppid
-all_getppid: getppid getppid_loop getppid_bash_loop
+all_getppid: .mitigated_all getppid getppid_loop getppid_bash_loop
 # getppid shortcut
 getppid:
 	$(GP) 1
 
-getppid_loop:
+getppid_loop: .mitigated_all
 	$(GP) 10000000
 
-getppid_bash_loop:
+getppid_bash_loop: .mitigated_all
 	for i in $$(seq 1 10); do $(GP) 100000; done
 
 # IDT tool
@@ -67,6 +72,7 @@ idt_get:
 # hardcoding
 idt_set:
 	taskset	-c 0 $(IDT) -a fffffe0000000000 -i
+	rm .mitigated_all
 
 # Identity, get the idt and set it.
 idt_get_set:
@@ -86,6 +92,7 @@ idt_set_loop:
 MG=../bin/recipes/
 mitigate_cores:
 	cd $(MG) && ./mitigate_all.sh
+	touch .mitigated_all
 
 mitigate_cores_loop:
 	for i in $$(seq 0 100); do make mitigate_cores && make idt_reset; done
@@ -95,6 +102,7 @@ mitigate_cores_loop:
 idt_reset:
 	make idt_set
 	make idt_set_loop
+	rm .mitigated_all
 
 
 # TEST=$$(echo hi)
@@ -140,6 +148,13 @@ lebench:
 # mmap shortcup
 
 # stack starvation mitigation
+SS=$(EX)/stack_starvation/stack_starvation
+stack_starvation: .mitigated_all
+	$(SS)
+
+
+
+
 
 # Stack starvation interpostions
 
@@ -147,6 +162,9 @@ lebench:
 
 # int3 interposition
 
+TI3=$(EX)/int3_probe/trivial_int3
+trivial_int3:
+	$(TI3)
 
 # echo server
 
