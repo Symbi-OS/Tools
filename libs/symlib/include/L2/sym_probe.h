@@ -14,7 +14,7 @@
 #define X86_TRAP_DB		 1
 
 
-#define INT3_HANDLER(LAB, TARG)                \
+#define TRAP_HANDLER(LAB, TARG)                \
   NEW_HANDLER(LAB)                             \
     PUSH_FAKE_ERROR                               \
     PUSH_REGS                                  \
@@ -24,18 +24,7 @@
     DROP_FAKE_ERROR                               \
     IRET
 
-#define DB_HANDLER(LAB, TARG)                \
-  NEW_HANDLER(LAB)                           \
-    PUSH_FAKE_ERROR                               \
-    PUSH_REGS                                \
-    GET_PT_REG_PTR				\
-    CALL_TARG(TARG)                            \
-    POP_REGS                                 \
-    DROP_FAKE_ERROR                               \
-    IRET
-
-#define DB_REGS		4
-
+#define DB_REGS			4
 void sym_probe_init();
 
 // Place a software interrupt generating instruction at addr.

@@ -101,7 +101,7 @@ static void set_dr7(struct DR7 val){
   uint64_t dr6_val = 0;
 */
 
-DB_HANDLER(db_jmp_to_c, db_c_entry);
+TRAP_HANDLER(db_jmp_to_c, db_c_entry);
 
 static __attribute((unused)) void db_c_entry(struct pt_regs *pt_r){
   struct DR7 dr7;
