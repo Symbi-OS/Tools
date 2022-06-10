@@ -74,32 +74,15 @@ extern uint64_t dr6_val;
 */
 int main() {
 
-  // struct dtr check_idtr;
-  // sym_store_idt_desc(&check_idtr);
-  // void *scratch_pad = (void *)(0xffffc90003271000 + 0xC);
+  struct scratchpad * sp = (struct scratchpad *)get_scratch_pg(0);
   uint64_t x = 9;
   sym_lib_init();
   sym_probe_init();
-  //interpose_on_db_ft();
   sym_set_db_probe((uint64_t)&func, 1);
   
-  // printf("SET TRIGGER TO: %p\n", &func); 
-/*
-  printf("\ndr0_hit  :%#lx\n", dr0_hit);
-  printf("dr1_hit  :%#lx\n", dr1_hit);
-  printf("dr2_hit  :%#lx\n", dr2_hit);
-  printf("dr3_hit  :%#lx\n", dr3_hit);
-  printf("dr6_val  :%#lx\n\n", dr6_val);
-*/
   func();
-/*
-  printf("\ndr0_hit  :%#lx\n", dr0_hit);
-  printf("dr1_hit  :%#lx\n", dr1_hit);
-  printf("dr2_hit  :%#lx\n", dr2_hit);
-  printf("dr3_hit  :%#lx\n", dr3_hit);
-  printf("dr6_val  :%#lx\n", dr6_val);
-*/
   sym_elevate();
+  x = sp->s0.dr_hit;
   sym_lower();
 
   printf("\nDEBUG REGISTER %ld HIT\n", x);

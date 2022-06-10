@@ -44,4 +44,8 @@ void db_jmp_to_c(void);
 void sym_interpose_on_db_ft_asm(unsigned char* new_idt);
 void sym_interpose_on_db_ft_c(unsigned char* new_idt);
 
+// Get current idt handler page / scratchpad page installed on a given core
+uint64_t get_hdl_pg(int core);
+uint64_t get_scratch_pg(int core);
+
 #endif

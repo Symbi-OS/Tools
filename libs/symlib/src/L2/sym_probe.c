@@ -5,6 +5,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <fcntl.h>
 
 #include "LIDK/idk.h"
 
@@ -276,4 +277,46 @@ unsigned char sym_set_db_probe(uint64_t addr, uint64_t reg){
   sym_lower();
 
   return ret;
+}
+
+uint64_t get_hdl_pg(int core){
+  char pg_ptr[20];
+  uint64_t hdl_pg;
+  char path[50] = "/symbiote/", c[10], hdl[10] = "handler";
+  int fd;
+  sprintf(c, "%d/", core);
+  strcat(path,c);
+  strcat(path,hdl);
+
+  fd = open(path, O_RDONLY);
+  
+  if(fd == -1)
+    return -1;
+
+  read(fd, pg_ptr, sizeof(char)*sizeof(uint64_t));
+  //printf("HANDLER PAGE LOCATION: %s\n", pg_ptr);
+  
+  hdl_pg = strtoull(pg_ptr, NULL, 0);
+  return ;
+}
+
+uint64_t get_scratch_pg(int core){
+  char pg_ptr[20];
+  uint64_t scratch_pg;
+  char path[50] = "/symbiote/", c[10], hdl[15] = "scratchpad";
+  int fd;
+  sprintf(c, "%d/", core);
+  strcat(path,c);
+  strcat(path,hdl);
+
+  fd = open(path, O_RDONLY);
+  
+  if(fd == -1)
+    return -1;
+
+  read(fd, pg_ptr, 100);
+  //printf("SCRATCHPAD LOCATION: %s\n", pg_ptr);
+  
+  scratch_pg = strtoull(pg_ptr, NULL, 0);
+  return scratch_pg;
 }

@@ -276,9 +276,7 @@ void handler_pager(struct params *p){
   sym_toggle_page_exe_disable(hdl_pg, disable);
 
   // return address of page.
-  printf("%p\n", hdl_pg);
-  fprintf(stderr, "SCRATCHPAD LOCATION: %lx\n", sp_pg);
-  fprintf(stderr, "SCRATCHPAD ADDRESS: %p\n", scratchpad);
+  printf("%p %p\n", hdl_pg, scratchpad);
 }
 
 
