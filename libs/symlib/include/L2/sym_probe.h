@@ -25,11 +25,17 @@
     IRET
 
 #define DB_REGS			4
+
+enum db_flag{
+  DB_LOCAL,
+  DB_GLOBAL
+};
+
 void sym_probe_init();
 
 // Place a software interrupt generating instruction at addr.
 unsigned char sym_set_probe(uint64_t addr);
-unsigned char sym_set_db_probe(uint64_t addr, uint64_t reg);
+unsigned char sym_set_db_probe(uint64_t addr, uint64_t reg, uint64_t db_flag);
 
 // Replace software interrupt generating instruction with byte.
 void sym_remove_probe(void *addr, unsigned char old_byte);

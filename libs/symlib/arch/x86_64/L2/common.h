@@ -117,9 +117,10 @@ struct rs_struct {
 };
 
 struct scratchpad {
-  struct rs_struct s0;
-  struct rs_struct s1;
-  struct rs_struct s2;
+  struct rs_struct get;
+  struct rs_struct set;
+  struct rs_struct control;
+  uint8_t debug;
 };
 
 #define CALL_TARG(FN) \

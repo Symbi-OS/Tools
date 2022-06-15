@@ -132,12 +132,13 @@ function cp_hdl () {
     fi
 
     # store handler pg and scratchpad pg locations in metadata files
-    mkdir -p "/symbiote"
-    mkdir -p "/symbiote/$TASKSET_CORE"
-    touch "/symbiote/$TASKSET_CORE/handler"
-    touch "/symbiote/$TASKSET_CORE/scratchpad"
-    echo $HDL_PG > "/symbiote/$TASKSET_CORE/handler"
-    echo $SCRATCH_PG > "/symbiote/$TASKSET_CORE/scratchpad"
+    HDL_INFO_DIR="/home/sym/Symbi-OS/Apps/bin/recipes"
+    mkdir -p "$HDL_INFO_DIR/symbiote"
+    mkdir -p "$HDL_INFO_DIR/symbiote/$TASKSET_CORE"
+    touch "$HDL_INFO_DIR/symbiote/$TASKSET_CORE/handler"
+    touch "$HDL_INFO_DIR/symbiote/$TASKSET_CORE/scratchpad"
+    echo $HDL_PG > "$HDL_INFO_DIR/symbiote/$TASKSET_CORE/handler"
+    echo $SCRATCH_PG > "$HDL_INFO_DIR/symbiote/$TASKSET_CORE/scratchpad"
 }
 
 function install_hdl () {

@@ -142,6 +142,26 @@ static __attribute((unused)) void db_c_entry(struct pt_regs *pt_r){
     dr7.G3 = 0;
     dr7.RW3 = 0;
   }
+  if(dr6.B0 && dr7.L0){
+    dr_hit = 0;
+    dr7.L0 = 0;
+    dr7.RW0 = 0;
+  }
+  if(dr6.B1 && dr7.L1){
+    dr_hit = 1;
+    dr7.L1 = 0;
+    dr7.RW1 = 0;
+  }
+  if(dr6.B2 && dr7.L2){
+    dr_hit = 2;
+    dr7.L2 = 0;
+    dr7.RW2 = 0;
+  }
+  if(dr6.B3 && dr7.L3){
+    dr_hit = 3;
+    dr7.L3 = 0;
+    dr7.RW3 = 0;
+  }
 
   // align sp_ptr and get scratchpad pointer
   sp_ptr = (hdl_pg - (hdl_pg % PG_SZ));
@@ -150,17 +170,13 @@ static __attribute((unused)) void db_c_entry(struct pt_regs *pt_r){
   sp = (struct scratchpad *)(*ptr);
   
   // copy some register values and what DB register was hit onto the scratchpad
-  sp->s0.dr_hit = dr_hit;
-  sp->s0.dr7 = dr7.val;
+  sp->get.dr_hit = dr_hit;
+  sp->get.dr7 = dr7.val;
+  sp->get.pt_r = *pt_r;
 
-  // hacky memcpy for the pt_regs struct
-  char *csrc = (char *)pt_r;
-  char *cdest = (char *)(&(sp->s0.pt_r));
-  int n = sizeof(struct pt_regs);
-  for (int i=0; i<n; i++)
-    cdest[i] = csrc[i];
+  if(sp->debug == 1){
+  }
   
-
   asm("mov %0,%%db7" :: "r"(dr7));
 
   return;
@@ -238,12 +254,13 @@ unsigned char sym_set_probe(uint64_t addr){
   return ret;
 }
 
-unsigned char sym_set_db_probe(uint64_t addr, uint64_t reg){
+unsigned char sym_set_db_probe(uint64_t addr, uint64_t reg, uint64_t db_flag){
   // TODO if write spans pages, this will fail.
   struct DR7 dr7;
 
-  if(reg >= DB_REGS)
+  if((reg >= DB_REGS) || ((db_flag != DB_LOCAL) && (db_flag != DB_GLOBAL)))
     exit(-1);
+
   sym_elevate();
   unsigned char ret = *(unsigned char *) addr;
   sym_lower();
@@ -255,22 +272,34 @@ unsigned char sym_set_db_probe(uint64_t addr, uint64_t reg){
     case 0:
       // place addr into DR0
       asm("\t mov %0,%%db0" :: "r"(addr));
-      dr7.G0 = 1;
+      if(db_flag == DB_GLOBAL)
+        dr7.G0 = 1;
+      else
+        dr7.L0 = 1;
       break;
     case 1:
       // place addr into DR0
       asm("\t mov %0,%%db1" :: "r"(addr));
-      dr7.G1 = 1;
+      if(db_flag == DB_GLOBAL)
+        dr7.G1 = 1;
+      else
+        dr7.L1 = 1;
       break;
     case 2:
       // place addr into DR0
       asm("\t mov %0,%%db2" :: "r"(addr));
-      dr7.G2 = 1;
+      if(db_flag == DB_GLOBAL)
+        dr7.G2 = 1;
+      else
+        dr7.L2 = 1;
       break;
     case 3:
       // place addr into DR0
       asm("\t mov %0,%%db3" :: "r"(addr));
-      dr7.G3 = 1;
+      if(db_flag == DB_GLOBAL)
+        dr7.G3 = 1;
+      else
+        dr7.L3 = 1;
       break;
   }
   asm("\t mov %0,%%db7" :: "r"(dr7));
@@ -280,9 +309,9 @@ unsigned char sym_set_db_probe(uint64_t addr, uint64_t reg){
 }
 
 uint64_t get_hdl_pg(int core){
-  char pg_ptr[20];
+  char pg_ptr[100];
   uint64_t hdl_pg;
-  char path[50] = "/symbiote/", c[10], hdl[10] = "handler";
+  char path[50] = "/home/sym/Symbi-OS/Apps/bin/recipes/symbiote/", c[10], hdl[10] = "handler";
   int fd;
   sprintf(c, "%d/", core);
   strcat(path,c);
@@ -293,17 +322,17 @@ uint64_t get_hdl_pg(int core){
   if(fd == -1)
     return -1;
 
-  read(fd, pg_ptr, sizeof(char)*sizeof(uint64_t));
+  read(fd, pg_ptr, 100);
   //printf("HANDLER PAGE LOCATION: %s\n", pg_ptr);
   
   hdl_pg = strtoull(pg_ptr, NULL, 0);
-  return ;
+  return hdl_pg;
 }
 
 uint64_t get_scratch_pg(int core){
-  char pg_ptr[20];
+  char pg_ptr[100];
   uint64_t scratch_pg;
-  char path[50] = "/symbiote/", c[10], hdl[15] = "scratchpad";
+  char path[100] = "/home/sym/Symbi-OS/Apps/bin/recipes/symbiote/", c[10], hdl[15] = "scratchpad";
   int fd;
   sprintf(c, "%d/", core);
   strcat(path,c);

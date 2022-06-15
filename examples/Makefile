@@ -19,7 +19,6 @@ ELO=elevate_lower
 TFD=text_fault
 I3D=int3_probe
 DBP=db_probe
-SPT=scratchpad_test
 P3D=print
 GPD=getppid
 POLLD=sym_poll
@@ -33,7 +32,7 @@ IDT=../bin/
 
 EXECS=$(SSD)/stack_starvation $(TFD)/text_fault $(I3D)/int3_probe $(I3D)/trivial_int3 $(P3D)/print_cr3_static \
 $(GPD)/getppid $(POLLD)/poller $(ECO)/client_RW $(ECO)/server_RW $(IDT)/idt_tool $(IDT)/vm_tool $(CLK)/clock \
-	$(ELO)/elevate_lower $(GSM)/gs_mitigate $(DBP)/db_probe $(SPT)/scratchpad_test
+	$(ELO)/elevate_lower $(GSM)/gs_mitigate $(DBP)/db_probe $(DBP)/db_probe_local
 
 all: $(EXECS)
 
@@ -91,7 +90,7 @@ $(I3D)/trivial_int3: $(I3D)/trivial_int3.c | $(DEPENDENCY_LIBS)
 $(DBP)/db_probe: $(DBP)/db_probe.c | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR) $(KALLSYMLIB)
 
-$(SPT)/scratchpad_test: $(SPT)/scratchpad_test.c | $(DEPENDENCY_LIBS)
+$(DBP)/db_probe_local: $(DBP)/db_probe_local.c | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR) $(KALLSYMLIB)
 
 run_ss:
@@ -125,7 +124,19 @@ run_db:
 	sync
 	sync
 	sync
-	taskset -c 0 $(DBP)/db_probe
+	taskset -c 0 $(DBP)/db_probe 0 2
+
+run_db_local:
+	sync
+	sync
+	sync
+	taskset -c 0 $(DBP)/db_probe_local
+
+run_db_mult:
+	sync
+	sync
+	sync
+	taskset -c 0 $(DBP)/db_probe 0 0 & taskset -c 1 $(DBP)/db_probe 1 1
 
 cp_execs:
 	cp_to_disk.sh $(VM_DISK) $(EXECS)
