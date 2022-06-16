@@ -133,7 +133,8 @@ run_db_local:
 	sync
 	sync
 	sync
-	taskset -c 0 $(DBP)/db_probe_local
+	./$(DBP)/db_probe_local 0
+	./$(DBP)/db_probe_local 1
 
 run_db_mult:
 	sync
