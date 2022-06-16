@@ -120,11 +120,25 @@ function cp_hdl () {
         echo copy $MITIGATION handler
         print_color "$GET_HDL_PG" $PRINT_RED
     fi
-    HDL_PG=$($GET_HDL_PG)
+    HDL_ARGS=$($GET_HDL_PG)
+    IFS=' '
+    read -ra HDL_PARSED_ARGS <<< "$HDL_ARGS"
+    HDL_PG=${HDL_PARSED_ARGS[0]}
+    SCRATCH_PG=${HDL_PARSED_ARGS[1]}
 
     if [ ! -z "$DEBUG" ]; then
         echo onto page $HDL_PG
+	echo with scratchpad page $SCRATCH_PG
     fi
+
+    # store handler pg and scratchpad pg locations in metadata files
+    HDL_INFO_DIR="/home/sym/Symbi-OS/Apps/bin/recipes"
+    mkdir -p "$HDL_INFO_DIR/symbiote"
+    mkdir -p "$HDL_INFO_DIR/symbiote/$TASKSET_CORE"
+    touch "$HDL_INFO_DIR/symbiote/$TASKSET_CORE/handler"
+    touch "$HDL_INFO_DIR/symbiote/$TASKSET_CORE/scratchpad"
+    echo $HDL_PG > "$HDL_INFO_DIR/symbiote/$TASKSET_CORE/handler"
+    echo $SCRATCH_PG > "$HDL_INFO_DIR/symbiote/$TASKSET_CORE/scratchpad"
 }
 
 function install_hdl () {

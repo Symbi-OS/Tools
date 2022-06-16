@@ -233,8 +233,10 @@ void handler_pager(struct params *p){
 
   // allocate a page for handler
   void * hdl_pg = get_aligned_kern_pg();
-  /* void * scratch_pg; */
-
+  void * scratchpad = get_aligned_kern_pg();
+  uint64_t sp_pg = ((uint64_t)hdl_pg) + (PG_SZ - sizeof(void *));
+  uint64_t * ptr = (uint64_t *) sp_pg;
+  
   // copy appropriate handler onto it
   void * src = NULL;
   int sz = 0;
@@ -255,8 +257,8 @@ void handler_pager(struct params *p){
     /* hdl_pg +=8; // XXX */
   }
   if(p->hdl_option == HDL_DB){
-    src = &df_jmp_to_c;
-    /* src = &db_jmp_to_c; */
+    /* src = &df_jmp_to_c; */
+    src = &db_jmp_to_c;
     sz = PG_SZ; // 0xC8 bytes on last check
   }
 
@@ -266,12 +268,15 @@ void handler_pager(struct params *p){
 
   // Do this with a non-temporal store?
   sym_memcpy(hdl_pg, src, sz);
+  sym_elevate();
+  *ptr = (uint64_t) scratchpad;
+  sym_lower();
 
   int disable = 0;
   sym_toggle_page_exe_disable(hdl_pg, disable);
 
   // return address of page.
-  printf("%p\n", hdl_pg);
+  printf("%p %p\n", hdl_pg, scratchpad);
 }
 
 
