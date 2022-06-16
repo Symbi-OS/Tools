@@ -121,6 +121,7 @@ struct scratchpad {
   struct rs_struct set;
   struct rs_struct control;
   uint8_t debug;
+  uint8_t cnt;
 };
 
 #define CALL_TARG(FN) \
