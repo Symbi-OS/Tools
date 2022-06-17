@@ -1,4 +1,5 @@
 #define _GNU_SOURCE
+#include <sys/wait.h>
 #include <sched.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -6,6 +7,15 @@
 
 #include "../../libs/kallsymlib/kallsymlib.h"
 
+#define RESET "\033[0m"
+#define RED "\033[31m"     /* Red */
+#define GREEN "\033[32m"   /* Green */
+#define YELLOW "\033[33m"  /* Yellow */
+#define BLUE "\033[34m"    /* Blue */
+#define MAGENTA "\033[35m" /* Magenta */
+#define CYAN "\033[36m"    /* Cyan */
+
+int locality;
 
 int f(){
   printf("PERFORMING ARBITRARY TASK\n");
@@ -13,7 +23,9 @@ int f(){
   int y = 0, i = 0;
   for(; i < x; i++)
     y+=i;
-  
+   
+  sym_set_db_probe((uint64_t)&f, 0, locality); 
+
   return y;
 }
 
@@ -22,14 +34,11 @@ int main(int argc, char * argv[]){
   void * f_ptr = &f;
   uint64_t db_reg = 0;
   struct scratchpad * sp = (struct scratchpad *)get_scratch_pg(core);
-  int locality;
 
   if(argc > 1)
     locality = atoi(argv[1]);
   else
     locality = DB_LOCAL;
-
-  //g = locality;
 
   cpu_set_t mask;
   CPU_ZERO(&mask);
@@ -50,16 +59,12 @@ int main(int argc, char * argv[]){
   sp->debug = 1;
   sp->cnt = 0;
   sym_lower();
-  
-  if(fork() == 0){
-    printf("RUNNING IN CHILD PROCESS\n\n");
-
-    cpu_set_t mask;
-    CPU_ZERO(&mask);
-    CPU_SET(0, &mask);
-    sched_setaffinity(0, sizeof(mask), &mask);
+  int pid;
+  if((pid = fork()) == 0){
+    printf("\nRUNNING IN CHILD PROCESS\n\n");
   } else {
-    printf("RUNNING IN PARENT PROCESS\n\n");
+    waitpid(-1, NULL, 0);
+    printf("\nRUNNING IN PARENT PROCESS\n\n");
   }
   
   f();
@@ -69,7 +74,17 @@ int main(int argc, char * argv[]){
   int hit = (int)sp->get.dr_hit;
   sym_lower();
 
-  printf("PROCESS COMPLETE\n\n%d HIT(S) DETECTED ON DR%d\n", cnt, hit);
+  if(pid != 0){
+    if((cnt > 1 && locality == 0)||(cnt < 2 && locality == 1)){
+      printf(RED);
+      printf("LOCALITY TEST FAILED\n\n");
+    } else {
+      printf(GREEN);
+      printf("LOCALITY TEST PASSED\n\n");
+    }
+    printf("%d HIT(S) DETECTED ON DR%d\n", cnt, hit);
+  }
+  printf(RESET);
 
   return 0;
 }

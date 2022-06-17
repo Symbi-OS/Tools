@@ -121,7 +121,7 @@ static __attribute((unused)) void db_c_entry(struct pt_regs *pt_r){
   }
   if(dr6.B0 && dr7.L0){
     dr_hit = 0;
-    // dr7.L0 = 0;
+    dr7.L0 = 0;
     dr7.RW0 = 0;
   }
   if(dr6.B1 && dr7.L1){
@@ -155,7 +155,7 @@ static __attribute((unused)) void db_c_entry(struct pt_regs *pt_r){
     sp->cnt = sp->cnt + 1;
   }
 
-  SET_DR(7, dr7);
+  asm("mov %0,%%db7" :: "r"(dr7));
 
   return;
 }
