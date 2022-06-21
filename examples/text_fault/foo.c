@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdint.h>
 void foo(){
-  uint64_t test_reg = 0;
+  /* uint64_t test_reg = 0; */
   // Should fail if not elevated.
-  asm("movq %%cr3,%0" : "=r"(test_reg));
-  printf("found %lx in cr3\n", test_reg);
+  /* asm("movq %%cr3,%0" : "=r"(test_reg)); */
+  /* printf("found %lx in cr3\n", test_reg); */
   asm("nop \n\t \
   nop \n\t      \
   nop \n\t      \
@@ -23140,6 +23140,6 @@ void foo(){
   nop \n\t      \
   nop \n\t      \
       nop ");
-      asm("movq %%cr3,%0" : "=r"(test_reg));
-      printf("found %lx in cr3\n", test_reg);
+      /* asm("movq %%cr3,%0" : "=r"(test_reg)); */
+      /* printf("found %lx in cr3\n", test_reg); */
 }
