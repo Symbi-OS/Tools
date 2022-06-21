@@ -1,12 +1,49 @@
 # Test symbiote functionality in roughly more challenging contexts.
 EX=../examples/
 
-all: sudo_check rebuild_all mitigate_cores all_clock all_elevate_lower all_getppid all_print_cr3 lebench stack_starvation trivial_int3
+all: sudo_check rebuild_all mitigate_cores all_clock all_elevate_lower all_getppid all_print_cr3 lebench stack_starvation trivial_int3 check_proc_cmdline check_fsgsbase
 
 sudo_check:
 	sudo echo hi
+
 rebuild_all:
-	make -C ../
+	@echo building lib and apps.
+	make -C ../ &> /dev/null
+
+NOSMAP := $(shell cat /proc/cmdline | grep nosmap | wc -l)
+NOSMEP := $(shell cat /proc/cmdline | grep nosmep | wc -l)
+MITIGATIONS_OFF := $(shell cat /proc/cmdline | grep mitigations=off | wc -l)
+
+FSGSBASE := $(shell cat /proc/cpuinfo | grep fsgsbase | uniq | wc -l)
+
+check_proc_cmdline:
+	@if [ $(NOSMAP) = "1" ]; then\
+		echo "NOSMAP is good";\
+	else \
+		echo "NOSMAP did not appear!";\
+		exit 42;\
+	fi
+	@if [ $(NOSMEP) = "1" ]; then\
+		echo "NOSMEP is good";\
+	else \
+		echo "NOSMEP did not appear!";\
+		exit 42;\
+	fi
+	@if [ $(MITIGATIONS_OFF) = "1" ]; then\
+		echo "MITIGATIONS_OFF is good";\
+	else \
+		echo "MITIGATIONS_OFF did not appear!";\
+		exit 42;\
+	fi
+
+check_fsgsbase:
+	@if [ $(FSGSBASE) = "1" ]; then\
+		echo "FSGSBASE is good";\
+	else \
+		echo "FSGSBASE did not appear!";\
+		exit 42;\
+	fi
+
 
 # Elevate and lower
 EL=$(EX)/elevate_lower/elevate_lower
@@ -22,7 +59,7 @@ elevate_lower_loop: .mitigated_all
 	echo done
 
 elevate_lower_bash_loop: .mitigated_all
-	for i in $$(seq 1 1000) ; do $(EL) 1000 ; done
+	for i in $$(seq 1 1000) ; do $(EL) 1000 &> /dev/null ; done
 	echo done
 
 # Print cr3
@@ -37,7 +74,7 @@ print_cr3_loop: .mitigated_all
 	$(P3) 100000000
 
 print_cr3_bash_loop: .mitigated_all
-	for i in $$(seq 1 100); do $(P3) 100000; done
+	for i in $$(seq 1 100); do $(P3) 100000 &> /dev/null ; done
 
 # clock
 CL=$(EX)/clock/clock
@@ -50,7 +87,7 @@ clock_loop: .mitigated_all
 	$(CL) 10000000
 
 clock_bash_loop: .mitigated_all
-	for i in $$(seq 1 1000); do $(CL) 10000; done
+	for i in $$(seq 1 1000); do $(CL) 10000 &> /dev/null; done
 
 GP=$(EX)/getppid/getppid
 all_getppid: .mitigated_all getppid getppid_loop getppid_bash_loop
@@ -91,7 +128,7 @@ idt_set_loop:
 
 MG=../bin/recipes/
 mitigate_cores:
-	cd $(MG) && ./mitigate_all.sh
+	cd $(MG) && ./mitigate_all.sh &> /dev/null
 	touch .mitigated_all
 
 mitigate_cores_loop:
@@ -104,67 +141,30 @@ idt_reset:
 	make idt_set_loop
 	rm .mitigated_all
 
-
-# TEST=$$(echo hi)
-# VAL=dog
-# idt_test:
-# # echo $(IDT_ADDR)
-# # $(TEST)
-# 	$(eval VAL= $(shell sh -c "echo cat"))
-# # VAL=$(echo hi) ; echo $$VAL
-# 	echo $(VAL)
-# 	VAL=$$(echo bye)
-# 	echo $(VAL)
-
-# getpodname:
-#     # Getting pod name
-#     @eval $$(minikube docker-env) ;\
-#     $(eval PODNAME=$(shell sh -c "kubectl get pods | grep profile-posts-api | grep Running" | awk '{print $$1}'))
-#     echo $(PODNAME)
-
-# dependency on .PHONY prevents Make from 
-# thinking there's `nothing to be done`
-# set_opts: .PHONY
-#   $(eval DOCKER_OPTS = -v $(shell mktemp -d -p /scratch):/output)
-
 # lebench
 LE_DIR=../../new_lebench
 lebench:
-	make -C $(LE_DIR) sym_clean_all
-	make -C $(LE_DIR) sym_run_all
-
-# read
-
-
-# write
-
-# read short cut
-
-# write short cut
-
-
-# fork
-
-# mmap shortcup
+	@echo doing long lebench tests.
+	make -C $(LE_DIR) sym_clean_all &> /dev/null
+	@echo survived elevated, now try shortcutted... allow 1 min, but have observed it hanging....
+	make -C $(LE_DIR) sym_run_all &> /dev/null
 
 # stack starvation mitigation
 SS=$(EX)/stack_starvation/stack_starvation
 stack_starvation: .mitigated_all
 	$(SS)
 
-
-
-
-
-# Stack starvation interpostions
-
 # text fault interposition
+# NOTE: NYI because can't repro text fault...
+# text_fault:
+
 
 # int3 interposition
-
 TI3=$(EX)/int3_probe/trivial_int3
 trivial_int3:
 	$(TI3)
+
+# parallel
 
 # echo server
 
