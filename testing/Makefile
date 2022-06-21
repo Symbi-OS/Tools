@@ -1,7 +1,20 @@
+# XXX Mitigate all sometimes fails. Lots of cores spinning on a ?lock?
+
 # Test symbiote functionality in roughly more challenging contexts.
 EX=../examples/
 
-all: sudo_check rebuild_all mitigate_cores all_clock all_elevate_lower all_getppid all_print_cr3 lebench stack_starvation trivial_int3 check_proc_cmdline check_fsgsbase
+# Want these in order, think undefined by make.
+all: sync sudo_check check_proc_cmdline check_fsgsbase rebuild_all mitigate_cores all_clock all_elevate_lower all_getppid all_print_cr3 lebench stack_starvation trivial_int3
+
+# Remove lebench which has an intermittant failure on send recv
+most: sync sudo_check check_proc_cmdline check_fsgsbase rebuild_all mitigate_cores all_clock all_elevate_lower all_getppid all_print_cr3 stack_starvation trivial_int3
+
+# 1 step toward protecting fs from panic
+sync:
+	@echo sync
+	sync
+	sync
+	sync
 
 sudo_check:
 	sudo echo hi
