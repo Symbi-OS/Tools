@@ -1,36 +1,21 @@
 #ifndef __ARCH_X86_64_SYM_LIB__
 #define __ARCH_X86_64_SYM_LIB__
 
-#include <unistd.h>
-#include <sys/syscall.h>
+/* #include <unistd.h> */
+/* #include <sys/syscall.h> */
 
-#include "L0/sym_lib.h"
-static long sym_do_syscall(int work){
+/* #include "L0/sym_lib.h" */
 
-  // XXX The inline assembly implementation below led to subtle
-  // breakage. Elevating then lowering in a loop 10^8 times
-  // led to ~10 "Already Elevated???" error cases, suggesting
-  // perhaps that a lower failed silently?
-
-  /* register uint64_t    syscall_no  __asm__("rax") = NR_ELEVATE_SYSCALL; */
-  /* register uint64_t    arg1        __asm__("rdi") = work; */
-  /* if(!is_sticky){ */
-  /*   __asm__ __volatile__ ( */
-  /*                         "syscall" */
-  /*                         : "+r" (syscall_no) */
-  /*                         : "r" (arg1), "r" (syscall_no) */
-  /*                         : "rcx", "r11", "memory" */
-  /*                         ); */
-  /* } */
-  /* // HACK */
-  /* // Return rax */
-  /* return syscall_no; */
-
-  if(!is_sticky){
-    return syscall(NR_ELEVATE_SYSCALL, work);
-  }
-  // XXX obviously
-  return 42;
-}
+// get onto kern gs
+// Store kern gs
+// get onto user gs
+// Overwrite user gs with kern gs
+// make interruptable
+#define GET_KERN_GS_CLOBBER_USER_GS                           \
+  asm("swapgs");                                              \
+  asm("rdgsbase %0" : "=rm"(kern_gs) :: );                    \
+  asm("swapgs");                                              \
+  asm("wrgsbase %0" :: "r"(kern_gs) );                        \
+  asm("sti");
 
 #endif

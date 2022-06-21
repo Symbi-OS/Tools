@@ -48,7 +48,6 @@ sym_get_idt_base (struct dtr *idtr)
 {
   /* In 64-bit mode, the operand size is fixed at 8+2 bytes. The instruction stores an 8-byte base and a 2-byte limit. */
 
-  /* _asm sgdt gdtr gdt = *((unsigned long *)&gdtr[2]); */
   sym_store_idt_desc(idtr);
   /* printf("idtr limit: #%x \n", idtr->limit); */
   /* printf("idtr base : #%lx \n", idtr->base); */

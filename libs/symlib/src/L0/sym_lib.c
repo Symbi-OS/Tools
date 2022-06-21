@@ -1,5 +1,7 @@
 // License C 2021-2022
 // Author: Thomas Unger
+#include <unistd.h>
+#include <sys/syscall.h>
 
 #include <stdint.h>
 #include "L0/sym_lib.h"
@@ -30,6 +32,15 @@ void __attribute__ ((destructor)) cleanUpLibrary(void) {
 }
 #endif
 
+
+static long sym_do_syscall(int work){
+  if(!is_sticky){
+    return syscall(NR_ELEVATE_SYSCALL, work);
+  }
+  // XXX obviously
+  return 42;
+}
+
 long sym_mode_shift(uint64_t flags){
   return sym_do_syscall(flags);
 }
@@ -40,12 +51,7 @@ long sym_elevate(){
   uint64_t kern_gs;
 
   long ret = sym_mode_shift( SYM_ELEVATE_FLAG | SYM_INT_DISABLE_FLAG );
-  // XXX make this architecture agnostic
-  asm("swapgs"); // get onto kern gs
-  asm("rdgsbase %0" : "=rm"(kern_gs) :: ); // Store kern gs
-  asm("swapgs"); // get onto user gs
-  asm("wrgsbase %0" :: "r"(kern_gs) ); // Overwrite user gs with kern gs
-  asm("sti"); // make interruptable
+  GET_KERN_GS_CLOBBER_USER_GS
   return ret;
 }
 

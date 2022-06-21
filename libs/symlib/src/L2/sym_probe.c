@@ -78,29 +78,6 @@ static __attribute((unused)) void bp_c_entry(struct pt_regs *pt_r){
     myprintk("Bummer, no match\n");
   }
 }
-/*
-void get_dr6(struct DR6* dr6){
-  //uint64_t dr6;
-  asm("mov %%db6, %0" : "=r"(*dr6));
-  //return dr6;
-}
-void get_dr7(struct DR7* dr7){
-  //uint64_t dr7;
-  asm("mov %%db7, %0" : "=r"(*dr7));
-  //return dr7;
-}
-static void set_dr7(struct DR7 val){
-  asm("mov %0,%%db7" :: "r"(val));
-}
-*/
-/*
-  uint64_t dr0_hit = 0;
-  uint64_t dr1_hit = 0;
-  uint64_t dr2_hit = 0;
-  uint64_t dr3_hit = 0;
-
-  uint64_t dr6_val = 0;
-*/
 
 TRAP_HANDLER(db_jmp_to_c, db_c_entry);
 

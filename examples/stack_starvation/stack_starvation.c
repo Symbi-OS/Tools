@@ -335,6 +335,23 @@ void show_using_idt_interpose_solves_DF(){
   sym_lower();
 }
 
+
+
+// Untested here, used to be in symlib
+__asm__("\
+  .text \n\t\
+  .align 16 \n\t\
+  .globl \t df_asm_handler \n\t\
+  df_asm_handler: \n\t\
+  movq   $0x6,(%rsp) \n\t\
+  push   %rax \n\t\
+  mov    $0xffffffff81e00ac0,%rax \n\t\
+  xor    (%rsp),%rax /*Arlo's trick*/ \n\t\
+  xor    %rax,(%rsp) \n\t\
+  xor    (%rsp),%rax \n\t\
+  ret \
+");
+
 void show_using_system_idt_interpose_solves_DF(){
   // This has only been poorly tested.
 
