@@ -15,3 +15,6 @@ examples/clock/clock
 examples/elevate_lower/elevate_lower
 libs/depricated/dynam_constructors/depricated/libelevate.so
 libs/symlib/build/
+examples/gs_mitigate/gs_mitigate
+examples/int3_probe/trivial_int3
+examples/print/ld_preload_run_cr3
