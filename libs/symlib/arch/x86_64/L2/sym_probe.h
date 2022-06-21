@@ -38,4 +38,17 @@ struct DR7 {
 };
 static_assert(sizeof(struct DR7) == 8, "Size of DR7 is not correct");
 
+#define GET_DR(reg_num, var_name) \
+asm("mov %%db"#reg_num " , %0" : "=r"(var_name));
+
+#define SET_DR(reg_num, var_name)                   \
+  asm("mov %0,%%db"#reg_num :: "r"(var_name));
+
+#define GET_PC(var_name)         \
+  asm volatile ("call here2\n\t" \
+                "here2:\n\t"     \
+                "pop %0"         \
+                : "=m" (hdl_pg));
+
+
 #endif

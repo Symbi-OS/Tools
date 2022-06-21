@@ -83,19 +83,19 @@ TRAP_HANDLER(db_jmp_to_c, db_c_entry);
 
 static __attribute((unused)) void db_c_entry(struct pt_regs *pt_r){
   struct DR7 dr7;
-  asm("mov %%db7, %0" : "=r"(dr7));
+  /* asm("mov %%db7, %0" : "=r"(dr7)); */
+  GET_DR(7, dr7);
+
   struct DR6 dr6;
-  asm("mov %%db6, %0" : "=r"(dr6));
-  
+  /* asm("mov %%db6, %0" : "=r"(dr6)); */
+  GET_DR(6, dr6);
+
   uint64_t dr_hit = 9;
 
   // get RIP = hdl_pg address
   uint64_t hdl_pg;
-  asm volatile ("call here2\n\t"
-                  "here2:\n\t"
-                  "pop %0"
-                  : "=m" (hdl_pg));
-  
+  GET_PC(hdl_pg);
+
   uint64_t sp_ptr;
   struct scratchpad * sp;
 
@@ -145,7 +145,7 @@ static __attribute((unused)) void db_c_entry(struct pt_regs *pt_r){
   sp_ptr += (PG_SZ - 8);
   uint64_t * ptr = (uint64_t *) sp_ptr;
   sp = (struct scratchpad *)(*ptr);
-  
+
   // copy some register values and what DB register was hit onto the scratchpad
   sp->get.dr_hit = dr_hit;
   sp->get.dr7 = dr7.val;
@@ -153,8 +153,8 @@ static __attribute((unused)) void db_c_entry(struct pt_regs *pt_r){
 
   if(sp->debug == 1){
   }
-  
-  asm("mov %0,%%db7" :: "r"(dr7));
+
+  SET_DR(7, dr7);
 
   return;
 }
@@ -248,7 +248,7 @@ unsigned char sym_set_db_probe(uint64_t addr, uint64_t reg, uint64_t db_flag){
   switch(reg) {
     case 0:
       // place addr into DR0
-      asm("\t mov %0,%%db0" :: "r"(addr));
+      SET_DR(0, addr);
       if(db_flag == DB_GLOBAL)
         dr7.G0 = 1;
       else
@@ -256,7 +256,7 @@ unsigned char sym_set_db_probe(uint64_t addr, uint64_t reg, uint64_t db_flag){
       break;
     case 1:
       // place addr into DR0
-      asm("\t mov %0,%%db1" :: "r"(addr));
+      SET_DR(1, addr);
       if(db_flag == DB_GLOBAL)
         dr7.G1 = 1;
       else
@@ -264,7 +264,7 @@ unsigned char sym_set_db_probe(uint64_t addr, uint64_t reg, uint64_t db_flag){
       break;
     case 2:
       // place addr into DR0
-      asm("\t mov %0,%%db2" :: "r"(addr));
+      SET_DR(2, addr);
       if(db_flag == DB_GLOBAL)
         dr7.G2 = 1;
       else
@@ -272,14 +272,15 @@ unsigned char sym_set_db_probe(uint64_t addr, uint64_t reg, uint64_t db_flag){
       break;
     case 3:
       // place addr into DR0
-      asm("\t mov %0,%%db3" :: "r"(addr));
+      SET_DR(3, addr);
       if(db_flag == DB_GLOBAL)
         dr7.G3 = 1;
       else
         dr7.L3 = 1;
       break;
   }
-  asm("\t mov %0,%%db7" :: "r"(dr7));
+  SET_DR(7, dr7);
+
   sym_lower();
 
   return ret;
