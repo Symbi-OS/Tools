@@ -50,22 +50,14 @@ void init_kallsym(){
 
 void interpose_on_int3_ft(){
 
-  // We want to check if another interposition has already taken over idt
-  struct dtr check_idtr;
-  sym_store_idt_desc(&check_idtr);
-
-  if(check_idtr.base != (uint64_t) &my_idt){
-    printf("copying the idt for int3\n");
-      // Copy the system idt to userspace if we haven't already.
-      sym_copy_system_idt(my_idt);
-  } else{
-    printf("no copy made int3\n");
-  }
+  sym_copy_system_idt(my_idt);
 
   sym_interpose_on_int3_ft_c(my_idt);
 
   // Make our user IDT live!
   sym_set_idtr((unsigned long)my_idt, IDT_SZ_BYTES - 1);
+
+  fprintf(stderr, "idtr set\n");
 }
 
 
@@ -79,15 +71,15 @@ extern uint64_t cr3_reg;
 // Store system idtr here for later restoration.
 struct dtr system_idtr;
 void show_int_interposition_works(){
-  char l[80];
-  int f=open("/home/sym/Symbi-OS/Apps/examples/int3_probe/test",O_RDONLY);
-  printf("l lives at %p\n", l);
-  int n;
+  /* char l[80]; */
+  /* int f=open("/home/sym/Symbi-OS/Apps/examples/int3_probe/test",O_RDONLY); */
+  /* printf("l lives at %p\n", l); */
+  /* int n; */
 
   // Elevation is used somewhat carefully here.
 
-  /* uint64_t addr__do_sys_getpid = get_fn_address("__do_sys_getpid"); */
-  uint64_t addr__do_sys_getpid = get_fn_address("ksys_read");
+  uint64_t addr__do_sys_getpid = get_fn_address("__do_sys_getpid");
+  /* uint64_t addr__do_sys_getpid = get_fn_address("ksys_read"); */
   interpose_on_int3_ft();
 
   check_on_probe(addr__do_sys_getpid);
@@ -95,7 +87,13 @@ void show_int_interposition_works(){
   // Inject probe on first byte of fn.
   sym_set_probe(addr__do_sys_getpid);
 
+  while(1)
+    getpid();
+
+
   check_on_probe(addr__do_sys_getpid);
+
+
 
   // This invocation will result in triggering the
   /* sym_make_pg_unwritable(addr__do_sys_getpid); */
@@ -103,14 +101,14 @@ void show_int_interposition_works(){
   // NOTE: Hmm, shouldn't this fault as text is not writable?
 
 
-  n=read(f,l,80);
-  /* getpid(); */
+  /* n=read(f,l,80); */
+  getpid();
 
   check_on_probe(addr__do_sys_getpid);
 
   // Totally normal invocation
-  /* getpid(); */
-  n=read(f,l,80);
+  getpid();
+  /* n=read(f,l,80); */
 
   check_on_probe(addr__do_sys_getpid);
 }
@@ -142,6 +140,7 @@ extern uint64_t int3_rdx;
 int main(){
   struct dtr check_idtr;
   sym_store_idt_desc(&check_idtr);
+  printf("system idt is%ld\n", check_idtr.base);
 
   printf("Starting main\n");
 
@@ -157,6 +156,9 @@ int main(){
 
   // Where all the real work happens.
   show_int_interposition_works();
+  struct dtr interposer_idtr;
+  sym_store_idt_desc(&interposer_idtr);
+  printf("interposer idt is %lx\n", interposer_idtr.base);
 
   /* sym_mitigate_pf_cleanup(); */
 
@@ -169,4 +171,10 @@ int main(){
 
 
   sym_set_idtr((unsigned long)check_idtr.base, IDT_SZ_BYTES - 1);
+  struct dtr exit_idtr;
+  sym_store_idt_desc(&exit_idtr);
+  printf("exit idt is %lx\n", exit_idtr.base);
+  while(1)
+    getpid();
+
 }
