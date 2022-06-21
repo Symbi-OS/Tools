@@ -18,3 +18,7 @@ libs/symlib/build/
 examples/gs_mitigate/gs_mitigate
 examples/int3_probe/trivial_int3
 examples/print/ld_preload_run_cr3
+bin/recipes/symbiote/
+examples/db_probe/db_probe
+examples/db_probe/db_probe_local
+testing/.mitigated_all
