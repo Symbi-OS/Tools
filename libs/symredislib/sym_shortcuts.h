@@ -24,7 +24,7 @@ typedef int (*my_tcp_recvmsg_t)(void *, void*, size_t len,
 typedef unsigned long (*my___fdget_t)(unsigned int);
 
 void_fn_ptr get_fn_address(char *symbol);
-extern uint64_t int3_rdi;
+extern uint64_t db_rdi;
 extern uint64_t addr_msg;
 extern my_ksys_read_t my_ksys_read;
 extern my_ksys_write_t my_ksys_write;

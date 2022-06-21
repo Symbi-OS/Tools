@@ -3,12 +3,14 @@
 #include "/home/sym/Symbi-OS/Apps/libs/kallsymlib/kallsymlib.h"
 #include "/home/sym/Symbi-OS/Apps/libs/symlib/include/LINF/sym_all.h"  //fatal error no such LIDK/idk.h
 #include "sym_shortcuts.h"
+#include "sym_probe.h"
+//TODO: include sched.h to use sched_getcpu for use in scratch page fns
 
 my_ksys_read_t my_ksys_read;
 my_ksys_write_t my_ksys_write;
 my_tcp_sendmsg_t tcp_sendmsg;
 my_tcp_recvmsg_t tcp_recvmsg;
-
+uint64_t db_rdi;
 struct cache_elem* sym_cache;
 
 void init_tcp_sc(){
@@ -50,6 +52,7 @@ void print_msg_struct(struct msg_struct *msg){
   printf("name %p\n",    msg->msg_name );
   printf("len %d\n",     msg->msg_name_len);
   printf("kiocb_p %p\n",(void *) msg->kiocb_p);
+
 
 
   print_msg_iter(&msg->mi);
@@ -139,13 +142,6 @@ void * fd_to_filep(int fd){
   return (void *) tmp;
 }
 
-void check_on_probe(uint64_t addr){
-  /* sym_elevate(); */
-  printf("1st byte at probe is %#x \n", *((unsigned char *) addr));
-  /* sym_lower(); */
-}
-
-
 int write_path(int fd, const void *data, size_t data_len){
   int ret = write(fd, data, data_len);
   return ret;
@@ -155,25 +151,22 @@ int write_populate_cache(int fd, const void *data, size_t data_len){
   int ret;
 
   // TODO finish me.
-  /* init_sym_net_state(); */
   clear_cache_elem(&sym_cache[fd]);
 
-
-  // THIS SETS A PROBE HIT ON THE write() path.
-  // NOTE: This is just to suppress the dmesg "Already Elevated"
   sym_lower();
-  // NOTE: Sticky could solve this, ignoring on cold path.
-  sym_set_probe((uint64_t)tcp_sendmsg);
-  // NOTE: bc^ lowered us
+  uint64_t reg = 0;
+  uint64_t flag = DB_GLOBAL;
+  int core = 0;
+  sym_set_db_probe((uint64_t)tcp_sendmsg, reg, flag);
   sym_elevate();
-
+  struct scratchpad * sp = (struct scratchpad *)get_scratch_pg(core);
   // MSG WILL GET UPDATED ON write()
   addr_msg = (uint64_t)&sym_cache[fd].send.msg;
-
   // run syscall ... triggers probe.
   ret = write(fd, data, data_len);
   // NOW WE HAVE SK AND MSG COPIED
 
+  db_rdi = sp->get.rdi;
   // This stitches iov and ks into msg.
   // again, sym_cache[conn->fd].msg.mi already populated.
   // has some junk kern ptrs that need to be updated.
@@ -181,7 +174,7 @@ int write_populate_cache(int fd, const void *data, size_t data_len){
   init_cache_elem(&sym_cache[fd]);
 
   // write it into the cache
-  update_cache_elem(&sym_cache[fd], (void *)int3_rdi, fd_to_filep(fd));
+  update_cache_elem(&sym_cache[fd], (void *)db_rdi, fd_to_filep(fd));
 
   /* printf("send\n"); */
   /* print_msg_struct(&sym_cache[conn->fd].send.msg); */
