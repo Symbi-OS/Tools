@@ -32,7 +32,8 @@ IDT=../bin/
 
 EXECS=$(SSD)/stack_starvation $(TFD)/text_fault $(I3D)/int3_probe $(I3D)/trivial_int3 $(P3D)/print_cr3_static \
 $(GPD)/getppid $(POLLD)/poller $(ECO)/client_RW $(ECO)/server_RW $(IDT)/idt_tool $(IDT)/cr_tool $(IDT)/vm_tool $(CLK)/clock \
-	$(ELO)/elevate_lower $(GSM)/gs_mitigate $(DBP)/db_probe $(DBP)/db_probe_local
+	$(ELO)/elevate_lower $(GSM)/gs_mitigate $(DBP)/db_probe $(DBP)/db_probe_local $(DBP)/test \
+	$(DBP)/db_probe_reg
 
 all: $(EXECS)
 
@@ -96,6 +97,12 @@ $(DBP)/db_probe: $(DBP)/db_probe.c | $(DEPENDENCY_LIBS)
 $(DBP)/db_probe_local: $(DBP)/db_probe_local.c | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR) $(KALLSYMLIB)
 
+$(DBP)/db_probe_reg: $(DBP)/db_probe_reg.c | $(DEPENDENCY_LIBS)
+	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR) $(KALLSYMLIB)
+
+$(DBP)/test: $(DBP)/test.c | $(DEPENDENCY_LIBS)
+	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR) $(KALLSYMLIB)
+
 run_ss:
 	taskset -c 0 $(SSD)/stack_starvation
 
@@ -128,6 +135,12 @@ run_db:
 	sync
 	sync
 	taskset -c 0 $(DBP)/db_probe 0 2
+
+run_db_reg:
+	sync
+	sync
+	sync
+	taskset -c 0 $(DBP)/db_probe_reg
 
 run_db_local:
 	sync
