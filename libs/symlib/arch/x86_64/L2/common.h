@@ -114,6 +114,7 @@ struct rs_struct {
   struct pt_regs pt_r;
   uint64_t dr_hit;
   uint64_t dr7;
+  uint64_t cr3;
 };
 
 struct scratchpad {
@@ -122,7 +123,6 @@ struct scratchpad {
   struct rs_struct control;
   uint8_t debug;
   uint8_t cnt;
-  uint64_t pid;
 };
 
 #define CALL_TARG(FN) \
