@@ -83,14 +83,15 @@ TRAP_HANDLER(db_jmp_to_c, db_c_entry);
 
 static __attribute((unused)) void db_c_entry(struct pt_regs *pt_r){
   struct DR7 dr7;
-  /* asm("mov %%db7, %0" : "=r"(dr7)); */
   GET_DR(7, dr7);
 
   struct DR6 dr6;
-  /* asm("mov %%db6, %0" : "=r"(dr6)); */
   GET_DR(6, dr6);
 
   uint64_t dr_hit = 9;
+
+  uint64_t cr3 = 0;
+  GET_CR3(cr3);
 
   // get RIP = hdl_pg address
   uint64_t hdl_pg;
@@ -150,12 +151,13 @@ static __attribute((unused)) void db_c_entry(struct pt_regs *pt_r){
   sp->get.dr_hit = dr_hit;
   sp->get.dr7 = dr7.val;
   sp->get.pt_r = *pt_r;
+  sp->get.cr3 = cr3;
 
   if(sp->debug == 1){
     sp->cnt = sp->cnt + 1;
   }
 
-  asm("mov %0,%%db7" :: "r"(dr7));
+  SET_DR(7,dr7);
 
   return;
 }
