@@ -17,21 +17,19 @@
 
 int locality;
 
-int f(){
-  printf("PERFORMING ARBITRARY TASK\n");
-  int x = 100;
-  int y = 0, i = 0;
-  for(; i < x; i++)
-    y+=i;
-   
-  sym_set_db_probe((uint64_t)&f, 0, locality); 
+uint64_t get_fn_address(char *symbol){
+  struct kallsymlib_info *info;
 
-  return y;
+  if (!kallsymlib_lookup(symbol, &info)) {
+    fprintf(stderr, "%s : not found\n", symbol);
+    while(1);
+  }
+  return info->addr;
 }
 
 int main(int argc, char * argv[]){
   int core = 0;
-  void * f_ptr = &f;
+  void * f_ptr;
   uint64_t db_reg = 0;
   struct scratchpad * sp = (struct scratchpad *)get_scratch_pg(core);
 
@@ -47,6 +45,7 @@ int main(int argc, char * argv[]){
   
   sym_lib_init();
   sym_probe_init();
+  f_ptr = (void *)get_fn_address("__do_sys_getpid");
   printf("SETTING TRIGGER AT %p\n", f_ptr);
   sym_set_db_probe((uint64_t)f_ptr, db_reg, locality); 
 
@@ -62,12 +61,13 @@ int main(int argc, char * argv[]){
   int pid;
   if((pid = fork()) == 0){
     printf("\nRUNNING IN CHILD PROCESS\n\n");
+    char * param_list[] = {"./db_probe/test", NULL};
+    execvp(param_list[0], param_list);
   } else {
     waitpid(-1, NULL, 0);
     printf("\nRUNNING IN PARENT PROCESS\n\n");
   }
   
-  f();
 
   sym_elevate();
   int cnt = (int)sp->cnt;
@@ -75,7 +75,7 @@ int main(int argc, char * argv[]){
   sym_lower();
 
   if(pid != 0){
-    if((cnt > 1 && locality == 0)||(cnt < 2 && locality == 1)){
+    if((cnt > 0 && locality == 0)||(cnt < 1 && locality == 1)){
       printf(RED);
       printf("LOCALITY TEST FAILED\n\n");
     } else {
@@ -85,6 +85,5 @@ int main(int argc, char * argv[]){
     printf("%d HIT(S) DETECTED ON DR%d\n", cnt, hit);
   }
   printf(RESET);
-
   return 0;
 }

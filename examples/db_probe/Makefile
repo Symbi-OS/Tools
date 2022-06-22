@@ -1,5 +1,5 @@
 INCLUDE_DIR=../../include/
-all: db_probe db_probe_local
+all: db_probe db_probe_local test db_probe_reg
 
 CFLAGS=-ggdb -O0 -Wall -Wextra -Werror #-static #-fno-omit-frame-pointer
 
@@ -16,13 +16,23 @@ db_probe_local: db_probe_local.c ../../include/libsym.a ../../include/kallsymlib
 	make -C $(INCLUDE_DIR)
 	gcc $(CFLAGS) -o $@ $< ../../include/libsym.a ../../include/kallsymlib/libkallsym.a
 
+test: test.c ../../include/libsym.a ../../include/kallsymlib/libkallsym.a  /boot/System.map-5.14.0-symbiote+
+
+	make -C $(INCLUDE_DIR)
+	gcc $(CFLAGS) -o $@ $< ../../include/libsym.a ../../include/kallsymlib/libkallsym.a
+
+db_probe_reg: db_probe_reg.c ../../include/libsym.a ../../include/kallsymlib/libkallsym.a  /boot/System.map-5.14.0-symbiote+
+
+	make -C $(INCLUDE_DIR)
+	gcc $(CFLAGS) -o $@ $< ../../include/libsym.a ../../include/kallsymlib/libkallsym.a
+
 run:
 	sync
 	sync
 	sync
 	taskset -c 0 ./db_probe 0 2
 
-run:
+run_local:
 	sync
 	sync
 	sync
