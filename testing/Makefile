@@ -30,18 +30,18 @@ MITIGATIONS_OFF := $(shell cat /proc/cmdline | grep mitigations=off | wc -l)
 FSGSBASE := $(shell cat /proc/cpuinfo | grep fsgsbase | uniq | wc -l)
 
 check_proc_cmdline:
-	@if [ $(NOSMAP) = "1" ]; then\
-		echo "NOSMAP is good";\
-	else \
-		echo "NOSMAP did not appear!";\
-		exit 42;\
-	fi
-	@if [ $(NOSMEP) = "1" ]; then\
-		echo "NOSMEP is good";\
-	else \
-		echo "NOSMEP did not appear!";\
-		exit 42;\
-	fi
+# @if [ $(NOSMAP) = "1" ]; then\
+# 	echo "NOSMAP is good";\
+# else \
+# 	echo "NOSMAP did not appear!";\
+# 	exit 42;\
+# fi
+# @if [ $(NOSMEP) = "1" ]; then\
+# 	echo "NOSMEP is good";\
+# else \
+# 	echo "NOSMEP did not appear!";\
+# 	exit 42;\
+# fi
 	@if [ $(MITIGATIONS_OFF) = "1" ]; then\
 		echo "MITIGATIONS_OFF is good";\
 	else \
@@ -61,7 +61,7 @@ check_fsgsbase:
 # Elevate and lower
 EL=$(EX)/elevate_lower/elevate_lower
 
-all_elevate_lower: elevate_lower elevate_lower_loop elevate_lower_bash_loop
+all_elevate_lower: elevate_lower elevate_lower_loop elevate_lower_bash_loop p_elevate_lower
 
 elevate_lower: .mitigated_all
 	$(EL) 1
@@ -74,6 +74,9 @@ elevate_lower_loop: .mitigated_all
 elevate_lower_bash_loop: .mitigated_all
 	for i in $$(seq 1 1000) ; do $(EL) 1000 &> /dev/null ; done
 	echo done
+
+p_elevate_lower: .mitigated_all
+	./parallel_e_l.sh 30000
 
 # Print cr3
 P3=$(EX)/print/print_cr3_static
