@@ -31,7 +31,7 @@ IDT=../bin/
 
 
 EXECS=$(SSD)/stack_starvation $(TFD)/text_fault $(I3D)/int3_probe $(I3D)/trivial_int3 $(P3D)/print_cr3_static \
-$(GPD)/getppid $(POLLD)/poller $(ECO)/client_RW $(ECO)/server_RW $(IDT)/idt_tool $(IDT)/cr_tool $(IDT)/vm_tool $(CLK)/clock \
+$(GPD)/getppid $(POLLD)/poller $(ECO)/client_RW $(ECO)/server_RW $(IDT)/idt_tool $(IDT)/cr_tool $(IDT)/vm_tool $(IDT)/snapshot_tool $(CLK)/clock \
 	$(ELO)/elevate_lower $(GSM)/gs_mitigate $(DBP)/db_probe $(DBP)/db_probe_local $(DBP)/test \
 	$(DBP)/db_probe_reg
 
@@ -57,6 +57,9 @@ $(IDT)/vm_tool: $(IDT)/vm_tool.c $(IDT)/vm_tool.h | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
 
 $(IDT)/idt_tool: $(IDT)/idt_tool.c $(IDT)/idt_tool.h | $(DEPENDENCY_LIBS)
+	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
+
+$(IDT)/snapshot_tool: $(IDT)/snapshot_tool.c $(IDT)/snapshot_tool.h | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
 
 $(ECO)/client_RW: $(ECO)/client.c | $(DEPENDENCY_LIBS)
@@ -154,6 +157,15 @@ run_db_mult:
 	sync
 	sync
 	taskset -c 0 $(DBP)/db_probe 0 0 & taskset -c 1 $(DBP)/db_probe 1 1
+
+
+#run_snapshot_test:
+#	sync
+#	sync
+#	sync
+#	taskset -c 0 $(IDT)/snapshot_tool __do_sys_getpid 0 0 & 
+#	sleep 2	
+#	taskset -c 0 $(DBP)/test
 
 cp_execs:
 	cp_to_disk.sh $(VM_DISK) $(EXECS)
