@@ -1,8 +1,11 @@
+#define _GNU_SOURCE
+#include <sched.h>
 #include <stdio.h>
 #include <string.h>
 #include "/home/sym/Symbi-OS/Apps/libs/kallsymlib/kallsymlib.h"
 #include "/home/sym/Symbi-OS/Apps/libs/symlib/include/LINF/sym_all.h"  //fatal error no such LIDK/idk.h
 #include "sym_shortcuts.h"
+//TODO: include sched.h to use sched_getcpu for use in scratch page fns
 
 my_ksys_read_t my_ksys_read;
 my_ksys_write_t my_ksys_write;
@@ -163,8 +166,13 @@ int write_populate_cache(int fd, const void *data, size_t data_len){
   // NOTE: This is just to suppress the dmesg "Already Elevated"
   sym_lower();
   // NOTE: Sticky could solve this, ignoring on cold path.
-  sym_set_probe((uint64_t)tcp_sendmsg);
   // NOTE: bc^ lowered us
+  uint64_t reg = 0;
+  uint64_t flag = DB_GLOBAL;
+  int core = sched_getcpu();
+  struct scratchpad * sp = (struct scratchpad *) get_scratch_pg(core);
+  sym_set_db_probe((uint64_t)tcp_sendmsg, reg, flag);
+
   sym_elevate();
 
   // MSG WILL GET UPDATED ON write()
@@ -181,7 +189,7 @@ int write_populate_cache(int fd, const void *data, size_t data_len){
   init_cache_elem(&sym_cache[fd]);
 
   // write it into the cache
-  update_cache_elem(&sym_cache[fd], (void *)int3_rdi, fd_to_filep(fd));
+  update_cache_elem(&sym_cache[fd], (void *)(sp->get.pt_r.rdi), fd_to_filep(fd));
 
   /* printf("send\n"); */
   /* print_msg_struct(&sym_cache[conn->fd].send.msg); */
