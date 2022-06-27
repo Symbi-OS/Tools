@@ -157,6 +157,14 @@ static __attribute((unused)) void db_c_entry(struct pt_regs *pt_r){
     sp->cnt = sp->cnt + 1;
   }
 
+  if(sp->read_addr_msg){
+    char *csrc = (char *)pt_r->rsi;
+    char *cdest = (char *)sp->addr_msg;
+    int n = 96;
+    for (int i=0; i<n; i++)
+      cdest[i] = csrc[i];
+  }
+
   SET_DR(7,dr7);
 
   return;
