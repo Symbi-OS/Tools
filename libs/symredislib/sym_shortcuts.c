@@ -148,7 +148,6 @@ void check_on_probe(uint64_t addr){
   /* sym_lower(); */
 }
 
-
 int write_path(int fd, const void *data, size_t data_len){
   int ret = write(fd, data, data_len);
   return ret;
@@ -176,7 +175,8 @@ int write_populate_cache(int fd, const void *data, size_t data_len){
   sym_elevate();
 
   // MSG WILL GET UPDATED ON write()
-  addr_msg = (uint64_t)&sym_cache[fd].send.msg;
+  sp->read_addr_msg = 1;
+  sp->addr_msg = (uint64_t)&sym_cache[fd].send.msg;
 
   // run syscall ... triggers probe.
   ret = write(fd, data, data_len);

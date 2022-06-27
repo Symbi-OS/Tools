@@ -123,6 +123,8 @@ struct scratchpad {
   struct rs_struct control;
   uint8_t debug;
   uint8_t cnt;
+  uint8_t read_addr_msg;
+  uint64_t addr_msg;
 };
 
 #define CALL_TARG(FN) \
