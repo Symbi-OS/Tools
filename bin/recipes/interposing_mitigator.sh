@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# Exit on error
+set -e
+
 PRINT_RED=1
 function print_color () {
     echo -n "$(tput setaf $2)$1"
@@ -132,11 +136,9 @@ function cp_hdl () {
     fi
 
     # store handler pg and scratchpad pg locations in metadata files
-    HDL_INFO_DIR="/home/sym/Symbi-OS/Apps/bin/recipes"
-    mkdir -p "$HDL_INFO_DIR/symbiote"
+
+    HDL_INFO_DIR="$PWD"
     mkdir -p "$HDL_INFO_DIR/symbiote/$TASKSET_CORE"
-    touch "$HDL_INFO_DIR/symbiote/$TASKSET_CORE/handler"
-    touch "$HDL_INFO_DIR/symbiote/$TASKSET_CORE/scratchpad"
     echo $HDL_PG > "$HDL_INFO_DIR/symbiote/$TASKSET_CORE/handler"
     echo $SCRATCH_PG > "$HDL_INFO_DIR/symbiote/$TASKSET_CORE/scratchpad"
 }
