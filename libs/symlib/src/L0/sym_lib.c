@@ -50,7 +50,7 @@ long sym_elevate(){
   // I believe it also assumes no core migration...
   uint64_t kern_gs;
 
-  long ret = sym_mode_shift( SYM_ELEVATE_FLAG | SYM_INT_DISABLE_FLAG | SYM_NOSMEP_FLAG | SYM_NOSMAP_FLAG );
+  long ret = sym_mode_shift( SYM_ELEVATE_FLAG | SYM_INT_DISABLE_FLAG );
   GET_KERN_GS_CLOBBER_USER_GS
   return ret;
 }
