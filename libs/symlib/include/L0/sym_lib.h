@@ -16,26 +16,28 @@
 
 
 /*
-Symbiote flags
+Symbiote flags:
 
-Page fault error codes: 
-31              15              8   7   6   5   4   3   2   1   0
-+-------------------------------------------------+---+---+---+---+
-|                             |FL |R\I|SMA|SME|  DB   |ID | Q | E |
-+-------------------------------------------------+---+---+---+---+
+31              15      10   9   8   7   6   5   4   3   2   1   0
++------------------------------------------+---+------+---+---+---+
+|                      |FL |R\I|TA |TE |SMA|SME|  DB  |ID | Q | E |
++------------------------------------------+---+------+---+---+---+
 
 Legend: Set (Clear)
-0 Elevate (Lower)
-1 Query elevation status (don't)
-2 Iret with Interrupts Disabled (Enabled)
-3-4 Debug printks for elevate syscall 0 none, 3 most
-5 noSMEP (SMEP)
-6 noSMAP (SMAP)
-7 Return from elevate using RET (IRET)
-8 Fast lower via SYSRET (SYSCALL -> SYSRET)
+0 E: Elevate (Lower)
+1 Q: Query elevation status (don't)
+2 ID: Iret with Interrupts Disabled (Enabled)
+3-4 DB: Debug printks for elevate syscall 0 none, 3 most
+5 SME: noSMEP (SMEP)
+6 SMA: noSMAP (SMAP)
+7 TE: toggle SMEP (don't)
+8 TA: toggle SMAP (don't)
+9 R/I: Return from elevate using RET (IRET)
+10 FL: Fast lower via SYSRET (SYSCALL -> SYSRET)
 */
 
-#define SYM_LOWER_FLAG 0
+
+#define SYM_LOWER_FLAG 0  // Serves as documentation.
 // 0 Elevate (Lower)
 #define SYM_ELEVATE_FLAG 1
 // 1 Query (Don't)
@@ -50,10 +52,14 @@ Legend: Set (Clear)
 #define SYM_NOSMEP_FLAG (1<<5)
 // 6 Disable SMAP (Enabled)
 #define SYM_NOSMAP_FLAG (1<<6)
-// 7 Return with Ret (Iret)
-#define SYM_RET_FLAG (1<<7)
-// 8 Don't do syscall, just SYSRET to self.
-#define SYM_FAST_LOWER_FLAG (1<<8)
+// 7 Toggle SMEP (don't)
+#define SYM_TOGGLE_SMEP_FLAG (1<<7)
+// 8 Toggle SMAP (don't)
+#define SYM_TOGGLE_SMAP_FLAG (1<<8)
+// 9 Return with Ret (Iret)
+#define SYM_RET_FLAG (1<<9)
+// 10 Don't do syscall, just SYSRET to self.
+#define SYM_FAST_LOWER_FLAG (1<<10)
 
 
 // 'Q'uery, 'D'isable interrupts, 'E'levate
