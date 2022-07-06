@@ -31,7 +31,7 @@ IDT=../bin/
 
 
 EXECS=$(SSD)/stack_starvation $(TFD)/text_fault $(I3D)/int3_probe $(I3D)/trivial_int3 $(P3D)/print_cr3_static \
-$(GPD)/getppid $(POLLD)/poller $(ECO)/client_RW $(ECO)/server_RW $(IDT)/idt_tool $(IDT)/vm_tool $(CLK)/clock \
+$(GPD)/getppid $(POLLD)/poller $(ECO)/client_RW $(ECO)/server_RW $(IDT)/idt_tool $(IDT)/cr_tool $(IDT)/vm_tool $(CLK)/clock \
 	$(ELO)/elevate_lower $(GSM)/gs_mitigate $(DBP)/db_probe $(DBP)/db_probe_local
 
 all: $(EXECS)
@@ -47,6 +47,9 @@ $(GSM)/gs_mitigate: $(GSM)/gs_mitigate.c | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
 
 $(ELO)/elevate_lower: $(ELO)/elevate_lower.c | $(DEPENDENCY_LIBS)
+	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
+
+$(IDT)/cr_tool: $(IDT)/cr_tool.c $(IDT)/cr_tool.h | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
 
 $(IDT)/vm_tool: $(IDT)/vm_tool.c $(IDT)/vm_tool.h | $(DEPENDENCY_LIBS)
