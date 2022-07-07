@@ -7,6 +7,7 @@ for i in $(seq 0 $(($NUM_CPUS - 1)) )
 do
     {
         echo mitigating core $i
+        taskset -c $i ${SCRIPT_DIR}/../cr_tool -d
         ${SCRIPT_DIR}/interposing_mitigator.sh -m df -t $i
         ${SCRIPT_DIR}/interposing_mitigator.sh -m tf -t $i
         ${SCRIPT_DIR}/interposing_mitigator.sh -m i3 -t $i

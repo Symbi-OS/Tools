@@ -84,9 +84,9 @@ uint64_t get_cr4(){
   assert(false);
   uint64_t cr4;
   /* sym_elevate(); */
-  sym_syscall_flags_get_gs(SYM_ELEVATE_FLAG | SYM_INT_DISABLE_FLAG
-                           | SYM_TOGGLE_SMEP_FLAG | SYM_TOGGLE_SMAP_FLAG
-                           | SYM_NOSMEP_FLAG | SYM_NOSMAP_FLAG);
+  /* sym_syscall_flags_get_gs(SYM_ELEVATE_FLAG | SYM_INT_DISABLE_FLAG */
+  /*                          | SYM_TOGGLE_SMEP_FLAG | SYM_TOGGLE_SMAP_FLAG */
+  /*                          | SYM_NOSMEP_FLAG | SYM_NOSMAP_FLAG); */
   asm volatile ("mov %%cr4, %0" : "=r"(cr4) : : "memory");
 
   // Implicitly flipping SMEP and SMAP protections back on.
