@@ -2,10 +2,9 @@
 #include <sched.h>
 #include <stdio.h>
 #include <string.h>
-#include "/home/sym/Symbi-OS/Apps/libs/kallsymlib/kallsymlib.h"
-#include "/home/sym/Symbi-OS/Apps/libs/symlib/include/LINF/sym_all.h"  //fatal error no such LIDK/idk.h
+#include "../kallsymlib/kallsymlib.h"
+#include "LINF/sym_all.h"  //fatal error no such LIDK/idk.h
 #include "sym_shortcuts.h"
-//TODO: include sched.h to use sched_getcpu for use in scratch page fns
 
 my_ksys_read_t my_ksys_read;
 my_ksys_write_t my_ksys_write;
@@ -175,7 +174,7 @@ int write_populate_cache(int fd, const void *data, size_t data_len){
   sym_elevate();
 
   // MSG WILL GET UPDATED ON write()
-  sp->read_addr_msg = 1;
+  sp->read_addr_msg = 0;
   sp->addr_msg = (uint64_t)&sym_cache[fd].send.msg;
 
   // run syscall ... triggers probe.

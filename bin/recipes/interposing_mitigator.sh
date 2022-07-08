@@ -137,10 +137,10 @@ function cp_hdl () {
 
     # store handler pg and scratchpad pg locations in metadata files
 
-    HDL_INFO_DIR="$PWD"
-    mkdir -p "$HDL_INFO_DIR/symbiote/$TASKSET_CORE"
-    echo $HDL_PG > "$HDL_INFO_DIR/symbiote/$TASKSET_CORE/handler"
-    echo $SCRATCH_PG > "$HDL_INFO_DIR/symbiote/$TASKSET_CORE/scratchpad"
+    HDL_INFO_DIR="$HOME/sym_metadata"
+    mkdir -p "$HDL_INFO_DIR/$TASKSET_CORE"
+    echo $HDL_PG > "$HDL_INFO_DIR/$TASKSET_CORE/handler"
+    echo $SCRATCH_PG > "$HDL_INFO_DIR/$TASKSET_CORE/scratchpad"
 }
 
 function install_hdl () {

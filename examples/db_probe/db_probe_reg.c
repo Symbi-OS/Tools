@@ -1,3 +1,6 @@
+#define _GNU_SOURCE
+#include <sched.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -24,7 +27,7 @@ uint64_t get_fn_address(char *symbol){
 }
 
 int main(/*int argc, char * argv[]*/){
-  int core = 0;
+  int core = sched_getcpu(), fd = 1, len = 5;
   void * f_ptr;
   uint64_t db_reg = 0;
   struct scratchpad * sp = (struct scratchpad *)get_scratch_pg(core);
@@ -32,14 +35,22 @@ int main(/*int argc, char * argv[]*/){
   uint64_t rdi, rsi, rdx;
   
   sym_lib_init();
-  sym_probe_init();
   f_ptr = (void *)get_fn_address("ksys_write");
-  printf("SETTING TRIGGER AT %p\n", f_ptr);
+  //printf("SETTING TRIGGER AT %p\n", f_ptr);
+
+  cpu_set_t mask;
+  CPU_ZERO(&mask);
+  CPU_SET(core, &mask);
+  sched_setaffinity(0, sizeof(mask), &mask);
+
   sym_set_db_probe((uint64_t)f_ptr, db_reg, locality); 
   
   char* buf = "test\n";
+  fd = open("/dev/null",0);
+  if(fd < 0)
+    return 1;
 
-  write(1, buf, 5);
+  write(fd, buf, len);
 
   sym_elevate();
   rdi = sp->get.pt_r.rdi;
@@ -47,13 +58,17 @@ int main(/*int argc, char * argv[]*/){
   rdx = sp->get.pt_r.rdx;
   sym_lower();
 
-  printf("INPUTS: %d %p %d\nREGISTERS: %ld 0x%lx %ld\n", 1, buf, 5, rdi, rsi, rdx);
+  //printf("INPUTS: %d %p %d\nREGISTERS: %ld 0x%lx %ld\n", 1, buf, 5, rdi, rsi, rdx);
 
-  if(rdi == 1 && rsi == (uint64_t)buf && rdx == 5){
+  if((int)rdi == fd && rsi == (uint64_t)buf && (int)rdx == len){
     printf(GREEN);
     printf("TEST PASSED\n");
     printf(RESET);
+    return 0;
+  } else {
+    printf(RED);
+    printf("TEST FAILED\n");
+    printf(RESET);
+    return 1;
   }
-  
-  return 0;
 }

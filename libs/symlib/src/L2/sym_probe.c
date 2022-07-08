@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include "L2/sym_probe.h"
 #include "L0/sym_lib.h"
 #include "L1/sym_interrupts.h"
@@ -298,15 +299,21 @@ unsigned char sym_set_db_probe(uint64_t addr, uint64_t reg, uint64_t db_flag){
 }
 
 uint64_t get_hdl_pg(int core){
-  char pg_ptr[100];
+  char pg_ptr[100], 
+       * home = secure_getenv("HOME"),
+       full_path[100],
+       c[10], 
+       hdl[15] = "scratchpad";
+ 
   uint64_t hdl_pg;
-  char path[50] = "/home/sym/Symbi-OS/Apps/bin/recipes/symbiote/", c[10], hdl[10] = "handler";
   int fd;
   sprintf(c, "%d/", core);
-  strcat(path,c);
-  strcat(path,hdl);
+  strcat(full_path,home);
+  strcat(full_path,"/sym_metadata/");
+  strcat(full_path,c);
+  strcat(full_path,hdl);
 
-  fd = open(path, O_RDONLY);
+  fd = open(full_path, O_RDONLY);
   
   if(fd == -1)
     return -1;
@@ -319,21 +326,26 @@ uint64_t get_hdl_pg(int core){
 }
 
 uint64_t get_scratch_pg(int core){
-  char pg_ptr[100];
+  char pg_ptr[100], 
+       * home = secure_getenv("HOME"),
+       full_path[100],
+       c[10], 
+       hdl[15] = "scratchpad";
+ 
   uint64_t scratch_pg;
-  char path[100] = "/home/sym/Symbi-OS/Apps/bin/recipes/symbiote/", c[10], hdl[15] = "scratchpad";
   int fd;
   sprintf(c, "%d/", core);
-  strcat(path,c);
-  strcat(path,hdl);
+  strcat(full_path,home);
+  strcat(full_path,"/sym_metadata/");
+  strcat(full_path,c);
+  strcat(full_path,hdl);
 
-  fd = open(path, O_RDONLY);
+  fd = open(full_path, O_RDONLY);
   
   if(fd == -1)
     return -1;
 
   read(fd, pg_ptr, 100);
-  //printf("SCRATCHPAD LOCATION: %s\n", pg_ptr);
   
   scratch_pg = strtoull(pg_ptr, NULL, 0);
   return scratch_pg;
