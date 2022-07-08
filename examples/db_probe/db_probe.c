@@ -1,3 +1,5 @@
+#define _GNU_SOURCE
+#include <sched.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "LINF/sym_all.h"
@@ -14,7 +16,7 @@
 #define CYAN "\033[36m"    /* Cyan */
 
 int f(){
-	printf("PERFORMING ARBITRARY TASK\n");
+//	printf("PERFORMING ARBITRARY TASK\n");
 	int x = 1000000;
 	int y = 0, i = 0;
 	for(; i < x; i++)
@@ -23,7 +25,7 @@ int f(){
 }
 
 int g(){
-	printf("PERFORMING ARBITRARY TASK\n");
+//	printf("PERFORMING ARBITRARY TASK\n");
 	int x = 2000000;
 	int y = 0, i = 0;
 	for(; i < x; i++)
@@ -42,6 +44,11 @@ int main(int argc, char* argv[]) {
   else
     f_ptr = &g;
 
+  cpu_set_t mask;
+  CPU_ZERO(&mask);
+  CPU_SET(core, &mask);
+  sched_setaffinity(0, sizeof(mask), &mask);
+
   struct scratchpad * sp = (struct scratchpad *)get_scratch_pg(core);
   
   /*
@@ -52,8 +59,7 @@ int main(int argc, char* argv[]) {
 
   uint64_t x = 9;
   sym_lib_init();
-  sym_probe_init();
-  printf("SETTING TRIGGER AT %p\n", f_ptr);
+  //printf("SETTING TRIGGER AT %p\n", f_ptr);
   sym_set_db_probe((uint64_t)f_ptr, db_reg, DB_GLOBAL); 
   
   if(core)
@@ -65,6 +71,18 @@ int main(int argc, char* argv[]) {
   x = sp->get.dr_hit;
   sym_lower();
 
-  printf("\nDEBUG REGISTER %ld HIT ON CORE %d\n", x, core);
-  printf("\nDONE MAIN\n");
+  //printf("\nDEBUG REGISTER %ld HIT ON CORE %d\n", x, core);
+  if((int)x == db_reg){
+    printf(GREEN);
+    printf("TEST PASSED\n");
+    printf(RESET);
+    return 0;
+  } else {
+    printf(RED);
+    printf("TEST FAILED\n");
+    printf(RESET);
+    return 1;
+  }
+    
+  //printf("\nDONE MAIN\n");
 }

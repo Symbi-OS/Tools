@@ -4,10 +4,10 @@
 EX=../examples/
 
 # Want these in order, think undefined by make.
-all: sync sudo_check check_proc_cmdline check_fsgsbase rebuild_all mitigate_cores all_clock all_elevate_lower all_getppid all_print_cr3 lebench stack_starvation trivial_int3
+all: sync sudo_check check_proc_cmdline check_fsgsbase rebuild_all mitigate_cores all_clock all_elevate_lower all_getppid all_print_cr3 lebench stack_starvation trivial_int3 run_db run_db_reg
 
 # Remove lebench which has an intermittant failure on send recv
-most: sync sudo_check check_proc_cmdline check_fsgsbase rebuild_all mitigate_cores all_clock all_elevate_lower all_getppid all_print_cr3 stack_starvation trivial_int3
+most: sync sudo_check check_proc_cmdline check_fsgsbase rebuild_all mitigate_cores all_clock all_elevate_lower all_getppid all_print_cr3 stack_starvation trivial_int3 run_db run_db_reg
 
 # 1 step toward protecting fs from panic
 sync:
@@ -179,6 +179,13 @@ stack_starvation: .mitigated_all
 TI3=$(EX)/int3_probe/trivial_int3
 trivial_int3:
 	$(TI3)
+
+DBP=$(EX)/db_probe/
+run_db:
+	$(DBP)/db_probe 0 1
+
+run_db_reg:
+	$(DBP)/db_probe_reg
 
 # parallel
 
