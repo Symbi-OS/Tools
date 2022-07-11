@@ -31,12 +31,14 @@ int main(/*int argc, char * argv[]*/){
   void * f_ptr;
   uint64_t db_reg = 0;
   struct scratchpad * sp = (struct scratchpad *)get_scratch_pg(core);
+  if((uint64_t)sp == (uint64_t)-1)
+    return 1;
   int locality = 1;
   uint64_t rdi, rsi, rdx;
   
   sym_lib_init();
   f_ptr = (void *)get_fn_address("ksys_write");
-  //printf("SETTING TRIGGER AT %p\n", f_ptr);
+  printf("SETTING TRIGGER AT %p\n", f_ptr);
 
   cpu_set_t mask;
   CPU_ZERO(&mask);
@@ -52,13 +54,14 @@ int main(/*int argc, char * argv[]*/){
 
   write(fd, buf, len);
 
+  printf("CHECKING SCRATCH PAD: %p\n", sp);
   sym_elevate();
   rdi = sp->get.pt_r.rdi;
   rsi = sp->get.pt_r.rsi;
   rdx = sp->get.pt_r.rdx;
   sym_lower();
 
-  //printf("INPUTS: %d %p %d\nREGISTERS: %ld 0x%lx %ld\n", 1, buf, 5, rdi, rsi, rdx);
+  printf("INPUTS: %d %p %d\nREGISTERS: %ld 0x%lx %ld\n", fd, buf, len, rdi, rsi, rdx);
 
   if((int)rdi == fd && rsi == (uint64_t)buf && (int)rdx == len){
     printf(GREEN);

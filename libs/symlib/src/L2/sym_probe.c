@@ -308,7 +308,7 @@ uint64_t get_hdl_pg(int core){
   uint64_t hdl_pg;
   int fd;
   sprintf(c, "%d/", core);
-  strcat(full_path,home);
+  strcpy(full_path,home);
   strcat(full_path,"/sym_metadata/");
   strcat(full_path,c);
   strcat(full_path,hdl);
@@ -319,7 +319,6 @@ uint64_t get_hdl_pg(int core){
     return -1;
 
   read(fd, pg_ptr, 100);
-  //printf("HANDLER PAGE LOCATION: %s\n", pg_ptr);
   
   hdl_pg = strtoull(pg_ptr, NULL, 0);
   return hdl_pg;
@@ -335,7 +334,7 @@ uint64_t get_scratch_pg(int core){
   uint64_t scratch_pg;
   int fd;
   sprintf(c, "%d/", core);
-  strcat(full_path,home);
+  strcpy(full_path,home);
   strcat(full_path,"/sym_metadata/");
   strcat(full_path,c);
   strcat(full_path,hdl);
