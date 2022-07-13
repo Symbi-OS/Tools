@@ -124,7 +124,7 @@ struct scratchpad {
   uint8_t debug;
   uint8_t cnt;
   uint8_t read_addr_msg;
-  uint64_t addr_msg;
+  char addr_msg[96];
 };
 
 #define CALL_TARG(FN) \

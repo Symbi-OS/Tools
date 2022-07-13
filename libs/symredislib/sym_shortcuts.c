@@ -172,28 +172,31 @@ int write_populate_cache(int fd, const void *data, size_t data_len){
   sym_set_db_probe((uint64_t)tcp_sendmsg, reg, flag);
 
   sym_elevate();
-
   // MSG WILL GET UPDATED ON write()
   sp->read_addr_msg = 0;
-  sp->addr_msg = (uint64_t)&sym_cache[fd].send.msg;
+  //sp->addr_msg = (uint64_t)&sym_cache[fd].send.msg;
+  //sym_lower();
 
   // run syscall ... triggers probe.
   ret = write(fd, data, data_len);
   // NOW WE HAVE SK AND MSG COPIED
-
+  memcpy(&sym_cache[fd].send.msg, (void *)sp->addr_msg, 96);
   // This stitches iov and ks into msg.
   // again, sym_cache[conn->fd].msg.mi already populated.
   // has some junk kern ptrs that need to be updated.
   // NOTE: don't move this above write().
   init_cache_elem(&sym_cache[fd]);
-
+  //sym_elevate();
   // write it into the cache
   update_cache_elem(&sym_cache[fd], (void *)(sp->get.pt_r.rdi), fd_to_filep(fd));
-
-  /* printf("send\n"); */
-  /* print_msg_struct(&sym_cache[conn->fd].send.msg); */
-  /* printf("recv\n"); */
-  /* print_msg_struct(&sym_cache[conn->fd].recv.msg); */
+  //sym_lower();
+  /*
+  printf("\nWRITE_POPULATE_CACHE\n");
+  printf("send\n");
+  print_msg_struct(&sym_cache[fd].send.msg);
+  printf("recv\n");
+  print_msg_struct(&sym_cache[fd].recv.msg);
+  */
   return ret;
 }
 
@@ -202,14 +205,21 @@ int cached_tcp_sendmsg_path(int fd, const void *data, size_t data_len){
   // the fish. <:===<
   //             '
   int ret;
-
+  //sym_elevate();
   update_net_state_hot(&sym_cache[fd].send, data, data_len);
 
   struct sym_net_state local_sns = sym_cache[fd].send;
 
   init_sym_net_state(&local_sns);
-
+/*
+  printf("CACHED_SENDMSG\n");
+  printf("send\n");
+  print_msg_struct(&sym_cache[fd].send.msg);
+  printf("recv\n");
+  print_msg_struct(&sym_cache[fd].recv.msg);
+*/
   ret = tcp_sendmsg(local_sns.sk, &local_sns.msg, data_len);
+  //sym_lower();
 
   return ret;
 }
