@@ -22,7 +22,7 @@ function print_help () {
 }
 function parse_args () {
     # Call getopt to validate the provided input. 
-    while getopts "dhm:t:" OPTION; do
+    while getopts "dhm:t:i:" OPTION; do
         case $OPTION in
             d)
                 DEBUG=1
@@ -56,6 +56,17 @@ function parse_args () {
             t)
                 TASKSET_CORE=$OPTARG
                 ;;
+	    i)
+	        IST=$OPTARG
+		case $IST in
+		    "OFF")
+		        disable_ist
+			;;
+	            "ON")
+			enable_ist
+			;;
+		esac
+		;;
             # v)
             #     VECTOR=$OPTARG
             #     ;;
@@ -176,6 +187,26 @@ function install_idt () {
 
 }
 
+function enable_ist () {
+    ENABLE_IST="$TASKSET $IDT_TOOL -m ist_enable"
+
+    if [ ! -z "$DEBUG" ]; then
+        echo
+	echo enable ist
+    fi
+    $($ENABLE_IST)
+}
+
+function disable_ist () {
+    DISABLE_IST="$TASKSET $IDT_TOOL -m ist_disable"
+
+    if [ ! -z "$DEBUG" ]; then
+        echo
+	echo disable ist
+    fi
+    $($DISABLE_IST)
+}
+
 # START HERE
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -194,7 +225,6 @@ cp_hdl
 install_hdl
 
 install_idt
-
 
 exit 0
 
