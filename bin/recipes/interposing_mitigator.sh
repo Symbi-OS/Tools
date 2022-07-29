@@ -58,14 +58,6 @@ function parse_args () {
                 ;;
 	    i)
 	        IST=$OPTARG
-		case $IST in
-		    "OFF")
-		        disable_ist
-			;;
-	            "ON")
-			enable_ist
-			;;
-		esac
 		;;
             # v)
             #     VECTOR=$OPTARG
@@ -78,7 +70,7 @@ function parse_args () {
     done
 
     # Need all.
-    if  [[ ( -z "$MITIGATION"  &&  -z "$IST" ) ||  -z "$TASKSET_CORE" ]]; then
+    if  [[ ( -z "$MITIGATION" ) ||  -z "$TASKSET_CORE" ]]; then
         echo dont have all necessary args
         echo expect : -m "{\"df\"|\"tf\"}" -t "[ 0, (nproc-1)]"
         exit -1
@@ -187,24 +179,25 @@ function install_idt () {
 
 }
 
-function enable_ist () {
-    ENABLE_IST="$TASKSET $IDT_TOOL -m ist_enable -v 0"
+function enable_ist () { 
+    ENABLE_IST="$TASKSET $IDT_TOOL -m ist_enable -v 1"
 
+    IST_RET=$($ENABLE_IST)
     if [ ! -z "$DEBUG" ]; then
         echo
-	echo enable ist
+	echo $IST_RET
     fi
-    $($ENABLE_IST)
 }
 
 function disable_ist () {
     DISABLE_IST="$TASKSET $IDT_TOOL -m ist_disable -v 0"
 
+    IST_RET=$($DISABLE_IST)
     if [ ! -z "$DEBUG" ]; then
         echo
-	echo disable ist
+	echo $IST_RET
     fi
-    $($DISABLE_IST)
+    
 }
 
 # START HERE
@@ -215,7 +208,7 @@ IDT_TOOL=${SCRIPT_DIR}/../idt_tool
 parse_args "$@"
 
 TASKSET="taskset -c $TASKSET_CORE"
-
+    
 if [ ! -z "$MITIGATION" ]; then
 
     get_cur_idt
@@ -228,6 +221,17 @@ if [ ! -z "$MITIGATION" ]; then
 
     install_idt
 
+fi
+
+if [ ! -z "$IST" ]; then
+    case $IST in
+        "OFF")
+            disable_ist
+	;;
+	"ON")
+	    enable_ist
+	;;
+    esac
 fi
 
 exit 0

@@ -177,12 +177,12 @@ void * modifier(struct params *p){
   if(p->mod_option == MOD_IST_ENABLE){
     unsigned int enable = 1;
     sym_toggle_pg_ft_ist((unsigned char *) ( (p->idt).base ), enable);
-    printf("IST_ENABLED\n");
+    printf("ist enabled\n");
 
   }else if(p->mod_option == MOD_IST_DISABLE){
     unsigned int disable = 0;
     sym_toggle_pg_ft_ist((unsigned char *) ( (p->idt).base ), disable);
-    printf("IST_DISABLED\n");
+    printf("ist disabled\n");
 
   }else if(p->mod_option == MOD_ADDR){
     assert(p->mod_addr != NULL);
