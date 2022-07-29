@@ -77,15 +77,15 @@ function parse_args () {
         esac
     done
 
-    if [ ! -z "$DEBUG" ]; then
-        echo Apply $MITIGATION mitigation on core $TASKSET_CORE
-    fi
-
     # Need all.
-    if [ -z "$MITIGATION" ] || [ -z "$TASKSET_CORE" ]; then
+    if  [[ ( -z "$MITIGATION"  &&  -z "$IST" ) ||  -z "$TASKSET_CORE" ]]; then
         echo dont have all necessary args
         echo expect : -m "{\"df\"|\"tf\"}" -t "[ 0, (nproc-1)]"
         exit -1
+    fi
+
+    if [ ! -z "$DEBUG" ] && [ ! -z "$MITIGATION" ]; then
+        echo Apply $MITIGATION mitigation on core $TASKSET_CORE
     fi
 }
 
@@ -188,7 +188,7 @@ function install_idt () {
 }
 
 function enable_ist () {
-    ENABLE_IST="$TASKSET $IDT_TOOL -m ist_enable"
+    ENABLE_IST="$TASKSET $IDT_TOOL -m ist_enable -v 0"
 
     if [ ! -z "$DEBUG" ]; then
         echo
@@ -198,7 +198,7 @@ function enable_ist () {
 }
 
 function disable_ist () {
-    DISABLE_IST="$TASKSET $IDT_TOOL -m ist_disable"
+    DISABLE_IST="$TASKSET $IDT_TOOL -m ist_disable -v 0"
 
     if [ ! -z "$DEBUG" ]; then
         echo
@@ -216,15 +216,19 @@ parse_args "$@"
 
 TASKSET="taskset -c $TASKSET_CORE"
 
-get_cur_idt
+if [ ! -z "$MITIGATION" ]; then
 
-cp_current_idt
+    get_cur_idt
 
-cp_hdl
+    cp_current_idt
 
-install_hdl
+    cp_hdl
 
-install_idt
+    install_hdl
+
+    install_idt
+
+fi
 
 exit 0
 
