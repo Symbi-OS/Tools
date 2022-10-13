@@ -1,3 +1,0 @@
-[submodule "include/kallsymlib"]
-	path = libs/kallsymlib
-	url = git@github.com:jappavoo/kallsymlib.git
