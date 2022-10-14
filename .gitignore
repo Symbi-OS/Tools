@@ -1,5 +1,7 @@
 bin/idt_tool
 bin/vm_tool
+bin/cr_tool
+bin/snapshot_tool
 cscope.files
 cscope.out
 examples/echo_server/client_RW
