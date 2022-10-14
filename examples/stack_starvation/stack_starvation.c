@@ -237,7 +237,7 @@ void show_using_system_ist_solves_DF(){
   /* printf("Free kern page\n"); */
   free_kern_mem(p);
 }
-
+#if 0
 void interpose_on_df(){
   // We want to check if another interposition has already taken over idt
   struct dtr check_idtr;
@@ -276,8 +276,10 @@ void system_interpose_on_df(){
   // Make our user IDT live!
   sym_set_idtr((unsigned long)kern_pg_for_idt, IDT_SZ_BYTES - 1);
 }
+#endif
 
 extern uint64_t cr3_reg;
+#if 0
 void interpose_on_pg_ft(){
 
   sym_elevate();
@@ -299,7 +301,9 @@ void interpose_on_pg_ft(){
   // Make our user IDT live!
   sym_set_idtr((unsigned long)my_idt, IDT_SZ_BYTES - 1);
 }
+#endif
 
+#if 0
 void system_interpose_on_pg_ft(){
 
   sym_elevate();
@@ -321,7 +325,9 @@ void system_interpose_on_pg_ft(){
   // Make our user IDT live!
   sym_set_idtr((unsigned long)my_idt, IDT_SZ_BYTES - 1);
 }
+#endif
 
+#if 0
 void show_using_idt_interpose_solves_DF(){
   // make sure we don't fault on text faults
 
@@ -334,6 +340,7 @@ void show_using_idt_interpose_solves_DF(){
   /* sym_touch_stack(); */
   sym_lower();
 }
+#endif
 
 
 
@@ -352,6 +359,7 @@ __asm__("\
   ret \
 ");
 
+#if 0
 void show_using_system_idt_interpose_solves_DF(){
   // This has only been poorly tested.
 
@@ -400,6 +408,7 @@ void show_using_system_idt_interpose_solves_DF(){
   free_kern_mem(kern_pg_for_df_handler);
 
 }
+#endif
 
 void check_idt_and_pf(){
   sym_touch_every_page_text();
