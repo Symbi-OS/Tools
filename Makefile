@@ -6,6 +6,7 @@ export CC CFLAGS
 SYMLIB_DIR=../../Symlib
 SYMLIB=$(SYMLIB_DIR)/build/libsym.a
 SYMLIB_INCLUDE_DIR=$(SYMLIB_DIR)/include
+SYM_LIB_DYNAM_L0=$(SYMLIB_DIR)/dynam_build/L0/sym_lib.o
 export SYMLIB_DIR SYMLIB SYMLIB_INCLUDE_DIR
 
 
