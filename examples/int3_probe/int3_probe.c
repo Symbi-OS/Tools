@@ -113,7 +113,7 @@ void show_int_interposition_works(){
   check_on_probe(addr__do_sys_getpid);
 }
 
-
+#if 0
 void interpose_on_pg_ft(){
   // We want to check if another interposition has already taken over idt
   struct dtr check_idtr;
@@ -132,6 +132,7 @@ void interpose_on_pg_ft(){
   // Make our user IDT live!
   sym_set_idtr((unsigned long)my_idt, IDT_SZ_BYTES - 1);
 }
+#endif
 
 extern uint64_t int3_count;
 extern uint64_t int3_rdi;

@@ -30,6 +30,7 @@ void_fn_ptr get_fn_address(char *symbol){
   return (void_fn_ptr) info->addr;
 }
 
+#if 0
 void interpose_on_pg_ft(){
 
   // We want to check if another interposition has already taken over idt
@@ -48,6 +49,8 @@ void interpose_on_pg_ft(){
   sym_set_idtr((unsigned long)my_idt, IDT_SZ_BYTES - 1);
 
 }
+#endif
+
 /* void interpose_on_pg_ft(){ */
 /*   int PG_FT_IDX= 14; */
 /*   // Copy the system idt to userspace */
@@ -95,6 +98,7 @@ void show_naive_elevation_breaks(){
   /* sym_elevate(); printf("hi %d\n", 42); sym_lower(); */
 }
 
+#if 0
 void show_int_interposition_works(){
   sym_elevate();
   interpose_on_pg_ft();
@@ -102,6 +106,7 @@ void show_int_interposition_works(){
   // Try to force text fault
   sym_elevate(); foo(); sym_lower();
 }
+#endif
 
 typedef void * (*vzalloc_t)(unsigned long);
 typedef void (*kvfree_t)(void *);
@@ -140,6 +145,7 @@ void lazy_hexdump(unsigned char *base, unsigned int amt){
   eprintf("\n");
 }
 
+#if 0
 void show_system_int_interposition_works(){
   /* sym_elevate(); */
   /* printf("c_handler_page_fault lives at %p \n", &c_handler_page_fault); */
@@ -242,6 +248,7 @@ sym_print_pte(handler_pte);
   free_kern_mem(handler_page);
   #endif
 }
+#endif
 
 void make_nop_slide(){
   printf("make_nop_slide NYI\n");
