@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include "LINF/sym_all.h"
 
-#include "../../libs/kallsymlib/kallsymlib.h"
+/* #include "../../libs/kallsymlib/kallsymlib.h" */
 
 #define RESET "\033[0m"
 #define RED "\033[31m"     /* Red */

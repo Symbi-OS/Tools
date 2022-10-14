@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "../../libs/symlib/include/LINF/sym_all.h"
+#include "../../../Symlib/include/LINF/sym_all.h"
 
 int main(__attribute((unused)) int argc, char *argv[]){
   int count = atoi(argv[1]);

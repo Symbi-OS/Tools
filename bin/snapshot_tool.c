@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <sys/mman.h>
 
-#include "../libs/symlib/include/LINF/sym_all.h"
+#include "../../Symlib/include/LINF/sym_all.h"
 
 #include "snapshot_tool.h"
 

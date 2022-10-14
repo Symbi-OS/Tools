@@ -12,7 +12,7 @@
 
 #include "LINF/sym_all.h"
 
-#include "../../libs/kallsymlib/kallsymlib.h"
+#include "../../../kallsymlib/kallsymlib.h"
 
 // Some colors for printf
 #define RESET "\033[0m"

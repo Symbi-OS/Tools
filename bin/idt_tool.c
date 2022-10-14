@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#include "../libs/symlib/include/LINF/sym_all.h"
+#include "../../Symlib/include/LINF/sym_all.h"
 
 #include "idt_tool.h"
 

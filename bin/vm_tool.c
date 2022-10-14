@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../libs/symlib/include/LINF/sym_all.h"
+#include "../../Symlib/include/LINF/sym_all.h"
 #include "vm_tool.h"
 
 void_fn_ptr get_fn_address(char *symbol){
