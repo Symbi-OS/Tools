@@ -1,16 +1,4 @@
-CC=gcc
-CFLAGS= -O0 -ggdb -Wall -Wextra -static -mno-red-zone
-
-SYMLIB_DIR=../../Symlib
-SYMLIB=$(SYMLIB_DIR)/build/libsym.a
-SYMLIB_INCLUDE_DIR=$(SYMLIB_DIR)/include
-
-KALLSYMDIR=../../kallsymlib/
-KALLSYMLIB=../../kallsymlib/libkallsym.a
-
-VM_DISK=../../min-initrd/min-initrd.d/root
-
-DEPENDENCY_LIBS=$(KALLSYMLIB) $(SYMLIB)
+# Variables included from parent makefile. Don't execute this directly.
 
 # TODO: Add all executables here.
 # Stack Starvation DIR
@@ -26,34 +14,22 @@ ECO=echo_server
 CLK=clock
 GSM=gs_mitigate
 
-# Tools
-IDT=../bin/
-
-
-EXECS=$(SSD)/stack_starvation $(TFD)/text_fault $(I3D)/int3_probe $(I3D)/trivial_int3 $(P3D)/print_cr3_static \
-$(GPD)/getppid $(POLLD)/poller $(ECO)/client_RW $(ECO)/server_RW $(IDT)/idt_tool $(IDT)/cr_tool $(IDT)/vm_tool $(IDT)/snapshot_tool $(CLK)/clock \
+EXECS=$(SSD)/stack_starvation $(TFD)/text_fault $(I3D)/int3_probe $(I3D)/trivial_int3 \
+	$(P3D)/print_cr3_static $(GPD)/getppid $(POLLD)/poller $(ECO)/client_RW $(ECO)/server_RW \
 	$(ELO)/elevate_lower $(GSM)/gs_mitigate $(DBP)/db_probe $(DBP)/db_probe_local $(DBP)/test \
-	$(DBP)/db_probe_reg
+	$(DBP)/db_probe_reg $(CLK)/clock
+
+# You should be able to run 'make' in this dir, this just invokes the parent
+# makefile just so we can make use of the inherited variables.
+redirect:
+	make -C ../ examples
 
 all: $(EXECS)
-
 
 $(GSM)/gs_mitigate: $(GSM)/gs_mitigate.c | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
 
 $(ELO)/elevate_lower: $(ELO)/elevate_lower.c | $(DEPENDENCY_LIBS)
-	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
-
-$(IDT)/cr_tool: $(IDT)/cr_tool.c $(IDT)/cr_tool.h | $(DEPENDENCY_LIBS)
-	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
-
-$(IDT)/vm_tool: $(IDT)/vm_tool.c $(IDT)/vm_tool.h | $(DEPENDENCY_LIBS)
-	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
-
-$(IDT)/idt_tool: $(IDT)/idt_tool.c $(IDT)/idt_tool.h | $(DEPENDENCY_LIBS)
-	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
-
-$(IDT)/snapshot_tool: $(IDT)/snapshot_tool.c $(IDT)/snapshot_tool.h | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
 
 $(ECO)/client_RW: $(ECO)/client.c | $(DEPENDENCY_LIBS)
