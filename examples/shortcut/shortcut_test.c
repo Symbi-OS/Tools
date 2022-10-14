@@ -6,7 +6,7 @@ int main(){
   char* buf = "\0";
   fd = open("/dev/null", O_WRONLY);
 
-  for(i = 0; i < 1000000; i++){
+  for(i = 0; i < 10000000; i++){
     write(fd,buf,1);
   }
 }
