@@ -187,6 +187,14 @@ run_db:
 run_db_reg:
 	$(DBP)/db_probe_reg
 
+SC_LIB=../bin/shortcut/sc_lib.so
+SCT=$(EX)/shortcut/shortcut_test
+run_shortcut:
+	time (LD_LIBRARY_PATH=$(SC_LIB) LD_PRELOAD=./$(SC_LIB) ./$(SCT))
+
+run_no_shortcut:
+	time ./$(SCT)
+
 # parallel
 
 # echo server
