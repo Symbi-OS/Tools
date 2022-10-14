@@ -15,7 +15,8 @@ CLK=clock
 GSM=gs_mitigate
 
 EXECS=$(SSD)/stack_starvation $(TFD)/text_fault $(I3D)/int3_probe $(I3D)/trivial_int3 \
-	$(P3D)/print_cr3_static $(GPD)/getppid $(POLLD)/poller $(ECO)/client_RW $(ECO)/server_RW \
+	$(P3D)/print_cr3_static $(GPD)/getppid $(POLLD)/poller \
+	$(ECO)/client_RW $(ECO)/server_RW $(ECO)/client_SR $(ECO)/server_SR \
 	$(ELO)/elevate_lower $(GSM)/gs_mitigate $(DBP)/db_probe $(DBP)/db_probe_local $(DBP)/test \
 	$(DBP)/db_probe_reg $(CLK)/clock
 
@@ -37,6 +38,12 @@ $(ECO)/client_RW: $(ECO)/client.c | $(DEPENDENCY_LIBS)
 
 $(ECO)/server_RW: $(ECO)/server.c | $(DEPENDENCY_LIBS)
 	gcc -DUSE_READ_WRITE $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
+
+$(ECO)/client_SR: $(ECO)/client.c | $(DEPENDENCY_LIBS)
+	$(CC) -DUSE_SEND_RECV $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
+
+$(ECO)/server_SR: $(ECO)/server.c | $(DEPENDENCY_LIBS)
+	gcc -DUSE_SEND_RECV $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
 
 $(CLK)/clock: $(CLK)/clock.c | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
