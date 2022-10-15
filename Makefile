@@ -1,13 +1,17 @@
 CC=gcc
-CFLAGS= -O0 -ggdb -Wall -Wextra -static -mno-red-zone
+CFLAGS= -O0 -ggdb -Wall -Wextra -mno-red-zone
 export CC CFLAGS
 
 
 SYMLIB_DIR=../../Symlib
-SYMLIB=$(SYMLIB_DIR)/build/libsym.a
+SYMLIB_DYNAM_BUILD_DIR=$(SYMLIB_DIR)/dynam_build
+SYMLIB=$(SYMLIB_DYNAM_BUILD_DIR)/libSym.so
 SYMLIB_INCLUDE_DIR=$(SYMLIB_DIR)/include
-export SYMLIB_DIR SYMLIB SYMLIB_INCLUDE_DIR
+export SYMLIB_DIR SYMLIB SYMLIB_INCLUDE_DIR SYMLIB_DYNAM_BUILD_DIR
 
+LIBRARY_PATH=$(SYMLIB_DYNAM_BUILD_DIR)
+LD_LIBRARY_PATH=$(SYMLIB_DYNAM_BUILD_DIR)
+export LIBRARY_PATH LD_LIBRARY_PATH
 
 KALLSYMDIR=../../kallsymlib/
 KALLSYMLIB=../../kallsymlib/libkallsym.a
@@ -32,6 +36,10 @@ bin:
 examples:
 	$(call boldprint, 'Make examples')
 	cd examples && $(MAKE) all -j$(CPUS)
+
+examples_test:
+	$(call boldprint, 'Make examples')
+	cd examples && $(MAKE) test -j$(CPUS)
 
 clean: clean_bin clean_examples
 
