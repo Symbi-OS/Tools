@@ -10,16 +10,16 @@ redirect:
 all: $(EXECS)
 
 cr_tool: cr_tool.c cr_tool.h | $(DEPENDENCY_LIBS)
-	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB_LINK) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
 
 vm_tool: vm_tool.c vm_tool.h | $(DEPENDENCY_LIBS)
-	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB_LINK) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
 
 idt_tool: idt_tool.c idt_tool.h | $(DEPENDENCY_LIBS)
-	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB_LINK) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
 
 snapshot_tool: snapshot_tool.c snapshot_tool.h | $(DEPENDENCY_LIBS)
-	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB_LINK) $(KALLSYMLIB) -I $(SYMLIB_INCLUDE_DIR)
 
 clean:
 	rm -rf $(EXECS)
