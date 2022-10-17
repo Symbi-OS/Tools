@@ -150,7 +150,6 @@ void copier(struct params *p){
 void installer(struct params *p){
   struct dtr old_idt;
   get_current_idtr(&old_idt);
-
   // If no a flag, use current, otherwise use
   if(p->input_idt){
     p->idt.base= (uint64_t) p->input_idt;
@@ -241,16 +240,16 @@ void handler_pager(struct params *p){
   void * src = NULL;
   int sz = 0;
   if(p->hdl_option == HDL_DF){
-    src = &df_jmp_to_c;
+    src = get_mitigation_addr("df_jmp_to_c");
     sz = PG_SZ;
   }
   if(p->hdl_option == HDL_TF){
-    src = &tf_jmp_to_c;
+    src = get_mitigation_addr("tf_jmp_to_c");
     sz = PG_SZ;
   }
   if(p->hdl_option == HDL_I3){
     /* src = &int3_interposer_asm; */
-    src = &int3_jmp_to_c;
+    src = get_mitigation_addr("int3_jmp_to_c");
     sz = PG_SZ; // 0xC8 bytes on last check
     /* scratch_pg = get_aligned_kern_pg(); */
     /* *(uint64_t)hdl_pg = pointer_to_scratch_page; */
@@ -258,7 +257,7 @@ void handler_pager(struct params *p){
   }
   if(p->hdl_option == HDL_DB){
     /* src = &df_jmp_to_c; */
-    src = &db_jmp_to_c;
+    src = get_mitigation_addr("db_jmp_to_c");
     sz = PG_SZ; // 0xC8 bytes on last check
   }
 
