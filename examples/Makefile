@@ -1,7 +1,5 @@
 # Variables included from parent makefile. Don't execute this directly.
 
-SYMLIB_LINK=-lSym
-
 # TODO: Add all executables here.
 # Stack Starvation DIR
 SSD=stack_starvation
