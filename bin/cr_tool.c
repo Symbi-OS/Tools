@@ -101,8 +101,7 @@ void set_cr4(uint64_t val){
   sym_lower();
 }
 
-int main(int argc, char *argv[]){
-
+int main(int argc, char *argv[]){ 
   // Don't operate on this directly, use pointer
   struct params params;
 
