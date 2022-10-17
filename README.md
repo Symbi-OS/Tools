@@ -8,3 +8,8 @@ These tools and examples are intended to use the Symbiote library which can be f
 Chrono-kernel: A kernel which allows application threads to toggle in and out of the supervisor mode of execution (e.g. ring 0, exception level 1). Applications can use this ability to extend the operating system they run on in order to improve against some criteria (e.g. performance, security, real time etc). We added the kElevate mechanism to Linux, turning it into a Chrono-kernel.
 
 kElevate mechanism: We added a system call to Linux which allows application threads to return in the supervisor mode of execution (see Linux fork repo).
+
+# Building
+By default the executables will get linked with the dynamic version of the symbiote library, but you can also link against a static libsym.a library by passing in ```TYPE=static``` into the make call.
+
+Example: ```make TYPE=static```
