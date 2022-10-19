@@ -6,8 +6,6 @@
 #include <stdio.h>
 #include "LINF/sym_all.h"
 
-/* #include "../../libs/kallsymlib/kallsymlib.h" */
-
 #define RESET "\033[0m"
 #define RED "\033[31m"     /* Red */
 #define GREEN "\033[32m"   /* Green */
@@ -15,16 +13,6 @@
 #define BLUE "\033[34m"    /* Blue */
 #define MAGENTA "\033[35m" /* Magenta */
 #define CYAN "\033[36m"    /* Cyan */
-
-uint64_t get_fn_address(char *symbol){
-  struct kallsymlib_info *info;
-
-  if (!kallsymlib_lookup(symbol, &info)) {
-    fprintf(stderr, "%s : not found\n", symbol);
-    while(1);
-  }
-  return info->addr;
-}
 
 int main(/*int argc, char * argv[]*/){
   int core = sched_getcpu(), fd = 1, len = 5;
@@ -37,7 +25,7 @@ int main(/*int argc, char * argv[]*/){
   uint64_t rdi, rsi, rdx;
   
   sym_lib_init();
-  f_ptr = (void *)get_fn_address("ksys_write");
+  f_ptr = sym_get_fn_address("ksys_write");
   printf("SETTING TRIGGER AT %p\n", f_ptr);
 
   cpu_set_t mask;

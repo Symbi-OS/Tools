@@ -12,8 +12,6 @@
 
 #include "LINF/sym_all.h"
 
-#include "../../../kallsymlib/kallsymlib.h"
-
 // Some colors for printf
 #define RESET "\033[0m"
 #define RED "\033[31m"     /* Red */
@@ -25,28 +23,6 @@
 
 // Our version of the idt. Not sure about alignment.
 unsigned char my_idt [1<<12] __attribute__ ((aligned (1<<12) ));
-
-uint64_t get_fn_address(char *symbol){
-  struct kallsymlib_info *info;
-
-  if (!kallsymlib_lookup(symbol, &info)) {
-    fprintf(stderr, "%s : not found\n", symbol);
-    while(1);
-  }
-  return info->addr;
-}
-
-void init_kallsym(){
-  char *path = "/boot/System.map-5.14.0-symbiote+";
-  if (path) {
-    // alternative path specified for kallsyms file
-    // manually initialize library with this path
-    if (!kallsymlib_init(path)) {
-      fprintf(stderr, "ERROR: kallsymlib failed to initialize\n");
-      exit(-1);
-    }
-  }
-}
 
 void interpose_on_int3_ft(){
 
@@ -78,8 +54,7 @@ void show_int_interposition_works(){
 
   // Elevation is used somewhat carefully here.
 
-  uint64_t addr__do_sys_getpid = get_fn_address("__do_sys_getpid");
-  /* uint64_t addr__do_sys_getpid = get_fn_address("ksys_read"); */
+  uint64_t addr__do_sys_getpid = (uint64_t)sym_get_fn_address("__do_sys_getpid");
   interpose_on_int3_ft();
 
   check_on_probe(addr__do_sys_getpid);

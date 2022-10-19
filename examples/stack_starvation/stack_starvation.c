@@ -21,16 +21,6 @@ enum pg_level {
   PG_LEVEL_NUM
 };
 
-typedef void (*void_fn_ptr)(unsigned long);
-void_fn_ptr get_fn_address(char *symbol){
-  struct kallsymlib_info *info;
-
-  if (!kallsymlib_lookup(symbol, &info)) {
-    fprintf(stderr, "%s : not found\n", symbol);
-  }
-  return (void_fn_ptr) info->addr;
-}
-
 // Our version of the idt. Not sure about alignment.
 unsigned char my_idt [1<<12] __attribute__ ((aligned (1<<12) ));
 

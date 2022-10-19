@@ -5,8 +5,6 @@
 #include <stdio.h>
 #include "LINF/sym_all.h"
 
-#include "../../../kallsymlib/kallsymlib.h"
-
 #define RESET "\033[0m"
 #define RED "\033[31m"     /* Red */
 #define GREEN "\033[32m"   /* Green */
@@ -16,16 +14,6 @@
 #define CYAN "\033[36m"    /* Cyan */
 
 int locality;
-
-uint64_t get_fn_address(char *symbol){
-  struct kallsymlib_info *info;
-
-  if (!kallsymlib_lookup(symbol, &info)) {
-    fprintf(stderr, "%s : not found\n", symbol);
-    while(1);
-  }
-  return info->addr;
-}
 
 int main(int argc, char * argv[]){
   int core = 0;
@@ -45,7 +33,7 @@ int main(int argc, char * argv[]){
   
   sym_lib_init();
   sym_probe_init();
-  f_ptr = (void *)get_fn_address("__do_sys_getpid");
+  f_ptr = (void *)sym_get_fn_address("__do_sys_getpid");
   printf("SETTING TRIGGER AT %p\n", f_ptr);
   sym_set_db_probe((uint64_t)f_ptr, db_reg, locality); 
 

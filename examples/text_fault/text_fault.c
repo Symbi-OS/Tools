@@ -20,16 +20,6 @@ unsigned char my_idt [1<<12] __attribute__ ((aligned (1<<12) ));
 
 struct dtr system_idtr;
 
-typedef void (*void_fn_ptr)(unsigned long);
-void_fn_ptr get_fn_address(char *symbol){
-  struct kallsymlib_info *info;
-
-  if (!kallsymlib_lookup(symbol, &info)) {
-    fprintf(stderr, "%s : not found\n", symbol);
-  }
-  return (void_fn_ptr) info->addr;
-}
-
 #if 0
 void interpose_on_pg_ft(){
 

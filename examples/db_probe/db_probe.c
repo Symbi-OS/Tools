@@ -4,8 +4,6 @@
 #include <stdio.h>
 #include "LINF/sym_all.h"
 
-#include "../../../kallsymlib/kallsymlib.h"
-
 // Some colors for printf
 #define RESET "\033[0m"
 #define RED "\033[31m"     /* Red */
