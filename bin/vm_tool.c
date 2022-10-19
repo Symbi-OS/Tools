@@ -6,21 +6,12 @@
 #include "../../Symlib/include/LINF/sym_all.h"
 #include "vm_tool.h"
 
-void_fn_ptr get_fn_address(char *symbol){
-  struct kallsymlib_info *info;
-
-  if (!kallsymlib_lookup(symbol, &info)) {
-    fprintf(stderr, "%s : not found\n", symbol);
-  }
-  return (void_fn_ptr) info->addr;
-}
-
 void * get_aligned_kern_pg(){
 
   // TODO: is there a right way to do this?
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-function-type"
-  vzalloc_t vzalloc = (vzalloc_t) get_fn_address("vzalloc");
+  vzalloc_t vzalloc = (vzalloc_t) sym_get_fn_address("vzalloc");
 #pragma GCC diagnostic pop 
 
   sym_elevate();

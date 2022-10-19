@@ -39,16 +39,6 @@ int bench_time_elevated(int count){
   return 0;
 }
 
-typedef void (*void_fn_ptr)(unsigned long);
-void_fn_ptr get_fn_address(char *symbol){
-  struct kallsymlib_info *info;
-
-  if (!kallsymlib_lookup(symbol, &info)) {
-    fprintf(stderr, "%s : not found\n", symbol);
-  }
-  return (void_fn_ptr) info->addr;
-}
-
 typedef int (*getppid_t)(void);
 int bench_time_internal(int count){
   clock_t start, end;
