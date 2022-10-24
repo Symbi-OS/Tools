@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include "LINF/sym_all.h"
-#include "../../../kallsymlib/kallsymlib.h"
 void check_on_probe(uint64_t addr){
   sym_elevate();
   printf("1st byte getpid is %#x \n", *((unsigned char *) addr));
