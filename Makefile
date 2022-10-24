@@ -18,12 +18,6 @@ export SYMLIB_DIR SYMLIB_STATIC SYMLIB_INCLUDE_DIR SYMLIB_DYNAM_BUILD_DIR SYMLIB
 LIBRARY_PATH=$(SYMLIB_DYNAM_BUILD_DIR)
 export LIBRARY_PATH
 
-KALLSYMDIR=../../kallsymlib/
-KALLSYMLIB=../../kallsymlib/libkallsym.a
-
-DEPENDENCY_LIBS=$(KALLSYMLIB) $(SYMLIB)
-export KALLSYMDIR KALLSYMLIB DEPENDENCY_LIBS
-
 # TODO: why does this print white then red lol?
 boldprint = @printf '\e[1m%s\e[0m\n' $1
 
