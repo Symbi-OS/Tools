@@ -189,12 +189,17 @@ run_db_reg:
 
 SC_LIB=../bin/shortcut/sc_lib.so
 SCT=$(EX)/shortcut/shortcut_test
-run_shortcut:
-	time (LD_LIBRARY_PATH=$(SC_LIB) LD_PRELOAD=./$(SC_LIB) ./$(SCT))
+time_shortcut:
+	time taskset -c 0 sh -c "LD_PRELOAD=./$(SC_LIB) ./$(SCT)"
 
-run_no_shortcut:
+time_no_shortcut:
 	time ./$(SCT)
 
+perf_shortcut:
+	perf stat taskset -c 0 sh -c "LD_PRELOAD=./$(SC_LIB) ./$(SCT)"
+
+perf_no_shortcut:
+	perf stat ./$(SCT)
 # parallel
 
 # echo server
