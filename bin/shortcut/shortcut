@@ -1,0 +1,76 @@
+#!/bin/sh
+
+ARGS=($@)
+OPTS=0
+
+if [ ${#ARGS[@]} -gt 1 ]
+then
+	APP=${ARGS[0]}
+	ARGS=("${ARGS[@]:1}")
+fi
+
+function print_help () {
+    echo script for performing interrupt interposition mitigations
+    echo "flags: -\"r|w\" \"ksys|tcp\""
+    echo
+    echo example:
+    echo "./shortcut <application> -w ksys"
+    echo "./shortcut -h"
+}
+function parse_args () {
+    # Call getopt to validate the provided input. 
+    while getopts "dhr:w:" OPTION; do
+        case $OPTION in
+            d)
+                DEBUG=1
+                ;;
+            h)
+                HELP=1
+                print_help
+                exit 0
+                ;;
+            r)
+                SHORTCUT=$OPTARG
+                case $SHORTCUT in
+                    "ksys")
+			OPT=$(( OPT | 1  ))
+                        ;;
+                    "tcp")
+			OPT=$(( OPT | 2  ))
+                        ;;
+                    *)
+                        echo "Incorrect -r option provided:" $SHORTCUT
+                        echo bad shortcut: $SHORTCUT
+                        ;;
+                esac
+                ;;
+            w)
+                SHORTCUT=$OPTARG
+                case $SHORTCUT in
+                    "ksys")
+			OPT=$(( OPT | 4  ))
+                        ;;
+                    "tcp")
+			OPT=$(( OPT | 8  ))
+                        ;;
+                    *)
+                        echo "Incorrect -w option provided:" $SHORTCUT
+                        echo bad shortcut: $SHORTCUT
+                        ;;
+                esac
+                ;;
+            *)
+                echo "Incorrect options provided"
+                exit 1
+                ;;
+        esac
+    done
+
+    if [ ! -z "$DEBUG" ]; then
+        echo Apply $SHORTCUT shortcut on core $APP
+    fi
+}
+
+parse_args ${ARGS[@]}
+
+echo "ibase=10;obase=2;$OPT" | bc
