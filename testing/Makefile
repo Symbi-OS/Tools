@@ -187,16 +187,17 @@ run_db:
 run_db_reg:
 	$(DBP)/db_probe_reg
 
-SC_LIB=../bin/shortcut/sc_lib.so
+SHORTCUT=../bin/shortcut/shortcut
+SC_FLAGS=-w ksys
 SCT=$(EX)/shortcut/shortcut_test
 time_shortcut:
-	time taskset -c 0 sh -c "LD_PRELOAD=./$(SC_LIB) ./$(SCT)"
+	time taskset -c 0 sh -c "./$(SHORTCUT) $(SC_FLAGS) -a ./$(SCT)"
 
 time_no_shortcut:
 	time ./$(SCT)
 
 perf_shortcut:
-	perf stat taskset -c 0 sh -c "LD_PRELOAD=./$(SC_LIB) ./$(SCT)"
+	perf stat taskset -c 0 sh -c "./$(SHORTCUT) $(SC_FLAGS) -a ./$(SCT)"
 
 perf_no_shortcut:
 	perf stat ./$(SCT)

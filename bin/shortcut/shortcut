@@ -1,20 +1,39 @@
 #!/bin/sh
 
 ARGS=($@)
+ARG_NUM=${#ARGS[@]}
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+SC_LIB="$SCRIPT_DIR/sc_lib.so"
 OPTS=0
 
-if [ ${#ARGS[@]} -gt 1 ]
+if [ $ARG_NUM -gt 1 ]
 then
-	APP=${ARGS[0]}
-	ARGS=("${ARGS[@]:1}")
+	for i in "${!ARGS[@]}";
+	do
+    		if [[ "${ARGS[$i]}" == "-a" ]];
+    		then
+        		ARGS_IDX=$i
+        		break
+    		fi
+	done
+	APP_IDX=$(( ARGS_IDX + 1 ))
+
+	APP=("${ARGS[@]:$APP_IDX}")
+	ARGS=("${ARGS[@]::$ARGS_IDX}")
 fi
 
+PRINT_RED=1
+function print_color () {
+    echo -n "$(tput setaf $2)$1"
+    # reset
+    echo $(tput setaf 7)
+}
 function print_help () {
     echo script for performing interrupt interposition mitigations
-    echo "flags: -\"r|w\" \"ksys|tcp\""
+    echo "flags: -\"r|w\" \"ksys|tcp\" -a <application>"
     echo
     echo example:
-    echo "./shortcut <application> -w ksys"
+    echo "./shortcut -w ksys -a <application> <application-args>"
     echo "./shortcut -h"
 }
 function parse_args () {
@@ -61,7 +80,7 @@ function parse_args () {
                 ;;
             *)
                 echo "Incorrect options provided"
-                exit 1
+                break
                 ;;
         esac
     done
@@ -70,7 +89,19 @@ function parse_args () {
         echo Apply $SHORTCUT shortcut on core $APP
     fi
 }
+function shortcut () {
+    SHORTCUT_COMMAND="./${APP[@]}"
+    if [ ! -z "$DEBUG" ]; then
+        echo
+        echo about to get initial idt:
+        print_color "$SHORTCUT_COMMAND" $PRINT_RED
+    fi
+    export LD_PRELOAD=$SC_LIB 
+    export SHORTCUT_OPTIONS=$OPT
+
+    $("$SHORTCUT_COMMAND")
+}
 
 parse_args ${ARGS[@]}
 
-echo "ibase=10;obase=2;$OPT" | bc
+shortcut
