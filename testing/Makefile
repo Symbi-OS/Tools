@@ -188,7 +188,7 @@ run_db_reg:
 	$(DBP)/db_probe_reg
 
 SHORTCUT=../bin/shortcut/shortcut
-SC_FLAGS=-w ksys
+SC_FLAGS=-w ksys -r ksys
 SCT=$(EX)/shortcut/shortcut_test
 time_shortcut:
 	time taskset -c 0 sh -c "./$(SHORTCUT) $(SC_FLAGS) -a ./$(SCT)"

@@ -22,7 +22,6 @@ snapshot_tool: snapshot_tool.c snapshot_tool.h | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB_LINK) -I $(SYMLIB_INCLUDE_DIR)
 
 shortcut/sc_lib.so: shortcut/sc_lib.c 
-	#make -C $(SYMLIB_DIR) dynam_L0
 	gcc -shared -fPIC -o $@ $(SYMLIB_LINK) $< -I $(SYMLIB_INCLUDE_DIR)
 
 clean:

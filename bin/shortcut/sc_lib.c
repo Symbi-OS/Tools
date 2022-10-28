@@ -37,7 +37,7 @@ void __attribute__ ((destructor)) cleanUp(void) {
   sym_lower();
 }
 
-ssize_t read(int fd, const void* buf, size_t len){
+ssize_t read(int fd, void* buf, size_t len){
   // interpose shortcutted function
   if(opt & 1)
     return ksys_rd_sc(fd, buf, len);
