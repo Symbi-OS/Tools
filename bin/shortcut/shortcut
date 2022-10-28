@@ -90,16 +90,16 @@ function parse_args () {
     fi
 }
 function shortcut () {
-    SHORTCUT_COMMAND="./${APP[@]}"
+    SHORTCUT_COMMAND="${APP[@]}"
     if [ ! -z "$DEBUG" ]; then
         echo
-        echo about to get initial idt:
+        echo SHORTCUTTED APPLICATION:
         print_color "$SHORTCUT_COMMAND" $PRINT_RED
     fi
     export LD_PRELOAD=$SC_LIB 
     export SHORTCUT_OPTIONS=$OPT
 
-    $("$SHORTCUT_COMMAND")
+    echo $("$SHORTCUT_COMMAND")
 }
 
 parse_args ${ARGS[@]}
