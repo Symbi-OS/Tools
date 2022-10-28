@@ -17,7 +17,7 @@ libExpected.so: expected.c
 
 
 
-# This is out trickery. A hijacking lib takes over the call
+# This is our trickery. A hijacking lib takes over the call
 # to expected()
 # =================================
 run_hijack: main libHijack.so libHelper.so
@@ -29,6 +29,9 @@ libHijack.so: hijack.c libHelper.so
 libHelper.so: helper.c
 	gcc -shared -fPIC -o $@ $<
 # =================================
+
+run_hijack_env: main libHijack.so libHelper.so
+	MY_ENV_VAR=SC_READ LD_LIBRARY_PATH=$(PWD) LD_PRELOAD=./libHijack.so ./main
 
 clean:
 	- rm -rf main *.so
