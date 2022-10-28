@@ -9,4 +9,7 @@ int main(){
   for(i = 0; i < 10000000; i++){
     write(fd,buf,1);
   }
+  for(i = 0; i < 10000000; i++){
+    read(fd,buf,1);
+  }
 }
