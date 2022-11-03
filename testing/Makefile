@@ -201,6 +201,31 @@ perf_shortcut:
 
 perf_no_shortcut:
 	perf stat ./$(SCT)
+
+SVD=$(EX)/static_v_dynam
+DYNAM=$(SVD)/test_dynam
+STATIC=$(SVD)/test_static
+
+perf_dynam:
+	perf stat ./$(DYNAM)
+
+perf_static:
+	perf stat ./$(STATIC)
+
+power_cores_dynam:
+	sudo perf stat -e power/energy-cores/ ./$(DYNAM)
+
+power_cores_static:
+	sudo perf stat -e power/energy-cores/ ./$(STATIC)
+
+power_mem_dynam:
+	sudo perf stat -e power/energy-ram/ ./$(DYNAM)
+
+power_mem_static:
+	sudo perf stat -e power/energy-ram/ ./$(STATIC)
+
+static_v_dynam: perf_dynam perf_static power_cores_static power_cores_dynam power_mem_static power_mem_dynam
+
 # parallel
 
 # echo server
