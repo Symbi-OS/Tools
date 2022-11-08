@@ -205,24 +205,25 @@ perf_no_shortcut:
 SVD=$(EX)/static_v_dynam
 DYNAM=$(SVD)/test_dynam
 STATIC=$(SVD)/test_static
+TASKSET=taskset -c 0
 
 perf_dynam:
-	perf stat ./$(DYNAM)
+	sudo perf stat $(TASKSET) ./$(DYNAM)
 
 perf_static:
-	perf stat ./$(STATIC)
+	sudo perf stat $(TASKSET) ./$(STATIC)
 
 power_cores_dynam:
-	sudo perf stat -e power/energy-cores/ ./$(DYNAM)
+	sudo perf stat -e power/energy-cores/ $(TASKSET) ./$(DYNAM)
 
 power_cores_static:
-	sudo perf stat -e power/energy-cores/ ./$(STATIC)
+	sudo perf stat -e power/energy-cores/ $(TASKSET) ./$(STATIC)
 
 power_mem_dynam:
-	sudo perf stat -e power/energy-ram/ ./$(DYNAM)
+	sudo perf stat -e power/energy-ram/ $(TASKSET) ./$(DYNAM)
 
 power_mem_static:
-	sudo perf stat -e power/energy-ram/ ./$(STATIC)
+	sudo perf stat -e power/energy-ram/ $(TASKSET) ./$(STATIC)
 
 static_v_dynam: perf_dynam perf_static power_cores_static power_cores_dynam power_mem_static power_mem_dynam
 
