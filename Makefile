@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 CC=gcc
 CFLAGS= -O0 -ggdb -Wall -Wextra -mno-red-zone
 export CC CFLAGS
@@ -27,6 +29,9 @@ CPUS=$(shell nproc)
 .PHONY: all bin examples clean_bin clean_examples
 
 all: bin examples
+
+mitigate:
+	./bin/recipes/mitigate_all.sh
 
 bin:
 	$(call boldprint, 'Make bin')
