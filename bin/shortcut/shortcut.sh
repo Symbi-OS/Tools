@@ -4,7 +4,7 @@ set -e
 
 
 function print_help () {
-    printf "###################################"
+    printf "###################################\n"
 
 # square brackets [optional option]
 # angle brackets <required argument>
@@ -31,13 +31,14 @@ function print_help () {
     printf "These ones  can be repeated to specify multiple functions:\n"
     printf "\t-e <fns>: Elevate around these functions\n"
     printf "\t-l <fns>: Lower around these functions\n"
-    printf "\t-s <fn1->fn2>: Shortcut between these functions: eg: write->ksys_write\n\n"
+    printf "\t-s <fn1->fn2>: Shortcut between these functions: eg: 'write->ksys_write'\n"
+    printf "\t\tDon't forget to use quotes around the function names!\n\n"
 
     printf "Debugging options\n\n"
     printf "\t-v: verbose mode for debugging\n"
     printf "\t-d: dry run, do everything EXCEPT running the application\n\n"
 
-    printf "###################################"
+    printf "###################################\n"
 
 }
 
@@ -197,8 +198,12 @@ function run () {
 
     # If not passthrough mode, add the interposer library and envt vars to the command
     if [ -z "$PASSTHROUGH" ]; then
+        # Is this doing anything?
         LD_LIBRARY_PATH="$LD_LIBRARY_PATH:../../../Symbi-OS/Symlib/dynam_build"
-        LD_LIBRARY_PATH='/home/sym/Symbi-OS/Symlib/dynam_build'
+
+        # Gets overwritten here...
+        # LD_LIBRARY_PATH='/home/sym/Symbi-OS/Symlib/dynam_build'
+
         LD_LIBRARY_ENVT_VAR="LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
 
         RUN_CMD="$LD_LIBRARY_ENVT_VAR $ENVT_VARS $INTERPOSER_ENVT_VAR $RUN_CMD " 

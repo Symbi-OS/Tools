@@ -28,3 +28,5 @@ examples/db_probe/db_probe_local
 examples/db_probe/db_probe_reg
 examples/db_probe/test
 testing/.mitigated_all
+
+bin/shortcut/sc_lib.so
