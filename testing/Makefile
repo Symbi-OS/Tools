@@ -199,8 +199,25 @@ time_no_shortcut:
 perf_shortcut:
 	perf stat taskset -c 0 sh -c "./$(SHORTCUT) $(SC_FLAGS) -a ./$(SCT)"
 
+power_cores_shortcut:
+	perf stat -e power/energy-cores/ taskset -c 0 sh -c "./$(SHORTCUT) $(SC_FLAGS) -a ./$(SCT)"
+
+power_mem_shortcut:
+	perf stat -e power/energy-ram/ taskset -c 0 sh -c "./$(SHORTCUT) $(SC_FLAGS) -a ./$(SCT)"
+
 perf_no_shortcut:
-	perf stat ./$(SCT)
+	sudo perf stat ./$(SCT)
+
+INTERPOSE_OPTIONS=LD_PRELOAD=../bin/shortcut/sc_lib.so SHORTCUT_OPTIONS=5
+
+perf_interpose:
+	perf stat taskset -c 0 sh -c "$(INTERPOSE_OPTIONS) ./$(SCT)"
+
+power_cores_interpose:
+	perf stat -e power/energy-cores/ taskset -c 0 sh -c "$(INTERPOSE_OPTIONS) ./$(SCT)"
+
+power_mem_interpose:
+	perf stat -e power/energy-ram/ taskset -c 0 sh -c "$(INTERPOSE_OPTIONS) ./$(SCT)"
 
 SVD=$(EX)/static_v_dynam
 DYNAM=$(SVD)/test_dynam
@@ -227,6 +244,27 @@ power_mem_static:
 
 static_v_dynam: perf_dynam perf_static power_cores_static power_cores_dynam power_mem_static power_mem_dynam
 
+SVDS=$(SVD)/sym
+DYNAM_SYM=$(SVDS)/test_dynam
+STATIC_SYM=$(SVDS)/test_static
+
+perf_dynam_sym:
+	sudo -Eu tommyunger perf stat $(TASKSET) ./$(DYNAM_SYM)
+
+perf_static_sym:
+	sudo perf stat $(TASKSET) $(STATIC_SYM)
+
+power_cores_dynam_sym:
+	sudo perf stat -e power/energy-cores/ $(TASKSET) ./$(DYNAM_SYM)
+
+power_cores_static_sym:
+	sudo perf stat -e power/energy-cores/ $(TASKSET) ./$(STATIC_SYM)
+
+power_mem_dynam_sym:
+	sudo perf stat -e power/energy-ram/ $(TASKSET) ./$(DYNAM_SYM)
+
+power_mem_static_sym:
+	sudo perf stat -e power/energy-ram/ $(TASKSET) ./$(STATIC_SYM)
 # parallel
 
 # echo server

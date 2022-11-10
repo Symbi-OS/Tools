@@ -15,13 +15,14 @@ CLK=clock
 GSM=gs_mitigate
 SCT=shortcut
 SVD=static_v_dynam
+SVDS=static_v_dynam/sym
 
 EXECS=$(SSD)/stack_starvation $(TFD)/text_fault $(I3D)/int3_probe $(I3D)/trivial_int3 \
 	$(P3D)/print_cr3_static $(GPD)/getppid $(POLLD)/poller \
 	$(ECO)/client_RW $(ECO)/server_RW $(ECO)/client_SR $(ECO)/server_SR \
 	$(ELO)/elevate_lower $(GSM)/gs_mitigate $(DBP)/db_probe $(DBP)/db_probe_local $(DBP)/test \
 	$(DBP)/db_probe_reg $(CLK)/clock $(SCT)/shortcut_test $(SVD)/test_dynam \
-	$(SVD)/test_static
+	$(SVD)/test_static $(SVDS)/test_dynam $(SVDS)/test_static $(SVDS)/test_abi
 
 # You should be able to run 'make' in this dir, this just invokes the parent
 # makefile just so we can make use of the inherited variables.
@@ -94,6 +95,15 @@ $(SVD)/test_dynam: $(SVD)/test.c
 
 $(SVD)/test_static: $(SVD)/test.c
 	$(CC) -static -o $@ $^
+
+$(SVDS)/test_abi: $(SVDS)/test_abi.c
+	$(CC) -o $@ $^
+
+$(SVDS)/test_dynam: $(SVDS)/test_mod.c | $(DEPENDENCY_LIBS)
+	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB_LINK) -I $(SYMLIB_INCLUDE_DIR)
+
+$(SVDS)/test_static: $(SVDS)/test_mod.c | $(DEPENDENCY_LIBS)
+	$(CC) $(CFLAGS) -static -o $@ $^ $(SYMLIB_STATIC) -I $(SYMLIB_INCLUDE_DIR)
 
 clean:
 	rm -rf $(EXECS)
