@@ -285,10 +285,10 @@ ssize_t write(int fd, const void* buf, size_t len){
   typedef write_t shortcut_fn_t;
 
   // typedef int (*shortcut_fn_t)(unsigned int fd, const char *buf, size_t count);
-  // typedef write_t real_fn_t;
+  typedef write_t real_fn_t;
 
   // Pointer to real_write, generic version
-  // real_fn_t *real_fn = &real_write;
+  real_fn_t *real_fn = &real_write;
 
   // Pointer to shortcut_write, generic version
   shortcut_fn_t *shortcut_fn = &ksys_write;
@@ -298,13 +298,13 @@ ssize_t write(int fd, const void* buf, size_t len){
 
 
   // If real_write is null, get it from dlsym
-  if (! real_write ) {
+  if (! (*real_fn) ) {
 
     // Place to do one time work
     config_fn(ctrl, __func__);
 
     // Get address of real_write
-    real_write = dlsym(RTLD_NEXT, __func__);
+    *real_fn = dlsym(RTLD_NEXT, __func__);
     // Print real_write address
     printf("real_%s is %p \n", __func__, real_write);
     // Dereference real_fn to get real_write address
@@ -340,7 +340,7 @@ ssize_t write(int fd, const void* buf, size_t len){
     // Awkward, but we have to deref the ptr to the fn ptr
     ret = (*shortcut_fn)(fd, buf, len);
   }else{
-    ret = real_write(fd, buf, len);
+    ret = (*real_fn)(fd, buf, len);
   }
 
   // User passed -e write, we will lower after unconditionally
