@@ -1,6 +1,8 @@
 // Header guard here
 #ifndef SC_LIB_H
 #define SC_LIB_H
+// Include for ssize_t
+#include <sys/types.h>
 
 #include <stdbool.h>
 
@@ -15,5 +17,16 @@ struct fn_ctrl {
   // If non zero we are shortcutting, if 0 we are not.
   bool do_shortcut;
 };
+
+// Macro that allocates all types, variables, and structs needed
+// for each function.
+#define MAKE_STRUCTS(fn_name, sig) \
+    typedef sig; \
+    fn_name##_t  real_##fn_name = NULL; \
+    struct fn_ctrl fn_name##_ctrl = {0, 0, 0, 0}; \
+    fn_name##_t ksys_##fn_name = NULL;
+
+// Macro that prepends arg with string "end"
+#define END(x) end ## x
 
 #endif
