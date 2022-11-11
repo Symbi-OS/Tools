@@ -87,23 +87,12 @@ void __attribute__((destructor)) cleanUp(void) {
   sym_lower();
 }
 
-// Fn declarations for interposition.
-typedef ssize_t (*write_t)(int fd, const void *buf, size_t count);
-typedef ssize_t (*read_t)(int fd, void *buf, size_t count);
 
 // Add to these
 
-// Where the calls would have gone to before us.
-read_t real_read = NULL;
-write_t real_write = NULL;
-
-// Function control structs
-struct fn_ctrl write_ctrl;
-struct fn_ctrl read_ctrl;
-
-// Pointers to shortcut function targets.
-write_t ksys_write = NULL;
-read_t ksys_read = NULL;
+// This macro allocates a "real_" fn ptr, a "ksys_" fn ptr, and a fn_ctrl struct
+MAKE_STRUCTS(write, ssize_t (*write_t)(int fd, const void *buf, size_t count))
+MAKE_STRUCTS(read, ssize_t  (*read_t)(int fd, void *buf, size_t count))
 
 // Takes buffer, prefix, fn, and suffix
 void build_envt_var(char *buf, char *prefix, const char *fn, char *suffix) {
@@ -149,14 +138,6 @@ void config_fn_ctrl_for_lower(struct fn_ctrl *ctrl) {
   ctrl->return_elevated = true;
   ctrl->do_shortcut = false;
 }
-
-// void config_fn_for_shortcut(struct fn_ctrl * ctrl){
-//   // Build the environment variable
-//     ctrl->sandwich_fn = true;
-//     ctrl->enter_elevated = false;
-//     ctrl->return_elevated = false;
-//     ctrl->do_shortcut = true;
-// }
 
 void config_fn_elevate(struct fn_ctrl *ctrl, const char *fn) {
   // Build the environment variable
