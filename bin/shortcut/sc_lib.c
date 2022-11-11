@@ -1,27 +1,17 @@
-  #define _GNU_SOURCE
+#define _GNU_SOURCE
 
 #include <sys/syscall.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
-#include "../../Symlib/include/LINF/sym_all.h"
-// Include for bool
 #include <stdbool.h>
 
 #include <stdio.h>
 #include <dlfcn.h>
+#include "sc_lib.h"
 
-// Struct that contains all flags for function interposition
-struct fn_ctrl{
-  // Do we need to run a pre/post condition around fn call?
-  bool sandwich_fn;
-  // If non zero enter elevated, if 0 enter lowered.
-  bool enter_elevated;
-  // If non zero exit elevated, if 0 exit lowered.
-  bool return_elevated;
-  // If non zero we are shortcutting, if 0 we are not.
-  bool do_shortcut;
-};
+// TODO: Maybe move this to makefile -I?
+#include "../../../Symlib/include/LINF/sym_all.h"
 
 // Just learned this black magic
 extern char** environ;
