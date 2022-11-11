@@ -88,11 +88,6 @@ void __attribute__((destructor)) cleanUp(void) {
 }
 
 
-// Add to these
-
-// This macro allocates a "real_" fn ptr, a "ksys_" fn ptr, and a fn_ctrl struct
-MAKE_STRUCTS(write, ssize_t (*write_t)(int fd, const void *buf, size_t count))
-MAKE_STRUCTS(read, ssize_t  (*read_t)(int fd, void *buf, size_t count))
 
 // Takes buffer, prefix, fn, and suffix
 void build_envt_var(char *buf, char *prefix, const char *fn, char *suffix) {
@@ -274,16 +269,23 @@ void egress_work(struct fn_ctrl *ctrl) {
     }
   }
 }
-ssize_t write(int fd, const void *buf, size_t len) {
+
+// This macro allocates a "real_" fn ptr, a "ksys_" fn ptr, and a fn_ctrl struct
+MAKE_STRUCTS(write, ssize_t (*write_t)(int fd, const void *buf, size_t count))
+MAKE_STRUCTS(read, ssize_t  (*read_t)(int fd, void *buf, size_t count))
+
+MAKE_INTERPOSE_FN(write, ssize_t, (int fd, const void *buf, size_t count))
+
+
 
   // This is awkward, but it is an effort to minimize the scope of differences
   // btw fns.
 
   // Pointer to the ctrl struct.
-  struct fn_ctrl *ctrl = &write_ctrl;
+  // struct fn_ctrl *ctrl = &write_ctrl;
 
   // Shortcut fn has same signature as write
-  typedef write_t shortcut_fn_t;
+  // typedef write_t shortcut_fn_t;
 
   // typedef int (*shortcut_fn_t)(unsigned int fd, const char *buf, size_t
   // count);
@@ -293,33 +295,33 @@ ssize_t write(int fd, const void *buf, size_t len) {
   real_fn_t *real_fn = &real_write;
 
   // Pointer to shortcut_write, generic version
-  shortcut_fn_t *shortcut_fn = &ksys_write;
+  // shortcut_fn_t *shortcut_fn = &ksys_write;
 
   // String name of shortcut target
   char *shortcut_target = "ksys_write";
 
   // If real_write is null, get it from dlsym
-  if (!(*real_fn)) {
+  if (! real_write) {
     // Place to do one time work
     // Configs ctrl struct with envt variables, gets ptrs to real and shortcut
     // fns
-    get_fn_config_and_targets(ctrl, (void **)real_fn, (void **)shortcut_fn,
+    get_fn_config_and_targets(&write_ctrl, (void **)real_fn, (void **) &ksys_write,
                               shortcut_target, __func__);
   }
 
   // Pre fn work e.g. elevation
-  ingress_work(ctrl);
+  ingress_work(&write_ctrl);
 
   int ret;
   // Call real write
-  if (ctrl->do_shortcut) {
+  if (write_ctrl.do_shortcut) {
     // Awkward, but we have to deref the ptr to the fn ptr
-    ret = (*shortcut_fn)(fd, buf, len);
+    ret = ksys_write(fd, buf, count);
   } else {
-    ret = (*real_fn)(fd, buf, len);
+    ret = (*real_fn)(fd, buf, count);
   }
 
-  egress_work(ctrl);
+  egress_work(&write_ctrl);
 
   return ret;
 }
