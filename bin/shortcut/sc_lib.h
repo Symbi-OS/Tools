@@ -26,7 +26,10 @@ struct fn_ctrl {
     struct fn_ctrl fn_name##_ctrl = {0, 0, 0, 0}; \
     fn_name##_t ksys_##fn_name = NULL;
 
-// Macro that prepends arg with string "end"
-#define END(x) end ## x
+#define MAKE_INTERPOSE_FN(fn_name, ret_t, args) \
+    ret_t fn_name args { 
+
+    void fn(){};
+
 
 #endif
