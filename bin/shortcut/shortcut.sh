@@ -199,10 +199,12 @@ function run () {
     # If not passthrough mode, add the interposer library and envt vars to the command
     if [ -z "$PASSTHROUGH" ]; then
         # Is this doing anything?
-        LD_LIBRARY_PATH="$LD_LIBRARY_PATH:../../../Symbi-OS/Symlib/dynam_build"
+        # LD_LIBRARY_PATH="~/Symbi-OS/Symlib/dynam_build"
 
         # Gets overwritten here...
-        # LD_LIBRARY_PATH='/home/sym/Symbi-OS/Symlib/dynam_build'
+        # HACK: FIXME
+        export LD_LIBRARY_PATH='/home/sym/Symbi-OS/Symlib/dynam_build'
+        
 
         LD_LIBRARY_ENVT_VAR="LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
 
