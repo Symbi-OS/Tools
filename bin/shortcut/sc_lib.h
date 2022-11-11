@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 // Struct that contains all flags for function interposition
-struct fn_ctrl{
+struct fn_ctrl {
   // Do we need to run a pre/post condition around fn call?
   bool sandwich_fn;
   // If non zero enter elevated, if 0 enter lowered.
