@@ -101,28 +101,24 @@ void __attribute__ ((destructor)) cleanUp(void) {
 }
 
 // Fn declarations for interposition.
-typedef ssize_t (*read_t)(int fd, void *buf, size_t count);
 typedef ssize_t (*write_t)(int fd, const void *buf, size_t count);
+typedef ssize_t (*read_t)(int fd, void *buf, size_t count);
+
+// Add to these
 
 // Where the calls would have gone to before us.
 read_t real_read = NULL;
-
 write_t real_write = NULL;
 
 // Function control structs
 struct fn_ctrl write_ctrl;
-// struct fn_ctrl rd_ctrl;
+struct fn_ctrl read_ctrl;
 
-ssize_t read(int fd, void* buf, size_t len){
-  if (!real_read) {
-    // Place to do one time work.
-    real_read = dlsym(RTLD_NEXT, "read");
-    printf("real_read is %p \n", real_read);
-  }
+// Pointers to shortcut function targets.
+write_t ksys_write = NULL;
+read_t ksys_read = NULL;
 
-  // Call real read
-  return real_read(fd, buf, len);
-}
+
 // Takes buffer, prefix, fn, and suffix
 void build_envt_var(char * buf, char * prefix, const char * fn, char * suffix){
     // Copy prefix
@@ -269,11 +265,49 @@ void print_ctrl(struct fn_ctrl *ctrl){
   printf("ctrl->do_shortcut: %d\n", ctrl->do_shortcut);
 }
 
-// typedef int (*ksys_write_t)(unsigned int fd, const char *buf, size_t count);
+// a function that gets called by get_fn_config_and_targets(ctrl, real_fn, shortcut_fn, shortcut_target, __func__);
+void get_fn_config_and_targets(struct fn_ctrl *ctrl, void **real_fn, void **shortcut_fn, void *shortcut_target, const char *fn){
+  config_fn(ctrl, fn);
+    // Get address of real_write
+  *real_fn = dlsym(RTLD_NEXT, fn);
 
-write_t ksys_write = NULL;
+  if(ctrl->do_shortcut){
+    *shortcut_fn = (void *)sym_get_fn_address(shortcut_target);
 
+      // printf("shortcut_%s is %p \n", __func__, *shortcut_fn);
 
+      // todo resolve this
+      printf("warning: unconditionally elevating\n");
+      sym_elevate();
+    }
+
+}
+
+// TODO: assert const
+void ingress_work(struct fn_ctrl *ctrl){
+  // User passed -e write, we will elevate before unconditionally
+  if(ctrl->sandwich_fn){
+    if(ctrl->enter_elevated){
+    sym_elevate();
+    }else{
+      // User passed -l write, we will lower before unconditionally
+      // printf("doing lower on entry path\n");
+      sym_lower();
+    }
+  }
+}
+
+void egress_work(struct fn_ctrl *ctrl){
+  // User passed -e write, we will lower after unconditionally
+  if(ctrl->sandwich_fn){
+    if(ctrl->return_elevated){
+     sym_elevate();
+   }else{
+    //  printf("doing lower on return path\n");
+     sym_lower();
+   }
+  }
+}
 ssize_t write(int fd, const void* buf, size_t len){
 
   // This is awkward, but it is an effort to minimize the scope of differences btw fns.
@@ -299,59 +333,71 @@ ssize_t write(int fd, const void* buf, size_t len){
 
   // If real_write is null, get it from dlsym
   if (! (*real_fn) ) {
-
     // Place to do one time work
-    config_fn(ctrl, __func__);
-
-    // Get address of real_write
-    *real_fn = dlsym(RTLD_NEXT, __func__);
-    // Print real_write address
-    printf("real_%s is %p \n", __func__, real_write);
-    // Dereference real_fn to get real_write address
-    // printf("real_%s is %p \n", __func__, *real_fn);
-
-    if(ctrl->do_shortcut){
-      *shortcut_fn = (shortcut_fn_t)sym_get_fn_address(shortcut_target);
-      printf("shortcut_%s is %p \n", __func__, *shortcut_fn);
-
-
-      // todo resolve this
-      printf("warning: unconditionally elevating\n");
-      sym_elevate();
-    }
+    // Configs ctrl struct with envt variables, gets ptrs to real and shortcut fns
+    get_fn_config_and_targets(ctrl, (void **)real_fn, (void **)shortcut_fn, shortcut_target, __func__);
   }
 
-  // User passed -e write, we will elevate before unconditionally
-  if(ctrl->sandwich_fn){
-    if(ctrl->enter_elevated){
-    sym_elevate();
-    }else{
-      // User passed -l write, we will lower before unconditionally
-      // printf("doing lower on entry path\n");
-      sym_lower();
-    }
-  }
+  // Pre fn work e.g. elevation
+  ingress_work(ctrl);
+
   int ret;
   // Call real write
-  // todo: case for shortcut
   if(ctrl->do_shortcut){
-    // printf("doing shortcut\n");
-    // ret = ksys_write(fd, buf, len);
     // Awkward, but we have to deref the ptr to the fn ptr
     ret = (*shortcut_fn)(fd, buf, len);
   }else{
     ret = (*real_fn)(fd, buf, len);
   }
 
-  // User passed -e write, we will lower after unconditionally
-  if(ctrl->sandwich_fn){
-    if(ctrl->return_elevated){
-     sym_elevate();
-   }else{
-    //  printf("doing lower on return path\n");
-     sym_lower();
-   }
+  egress_work(ctrl);
+
+  return ret;
+}
+
+ssize_t read(int fd, void* buf, size_t len){
+
+  // This is awkward, but it is an effort to minimize the scope of differences btw fns.
+
+  // Pointer to the ctrl struct.
+  struct fn_ctrl *ctrl = &read_ctrl;
+
+  // Shortcut fn has same signature as write
+  typedef read_t shortcut_fn_t;
+
+  // typedef int (*shortcut_fn_t)(unsigned int fd, const char *buf, size_t count);
+  typedef read_t real_fn_t;
+
+  // Pointer to real_write, generic version
+  real_fn_t *real_fn = &real_read;
+
+  // Pointer to shortcut_write, generic version
+  shortcut_fn_t *shortcut_fn = &ksys_read;
+
+  // String name of shortcut target
+  char *shortcut_target = "ksys_read";
+
+
+  // If real_write is null, get it from dlsym
+  if (! (*real_fn) ) {
+    // Place to do one time work
+    // Configs ctrl struct with envt variables, gets ptrs to real and shortcut fns
+    get_fn_config_and_targets(ctrl, (void **)real_fn, (void **)shortcut_fn, shortcut_target, __func__);
   }
+
+  // Pre fn work e.g. elevation
+  ingress_work(ctrl);
+
+  int ret;
+  // Call real write
+  if(ctrl->do_shortcut){
+    // Awkward, but we have to deref the ptr to the fn ptr
+    ret = (*shortcut_fn)(fd, buf, len);
+  }else{
+    ret = (*real_fn)(fd, buf, len);
+  }
+
+  egress_work(ctrl);
 
   return ret;
 }
