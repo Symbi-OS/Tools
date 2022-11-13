@@ -7,6 +7,10 @@
 #include <stdbool.h>
 
 // Struct that contains all flags for function interposition
+
+// HACK: huge hack to toggle shortcut
+int master_toggle_shortcut = 0;
+
 struct fn_ctrl {
   // Do we need to run a pre/post condition around fn call?
   bool sandwich_fn;
@@ -26,10 +30,31 @@ struct fn_ctrl {
     struct fn_ctrl fn_name##_ctrl = {0, 0, 0, 0}; \
     fn_name##_t ksys_##fn_name = NULL;
 
-#define MAKE_INTERPOSE_FN(fn_name, ret_t, args) \
-    ret_t fn_name args { 
+  // If real_write is null, get it from dlsym
+  // Place to do one time work
+  // Configs ctrl struct with envt variables, gets ptrs to real and shortcut
 
-    void fn(){};
+#define MAKE_INTERPOSE_FN(fn_name, ret_t, t_1, arg_1, t_2, arg_2, t_3, arg_3 ) \
+    ret_t fn_name ( t_1 arg_1, t_2 arg_2, t_3 arg_3 ) { \
+  if (! real_##fn_name ) { \
+    get_fn_config_and_targets(& fn_name##_ctrl, (void **)&real_##fn_name, (void **) &ksys_##fn_name, \
+                              "ksys_"#fn_name, __func__); \
+  } \
+  ingress_work(&fn_name##_ctrl); \
+  int ret; \
+  if (fn_name##_ctrl.do_shortcut ^ master_toggle_shortcut) { \
+    ret = ksys_##fn_name( arg_1, arg_2, arg_3 ); \
+  } else { \
+    ret = real_##fn_name( arg_1, arg_2, arg_3 ); \
+  } \
+  egress_work(&fn_name##_ctrl); \
+  return ret;\
+}
+
+// Combine both structs, variables and fn
+#define MAKE_STRUCTS_AND_FN(fn_name, ret_t, t_1, arg_1, t_2, arg_2, t_3, arg_3 ) \
+    MAKE_STRUCTS(fn_name, ret_t (*fn_name##_t) ( t_1 arg_1, t_2 arg_2, t_3 arg_3) ) \
+    MAKE_INTERPOSE_FN(fn_name, ret_t, t_1, arg_1, t_2, arg_2, t_3, arg_3)
 
 
 #endif
