@@ -10,7 +10,7 @@ do
         taskset -c $i ${SCRIPT_DIR}/../cr_tool -d
         ${SCRIPT_DIR}/interposing_mitigator.sh -m df -t $i
         ${SCRIPT_DIR}/interposing_mitigator.sh -m tf -t $i
-        ${SCRIPT_DIR}/interposing_mitigator.sh -m i3 -t $i
+        # ${SCRIPT_DIR}/interposing_mitigator.sh -m i3 -t $i
         ${SCRIPT_DIR}/interposing_mitigator.sh -m db -t $i
         echo done mitigation core $i
     }
