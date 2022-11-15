@@ -9,6 +9,7 @@
 #include "sc_lib.h"
 #include <dlfcn.h>
 #include <stdio.h>
+#include <signal.h>
 
 // TODO: Maybe move this to makefile -I?
 #include "../../../Symlib/include/LINF/sym_all.h"
@@ -19,34 +20,31 @@ extern char **environ;
 // Function that prints string in red
 void print_red(const char *str) { printf("\033[1;31m%s\033[0m", str); }
 
-#if 0
-void print_sc_envt_vars(){
-  // Produce array of environment variables
-  for (size_t i = 0; environ[i] != NULL; i++) {
-    // ELEVATE
-    if (strncmp(environ[i], "ELEVATE", 7) == 0) {
-      // Print the environment variable, skipping the first 8 chars and removing the last 2 chars
-      printf("%s\n", environ[i]);
-      // printf("%s\n", environ[i] + 8);
-      // If the environment variable suffix is 'read=1' set the read fn
-      // if(strncmp(environ[i] + 8, "read=1", 6) == 0){
-      //   printf("Need to elevate %s\n", environ[i] + 8);
-      //  //rd_ctrl.do_shortcut = true;
-
-      // }
-    }
-    // LOWER
-    if (strncmp(environ[i], "LOWER", 5) == 0) {
-      printf("%s\n", environ[i]);
-    }
-    // SHORTCUT
-    if (strncmp(environ[i], "SHORTCUT", 8) == 0) {
-      printf("%s\n", environ[i]);
-    }
-  }
-
+// Signal handler for SIGUSR1
+void sigusr1_handler(int signum) {
+  printf("Received SIGUSR1\n");
+  printf("lowering now\n");
+  sym_lower();
 }
-#endif
+// Signal handler for SIGUSR2
+void sigusr2_handler(int signum) {
+  printf("Received SIGUSR2\n");
+  printf("elevating now\n");
+  sym_elevate();
+}
+
+// Signal handler for SIGSYS
+void sigsys_handler(int signum) {
+  printf("Received SIGSYS\n");
+
+  // Print if shortcut is on or off
+  if (master_toggle_shortcut) {
+    printf("Shortcut is on, turning off\n");
+  } else {
+    printf("Shortcut is off, turning on\n");
+  }
+  master_toggle_shortcut = !master_toggle_shortcut;
+}
 
 // Function that initializes a fn_ctrl struct
 void init_fn_ctrl(struct fn_ctrl *ctrl) {
@@ -72,6 +70,11 @@ void __attribute__((constructor)) init(void) {
 
   // for debugging
   // print_sc_envt_vars();
+
+  // Register signal handlers
+  signal(SIGUSR1, sigusr1_handler);
+  signal(SIGUSR2, sigusr2_handler);
+  signal(SIGSYS, sigsys_handler);
 
   // If environment variable 'BEGIN_ELE=1' is set, elevate
   if (envt_var_exists("BEGIN_ELE=1")) {
@@ -273,4 +276,3 @@ void egress_work(struct fn_ctrl *ctrl) {
 // This macro allocates a "real_" fn ptr, a "ksys_" fn ptr, and a fn_ctrl struct
 // Then it implements the relevant interposer fn.
 MAKE_STRUCTS_AND_FN(write, ssize_t, int, fd, const void *, buf, size_t, count)
-MAKE_STRUCTS_AND_FN(read, ssize_t, int, fd, void *, buf, size_t, count)
