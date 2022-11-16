@@ -1,3 +1,4 @@
+
 bin/idt_tool
 bin/vm_tool
 bin/cr_tool
@@ -17,6 +18,7 @@ examples/test/test
 examples/text_fault/text_fault
 examples/clock/clock
 examples/elevate_lower/elevate_lower
+examples/shortcut/shortcut_test
 libs/depricated/dynam_constructors/depricated/libelevate.so
 libs/symlib/build/
 examples/gs_mitigate/gs_mitigate
