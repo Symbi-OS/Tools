@@ -9,7 +9,14 @@
 // Struct that contains all flags for function interposition
 
 // HACK: huge hack to toggle shortcut
-int master_toggle_shortcut = 0;
+bool sc_disable = false;
+// Do normal syscall every n times
+int MOD_VAL = 20;
+// By default we do intermittant syscalls with the shortcutted ones.
+bool intermittent_disable = false;
+
+// Probably fine to do this globally not per fn.
+unsigned int fn_call_ctr = 0;
 
 struct fn_ctrl {
   // Do we need to run a pre/post condition around fn call?
@@ -33,7 +40,6 @@ struct fn_ctrl {
   // If real_write is null, get it from dlsym
   // Place to do one time work
   // Configs ctrl struct with envt variables, gets ptrs to real and shortcut
-int hacky_ctr = 0;
 #define MAKE_INTERPOSE_FN(fn_name, ret_t, t_1, arg_1, t_2, arg_2, t_3, arg_3 ) \
     ret_t fn_name ( t_1 arg_1, t_2 arg_2, t_3 arg_3 ) { \
   if (! real_##fn_name ) { \
@@ -42,12 +48,8 @@ int hacky_ctr = 0;
   } \
   ingress_work(&fn_name##_ctrl); \
   int ret; \
-  if (fn_name##_ctrl.do_shortcut ^ master_toggle_shortcut) { \
-    if( (hacky_ctr++ % 20) == 0) { \
-    ret = real_##fn_name( arg_1, arg_2, arg_3 ); \
-    } else { \
+  if ( do_sc(fn_name##_ctrl.do_shortcut) ){ \
     ret = ksys_##fn_name( arg_1, arg_2, arg_3 ); \
-    } \
   } else { \
     ret = real_##fn_name( arg_1, arg_2, arg_3 ); \
   } \
