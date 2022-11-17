@@ -38,12 +38,12 @@ void sigsys_handler(int signum) {
   printf("Received SIGSYS\n");
 
   // Print if shortcut is on or off
-  if (master_toggle_shortcut) {
+  if (sc_disable) {
     printf("Shortcut is on, turning off\n");
   } else {
     printf("Shortcut is off, turning on\n");
   }
-  master_toggle_shortcut = !master_toggle_shortcut;
+  sc_disable = !sc_disable;
 }
 
 // Function that initializes a fn_ctrl struct
@@ -273,6 +273,30 @@ void egress_work(struct fn_ctrl *ctrl) {
   }
 }
 
+bool do_sc(bool do_sc_for_fn) {
+  // Master control, if this isn't set, no chance we're shortcutting.
+  if (!do_sc_for_fn)
+    return false;
+  
+  // Shortcutting is enabled, we have checks to do:
+
+  // We allow for a global shortcut disable. This is useful for interactive mode.
+  if (sc_disable) 
+    return false;
+
+  // We do an intermittant normal syscall path to hit rcu etc.
+  // This can be disabled for debugging
+  if (intermittent_disable)
+    return true;
+  
+  // Every Nth time should do a normal syscall path
+  if ((++fn_call_ctr % MOD_VAL) == 0)
+    return false;
+
+  // If we got here, we're shortcutting
+  return true;
+
+}
 // This macro allocates a "real_" fn ptr, a "ksys_" fn ptr, and a fn_ctrl struct
 // Then it implements the relevant interposer fn.
 MAKE_STRUCTS_AND_FN(write, ssize_t, int, fd, const void *, buf, size_t, count)
