@@ -11,7 +11,7 @@ function print_help () {
 # curly braces {default values}
 # parenthesis (miscellaneous info)
 
-    printf "\nshortcut.sh [args] -- <app> [app args]\n\n"
+    printf "\nshortcut.sh [args] --- <app> [app args]\n\n"
     printf "Script for launching apps with options for elevation and shortcutting.\n\n"
 
     printf "Flags:\n\n"
@@ -242,7 +242,7 @@ INPUT_ARGS="$@"
 #     echo no array
 # fi
 # This is provided to separate the application arguments from the shortcut
-SEARCH_STR="--"
+SEARCH_STR="---"
 
 # Return the prefix of the array up to the search string, these are for this script
 SCRIPT_ARGS="${INPUT_ARGS%%"$SEARCH_STR"*}"

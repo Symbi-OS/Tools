@@ -300,3 +300,4 @@ bool do_sc(bool do_sc_for_fn) {
 // This macro allocates a "real_" fn ptr, a "ksys_" fn ptr, and a fn_ctrl struct
 // Then it implements the relevant interposer fn.
 MAKE_STRUCTS_AND_FN(write, ssize_t, int, fd, const void *, buf, size_t, count)
+MAKE_STRUCTS_AND_FN(read, ssize_t, int, fd, void *, buf, size_t, count)
