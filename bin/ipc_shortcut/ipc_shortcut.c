@@ -12,7 +12,9 @@ void __attribute__ ((constructor)) init(void) {
 }
 
 void __attribute__ ((destructor)) cleanUp(void) {
-    printf("ipc_shortcut_lib cleanup\n");
+	if (s_JobBuffer) {
+		s_JobBuffer->status = JOB_NO_REQUEST;
+	}
 }
 
 int open(const char* path, int flags, ...) {
@@ -61,6 +63,23 @@ ssize_t write(int fd, const void* buf, size_t len) {
 
 	// Wait for the job to be completed
 	wait_for_job_completion(s_JobBuffer);
+
+    return s_JobBuffer->response;
+}
+
+ssize_t read(int fd, void* buf, size_t len){
+	s_JobBuffer->cmd = CMD_READ;
+	s_JobBuffer->arg1 = fd;
+	s_JobBuffer->buffer_len = len;
+
+	// Indicate that the job was requested
+	submit_job_request(s_JobBuffer);
+
+	// Wait for the job to be completed
+	wait_for_job_completion(s_JobBuffer);
+
+	// Copy the shared memory read buffer to the output buffer
+	memcpy(buf, s_JobBuffer->buffer, len);
 
     return s_JobBuffer->response;
 }
