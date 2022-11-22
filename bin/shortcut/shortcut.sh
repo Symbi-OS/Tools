@@ -203,7 +203,7 @@ function run () {
 
         # Gets overwritten here...
         # HACK: FIXME
-        export LD_LIBRARY_PATH='/home/sym/Symbi-OS/Symlib/dynam_build'
+        # export LD_LIBRARY_PATH='/home/sym/Symbi-OS/Symlib/dynam_build'
         
 
         LD_LIBRARY_ENVT_VAR="LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
