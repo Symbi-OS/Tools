@@ -31,36 +31,58 @@ struct fn_ctrl {
 
 // Macro that allocates all types, variables, and structs needed
 // for each function.
-#define MAKE_STRUCTS(fn_name, sig) \
+// TODO: ksys_ is misleading because only a subset use this entry point. Improve naming.
+#define MAKE_STRUCTS(user_fn, kern_fn, sig) \
     typedef sig; \
-    fn_name##_t  real_##fn_name = NULL; \
-    struct fn_ctrl fn_name##_ctrl = {0, 0, 0, 0}; \
-    fn_name##_t ksys_##fn_name = NULL;
+    user_fn##_t  real_##user_fn = NULL; \
+    struct fn_ctrl user_fn##_ctrl = {0, 0, 0, 0}; \
+    user_fn##_t kern_fn = NULL;
 
   // If real_write is null, get it from dlsym
   // Place to do one time work
   // Configs ctrl struct with envt variables, gets ptrs to real and shortcut
-#define MAKE_INTERPOSE_FN(fn_name, ret_t, t_1, arg_1, t_2, arg_2, t_3, arg_3 ) \
-    ret_t fn_name ( t_1 arg_1, t_2 arg_2, t_3 arg_3 ) { \
-  if (! real_##fn_name ) { \
-    get_fn_config_and_targets(& fn_name##_ctrl, (void **)&real_##fn_name, (void **) &ksys_##fn_name, \
-                              "ksys_"#fn_name, __func__); \
+#define MAKE_INTERPOSE_FN_3(user_fn, kern_fn, ret_t, t_1, arg_1, t_2, arg_2, t_3, arg_3 ) \
+    ret_t user_fn ( t_1 arg_1, t_2 arg_2, t_3 arg_3 ) { \
+  if (! real_##user_fn ) { \
+    get_fn_config_and_targets(& user_fn##_ctrl, (void **)&real_##user_fn, (void **) &kern_fn, \
+                              #kern_fn, __func__); \
   } \
-  ingress_work(&fn_name##_ctrl); \
+  ingress_work(&user_fn##_ctrl); \
   int ret; \
-  if ( do_sc(fn_name##_ctrl.do_shortcut) ){ \
-    ret = ksys_##fn_name( arg_1, arg_2, arg_3 ); \
+  if ( do_sc(user_fn##_ctrl.do_shortcut) ){ \
+    ret = kern_fn( arg_1, arg_2, arg_3 ); \
   } else { \
-    ret = real_##fn_name( arg_1, arg_2, arg_3 ); \
+    ret = real_##user_fn( arg_1, arg_2, arg_3 ); \
   } \
-  egress_work(&fn_name##_ctrl); \
+  egress_work(&user_fn##_ctrl); \
   return ret;\
 }
 
 // Combine both structs, variables and fn
-#define MAKE_STRUCTS_AND_FN(fn_name, ret_t, t_1, arg_1, t_2, arg_2, t_3, arg_3 ) \
-    MAKE_STRUCTS(fn_name, ret_t (*fn_name##_t) ( t_1 arg_1, t_2 arg_2, t_3 arg_3) ) \
-    MAKE_INTERPOSE_FN(fn_name, ret_t, t_1, arg_1, t_2, arg_2, t_3, arg_3)
+#define MAKE_STRUCTS_AND_FN_3(user_fn, kern_fn, ret_t, t_1, arg_1, t_2, arg_2, t_3, arg_3 ) \
+    MAKE_STRUCTS(user_fn, kern_fn, ret_t (*user_fn##_t) ( t_1 arg_1, t_2 arg_2, t_3 arg_3) ) \
+    MAKE_INTERPOSE_FN_3(user_fn, kern_fn, ret_t, t_1, arg_1, t_2, arg_2, t_3, arg_3)
 
+
+#define MAKE_INTERPOSE_FN_0(user_fn, kern_fn, ret_t) \
+  ret_t user_fn ( void ) { \
+  if (! real_##user_fn ) { \
+    get_fn_config_and_targets(& user_fn##_ctrl, (void **)&real_##user_fn, (void **) &kern_fn, \
+                              #kern_fn, __func__); \
+  } \
+  ingress_work(&user_fn##_ctrl); \
+  int ret; \
+  if ( do_sc(user_fn##_ctrl.do_shortcut) ){ \
+    ret = kern_fn(); \
+  } else { \
+    ret = real_##user_fn(); \
+  } \
+  egress_work(&user_fn##_ctrl); \
+  return ret;\
+}
+
+#define MAKE_STRUCTS_AND_FN_0(user_fn, kern_fn, ret_t) \
+    MAKE_STRUCTS(user_fn, kern_fn, ret_t (*user_fn##_t) (void) ) \
+    MAKE_INTERPOSE_FN_0(user_fn, kern_fn, ret_t)
 
 #endif

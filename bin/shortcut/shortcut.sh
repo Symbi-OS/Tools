@@ -167,13 +167,15 @@ create_envt_vars () {
         # TODO: I couldn't figure out how to use a '->' in an envt var
 
         # Assert there is exactly one '-' on the line
-        if [ $(echo $fn | grep -o '-' | wc -l) -ne 1 ]; then
+        if [ $(echo "$fn" | grep -o '-' | wc -l) -ne 1 ]; then
             echo "Incorrect shortcut format: $fn"
+            echo needs exactly one '-'
             exit 1
         fi
         # Assert there is exactly one '>' on the line
         if [ $(echo $fn | grep -o '>' | wc -l) -ne 1 ]; then
             echo "Incorrect shortcut format: $fn"
+            echo needs exactly one '>'
             exit 1
         fi
 

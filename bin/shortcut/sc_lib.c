@@ -104,17 +104,16 @@ void build_envt_var(char *buf, char *prefix, const char *fn, char *suffix) {
 }
 
 // Only works for ksys
-void build_shortcut_envt_var(char *buf, char *prefix, const char *fn,
+void build_shortcut_envt_var(char *buf, char *prefix, const char *user_fn, const char *kern_fn,
                              char *suffix) {
 
   // Copy prefix "SHORTCUT_"
   strcpy(buf, prefix);
   // Copy fn
-  strcat(buf, fn);
+  strcat(buf, user_fn);
   // Copy _TO_
   strcat(buf, "_TO_");
-  strcat(buf, "ksys_");
-  strcat(buf, fn);
+  strcat(buf, kern_fn);
   // Copy suffix
   strcat(buf, suffix);
 
@@ -177,14 +176,21 @@ void config_fn_lower(struct fn_ctrl *ctrl, const char *fn) {
   free(lower_fn);
 }
 
-void config_fn_shortcut(struct fn_ctrl *ctrl, const char *fn) {
-  printf("config shortcut fn is %s\n", fn);
+// Hard coded to ksys, make general.
+void config_fn_shortcut(struct fn_ctrl *ctrl, const char *user_fn, const char *kern_fn) {
+  printf("config shortcut fn is %s\n", user_fn);
 
   // Manage lower case if necessary.
-  char *shortcut_fn = malloc(strlen("SHORTCUT_") + strlen(fn) + strlen("_TO_") +
-                             strlen("ksys_") + strlen(fn) + strlen("=1") + 1);
+  int len_str = strlen("SHORTCUT_") + strlen(user_fn) + strlen("_TO_") + strlen(kern_fn) + strlen("=1") + 1;
+  printf("len_str is %d\n", len_str);
+  char *shortcut_fn = malloc(len_str);
 
-  build_shortcut_envt_var(shortcut_fn, "SHORTCUT_", fn, "=1");
+  if (shortcut_fn == NULL) {
+    printf("Malloc failed\n");
+    exit(1);
+  }
+
+  build_shortcut_envt_var(shortcut_fn, "SHORTCUT_", user_fn, kern_fn, "=1");
 
   if (envt_var_exists(shortcut_fn)) {
     // If already sandwiching for elevate, then we can't lower
@@ -203,7 +209,7 @@ void config_fn_shortcut(struct fn_ctrl *ctrl, const char *fn) {
 }
 
 // Sets function control flags
-void config_fn(struct fn_ctrl *ctrl, const char *fn) {
+void config_fn(struct fn_ctrl *ctrl, const char *fn, const char *kern_fn) {
   init_fn_ctrl(ctrl);
   // Check for elevate envt variable
   printf("Checking for elevate envt variable\n");
@@ -216,7 +222,7 @@ void config_fn(struct fn_ctrl *ctrl, const char *fn) {
   config_fn_lower(ctrl, fn);
 
   // Manage shortcut case if necessary.
-  config_fn_shortcut(ctrl, fn);
+  config_fn_shortcut(ctrl, fn, kern_fn);
 }
 
 // Print all fields of wr_ctrl struct
@@ -232,7 +238,7 @@ void print_ctrl(struct fn_ctrl *ctrl) {
 void get_fn_config_and_targets(struct fn_ctrl *ctrl, void **real_fn,
                                void **shortcut_fn, void *shortcut_target,
                                const char *fn) {
-  config_fn(ctrl, fn);
+  config_fn(ctrl, fn, shortcut_target );
   // Get address of real_write
   *real_fn = dlsym(RTLD_NEXT, fn);
 
@@ -299,5 +305,8 @@ bool do_sc(bool do_sc_for_fn) {
 }
 // This macro allocates a "real_" fn ptr, a "ksys_" fn ptr, and a fn_ctrl struct
 // Then it implements the relevant interposer fn.
-MAKE_STRUCTS_AND_FN(write, ssize_t, int, fd, const void *, buf, size_t, count)
-MAKE_STRUCTS_AND_FN(read, ssize_t, int, fd, void *, buf, size_t, count)
+MAKE_STRUCTS_AND_FN_3(write, ksys_write, ssize_t, int, fd, const void *, buf, size_t, count)
+MAKE_STRUCTS_AND_FN_3(read, ksys_read, ssize_t, int, fd, void *, buf, size_t, count)
+
+// More general, user fn, kern fn.
+MAKE_STRUCTS_AND_FN_0(getpid, __do_sys_getpid, int)
