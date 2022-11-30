@@ -7,27 +7,31 @@
 
 static JobRequestBuffer_t* s_JobBuffer = NULL;
 
-#define VERIFY_JOB_BUFFER  if (s_JobBuffer == NULL) { \
-        						s_JobBuffer = ipc_get_job_buffer(); \
-								if (s_JobBuffer == NULL) { \
-									fprintf(stderr, "[-] Failed to retrieve a working job buffer\n"); \
-								} \
-							}
-
 void __attribute__ ((constructor)) init(void) {
-    printf("ipc_shortcut_lib init\n");
+    printf("[sym] ipc_shortcut_lib init\n");
+    s_JobBuffer = ipc_get_job_buffer();
+    if (s_JobBuffer == NULL) {
+        fprintf(stderr, "[-] Failed to retrieve a working job buffer\n");
+		exit(1);
+    }
+	s_JobBuffer->pid = getpid();
 }
 
 void __attribute__ ((destructor)) cleanUp(void) {
-	if (s_JobBuffer) {
-		s_JobBuffer->status = JOB_NO_REQUEST;
+	printf("[sym] disconecting from the server\n");
+	if (!s_JobBuffer) {
+		fprintf(stderr, "[-] Failed to retrieve a working job buffer\n");
+		exit(1);
 	}
+	disconnect_job_buffer(s_JobBuffer);
 }
 
 ssize_t write(int fd, const void* buf, size_t len) {
-	VERIFY_JOB_BUFFER
+	if (s_JobBuffer == NULL) {
+        fprintf(stderr, "[IPC Server] Failed to retrieve a working job buffer\n");
+		exit(1);
+    }
 
-	s_JobBuffer->pid = getpid();
     s_JobBuffer->cmd = CMD_WRITE;
 	s_JobBuffer->arg1 = fd;
     memcpy(s_JobBuffer->buffer, buf, len);
