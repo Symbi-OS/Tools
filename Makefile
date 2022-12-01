@@ -28,7 +28,10 @@ CPUS=$(shell nproc)
 
 .PHONY: all bin examples clean_bin clean_examples
 
-all: bin examples
+all: bin examples cp_libs
+
+cp_libs:
+	find ./bin | grep "\.so" | xargs -I {} cp {} ./lib
 
 mitigate:
 	./bin/recipes/mitigate_all.sh
@@ -45,7 +48,7 @@ examples_test:
 	$(call boldprint, 'Make examples')
 	cd examples && $(MAKE) test -j$(CPUS)
 
-clean: clean_bin clean_examples
+clean: clean_bin clean_examples clean_libs
 
 clean_bin:
 	$(call boldprint, 'Clean bin')
@@ -54,3 +57,7 @@ clean_bin:
 clean_examples:
 	$(call boldprint, 'Clean examples')
 	cd examples && $(MAKE) clean
+
+clean_libs:
+	$(call boldprint, 'Clean libs')
+	rm -rf ./lib/*

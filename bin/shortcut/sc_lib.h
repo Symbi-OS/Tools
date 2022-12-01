@@ -47,7 +47,7 @@ struct fn_ctrl {
     get_fn_config_and_targets(& user_fn##_ctrl, (void **)&real_##user_fn, (void **) &kern_fn, \
                               #kern_fn, __func__); \
   } \
-  ingress_work(&user_fn##_ctrl); \
+  ingress_work(&user_fn##_ctrl, __func__); \
   int ret; \
   if ( do_sc(user_fn##_ctrl.do_shortcut) ){ \
     ret = kern_fn_call \
