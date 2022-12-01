@@ -314,6 +314,17 @@ bool do_sc(bool do_sc_for_fn) {
 
 // MAKE_STRUCTS_AND_FN_3(write, ksys_write, ssize_t, int, fd, const void *, buf, size_t, count)
 // MAKE_STRUCTS_AND_FN_3(read, ksys_read, ssize_t, int, fd, void *, buf, size_t, count)
+
+// Type for close function
+typedef int (*close_t)(int fd);
+int close(int fd) {
+  // invalidate fdth element of sym_cache array
+  printf("close called on fd %d\n", fd);
+  invalidate_cache_elem(fd);
+  close_t my_close = (close_t) dlsym(RTLD_NEXT, "close");
+}
+
+
 uint64_t write_target = 0;
 
 typedef ssize_t (*write_t)(int fd, const void *buf, size_t count);
