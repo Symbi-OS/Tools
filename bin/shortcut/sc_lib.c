@@ -23,6 +23,8 @@
 // include for epoll_event
 #include <sys/epoll.h>
 
+#include "deep_sc/deep_sc.h"
+
 // Just learned this black magic
 extern char **environ;
 
@@ -75,6 +77,9 @@ bool envt_var_exists(char *var_name) {
 }
 
 void __attribute__((constructor)) init(void) {
+  // Allocate the sym cache really do this in the lib.
+  sym_cache = (struct cache_elem*) calloc(SYM_CACHE_SZ, (sizeof(struct cache_elem)));
+
   // function that is called when the library is loaded
   print_red("SClib: ");
   printf("Shortcut Lib: for interposing syscalls and shortcutting\n");
@@ -262,7 +267,9 @@ void get_fn_config_and_targets(struct fn_ctrl *ctrl, void **real_fn,
 }
 
 // TODO: assert const
-void ingress_work(struct fn_ctrl *ctrl) {
+void ingress_work(struct fn_ctrl *ctrl, const char *fn_name) {
+
+
   // User passed -e write, we will elevate before unconditionally
   if (ctrl->sandwich_fn) {
     if (ctrl->enter_elevated) {
@@ -464,3 +471,85 @@ long syscall(long syscall_vec, ...) {
     assert(false);
     return ret;
 }
+
+uint64_t write_target = 0;
+
+typedef ssize_t (*write_t)(int fd, const void *buf, size_t count);
+
+write_t real_write = ((void *)0);
+struct fn_ctrl write_ctrl = {0, 0, 0, 0};
+
+my_tcp_sendmsg_t tcp_sendmsg = ((void *)0);
+
+
+ssize_t write(int fd, const void *buf, size_t count) {
+  if (!real_write) {
+    get_fn_config_and_targets(&write_ctrl, (void **)&real_write,
+                              (void **)&tcp_sendmsg, "tcp_sendmsg", __func__);
+  }
+
+  // Print caller return address 2 above
+  uint64_t addr = (uint64_t) __builtin_extract_return_addr (__builtin_return_address (0));
+  printf("caller return address is %lx\n", addr);
+
+  ingress_work(&write_ctrl, __func__);
+  int ret;
+
+  if (do_sc(write_ctrl.do_shortcut) && ( addr == 0x5007b1) ) {
+    // Checked here bc this runs before write.
+    // TODO: Put this in write_populate_cache?
+    assert(fd < SYM_CACHE_SZ);
+
+    // TODO: set tcp_sendmsg if it's null
+    if(write_target == 0){
+      write_target = addr;
+    } else {
+      // lemme know if it changes.
+      assert(write_target == addr);
+    }
+
+    // if the cache element is populated
+    if (sym_cache[fd].valid == true) {
+      fprintf(stderr, "Fast write\n");
+      ret = cached_tcp_sendmsg_path(fd, buf, count);
+      // ret = real_write(fd, buf, count);
+    } else {
+      printf("aa populate cache normal write path\n");
+      ret = write_populate_cache(fd, buf, count);
+      // ret = real_write(fd, buf, count);
+    }
+
+  } else {
+    printf("normal write path\n");
+    ret = real_write(fd, buf, count);
+  }
+  egress_work(&write_ctrl);
+  return ret;
+}
+// TODO: Invalidate cache on close.
+
+// typedef ssize_t (*read_t)(int fd, void *buf, size_t count);
+// read_t real_read = ((void *)0);
+// struct fn_ctrl read_ctrl = {0, 0, 0, 0};
+// #error
+// read_t ksys_read = ((void *)0);
+
+
+
+// ssize_t read(int fd, void *buf, size_t count) {
+//   if (!real_read) {
+//     get_fn_config_and_targets(&read_ctrl, (void **)&real_read,
+//                               (void **)&ksys_read, "ksys_read", __func__);
+//   }
+//   ingress_work(&read_ctrl, __func__);
+//   int ret;
+//   if (do_sc(read_ctrl.do_shortcut)) {
+//     #error
+//     ret = ksys_read(fd, buf, count);
+//   } else {
+//     ret = real_read(fd, buf, count);
+//   }
+//   egress_work(&read_ctrl);
+//   return ret;
+// }
+

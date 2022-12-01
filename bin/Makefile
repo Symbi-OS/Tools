@@ -1,5 +1,5 @@
 # Variables inherited from parent
-EXECS=idt_tool vm_tool snapshot_tool cr_tool shortcut/sc_lib.so
+EXECS=idt_tool vm_tool snapshot_tool cr_tool shortcut/sc_lib.so shortcut/deep_sc/libDeep.so
 
 # You should be able to run 'make' in this dir, this just invokes the parent
 # makefile just so we can make use of the inherited variables.
@@ -23,6 +23,9 @@ snapshot_tool: snapshot_tool.c snapshot_tool.h | $(DEPENDENCY_LIBS)
 
 shortcut/sc_lib.so: shortcut/sc_lib.c 
 	gcc $(CFLAGS) -shared -fPIC -o $@ $(SYMLIB_LINK) $< -I $(SYMLIB_INCLUDE_DIR)
+
+shortcut/deep_sc/libDeep.so: shortcut/deep_sc/deep_sc.c shortcut/deep_sc/deep_sc.h
+	gcc $(CFLAGS) -shared -fPIC -o $@ $^ $(SYMLIB_LINK) -I $(SYMLIB_INCLUDE_DIR)
 
 clean:
 	rm -rf $(EXECS)
