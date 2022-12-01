@@ -1,4 +1,4 @@
-
+*.so
 bin/idt_tool
 bin/vm_tool
 bin/cr_tool
