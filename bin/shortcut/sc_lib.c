@@ -472,6 +472,15 @@ long syscall(long syscall_vec, ...) {
     return ret;
 }
 
+// Type for close function
+typedef int (*close_t)(int fd);
+int close(int fd) {
+  // invalidate fdth element of sym_cache array
+  printf("close called on fd %d\n", fd);
+  invalidate_cache_elem(fd);
+  close_t my_close = (close_t) dlsym(RTLD_NEXT, "close");
+}
+
 uint64_t write_target = 0;
 
 typedef ssize_t (*write_t)(int fd, const void *buf, size_t count);
