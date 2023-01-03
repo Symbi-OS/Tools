@@ -139,6 +139,7 @@ JobRequestBuffer_t* ipc_get_job_buffer(){
 
 void submit_job_request(JobRequestBuffer_t* jrb) {
     jrb->status = JOB_REQUESTED;
+    //print_job_buffer(jrb, "submitting request");
 }
 
 void mark_job_completed(JobRequestBuffer_t* jrb) {
@@ -151,9 +152,7 @@ void mark_job_completed(JobRequestBuffer_t* jrb) {
 
 void wait_for_job_completion(JobRequestBuffer_t* jrb) {
     if (s_BusyPollingMode) {
-        while (jrb->status != JOB_COMPLETED) {
-            continue;
-        }
+        while (!(__sync_bool_compare_and_swap(&(jrb->status), JOB_COMPLETED, JOB_BUFFER_IN_USE)));
     } else {
         futex_wait(&(jrb->lock));
     }
