@@ -18,7 +18,7 @@
 
 
 // Server Config
-#define MAX_JOB_BUFFERS 80
+#define MAX_JOB_BUFFERS 70
 
 // Commands
 #define CMD_KILL_SERVER  -1
@@ -36,7 +36,7 @@ typedef struct JobRequestBuffer {
     int response;         // Response from the server
 	char buffer[128];	  // Command buffer
 	int buffer_len;		  // Commabd buffer length
-    volatile int status;  // Flag indicating which stage the job is at
+    int status;  // Flag indicating which stage the job is at
     int lock;
 } JobRequestBuffer_t;
 
