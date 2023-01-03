@@ -12,6 +12,23 @@ pthread_spinlock_t locks[MAX_JOB_BUFFERS];
 
 static int registered_fds[MAX_JOB_BUFFERS][FD_PER_CLIENT] = {};
 
+int pick_up_job(workspace_t * ws){
+	int idx = 0;
+	while (1) {
+		int * status_ptr = &(ws->job_buffers[idx].status);
+		//printf("Current idx %d, status: %d\n", idx, *status_ptr);
+		if (__sync_bool_compare_and_swap(status_ptr, JOB_REQUESTED, JOB_BUFFER_IN_USE)){
+			//printf("Found a job at idx %d\n", idx);
+			return idx;
+		}else{
+			idx ++;
+			if (idx==MAX_JOB_BUFFERS){
+				idx = 0;
+			}
+		}
+	}
+}
+
 void* workspace_thread(void* ws){
 	workspace_t *workspace = (workspace_t *) ws;
 	register int idx = 0;
@@ -19,26 +36,7 @@ void* workspace_thread(void* ws){
 
 	while (!bShouldExit) {
 		// obtain lock to update next buffer
-        while (1) {
-			if (pthread_spin_trylock(&locks[idx]) == 0){
-				if (workspace->job_buffers[idx].status == JOB_REQUESTED){
-					goto JOB_FOUND;
-				}else{
-					pthread_spin_unlock(&locks[idx]);
-					idx++;
-					if (idx==MAX_JOB_BUFFERS){
-						idx = 0;
-					}
-				}
-			}else{
-				idx++;
-				if (idx==MAX_JOB_BUFFERS){
-					idx = 0;
-				}
-			}
-        }
-		
-		JOB_FOUND:
+        idx = pick_up_job(ws);
 		job_buffer = &workspace->job_buffers[idx];
         // Process the requested command
 		//printf("request %d received.\n", job_buffer->cmd);

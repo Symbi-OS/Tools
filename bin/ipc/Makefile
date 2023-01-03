@@ -10,7 +10,7 @@ ifeq ($(TYPE), static)
 	SYMLIB_LINK=$(SYMLIB_STATIC)
 endif
 
-RUN_ITERATIONS := 5
+RUN_ITERATIONS := 10000
 export RUN_ITERATIONS
 
 all: server server_killer independent_client ipc_shortcut.so
@@ -62,11 +62,11 @@ run_independent_client: independent_client
 	taskset -c 1 ./independent_client $(RUN_ITERATIONS)
 
 run_client: independent_client
-	taskset -c 1 bash -c 'LD_PRELOAD=ipc_shortcut.so ./independent_client $(RUN_ITERATIONS)'
+	taskset -c 1 bash -c 'LD_PRELOAD=./ipc_shortcut.so ./independent_client $(RUN_ITERATIONS)'
 
 run_2client: independent_client
-	taskset -c 1 bash -c 'LD_PRELOAD=ipc_shortcut.so ./independent_client $(RUN_ITERATIONS)' &
-	taskset -c 2 bash -c 'LD_PRELOAD=ipc_shortcut.so ./independent_client $(RUN_ITERATIONS)'
+	taskset -c 1 bash -c 'LD_PRELOAD=./ipc_shortcut.so ./independent_client $(RUN_ITERATIONS)' &
+	taskset -c 2 bash -c 'LD_PRELOAD=./ipc_shortcut.so ./independent_client $(RUN_ITERATIONS)'
 
 run_server: server
 	taskset -c 0 ./server $(THREADS)
