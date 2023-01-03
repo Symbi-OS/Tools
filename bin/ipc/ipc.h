@@ -64,3 +64,4 @@ void mark_job_completed(JobRequestBuffer_t* jrb);
 void wait_for_job_request(JobRequestBuffer_t* jrb);
 void disconnect_job_buffer(JobRequestBuffer_t* jrb);
 void print_job_buffer(JobRequestBuffer_t* jrb, char * header);
+int pick_up_job(workspace_t * ws);
