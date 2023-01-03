@@ -181,3 +181,20 @@ void print_job_buffer(JobRequestBuffer_t* jrb, char * header){
     printf("JOB BUFFER at %s:\n", header);
     printf("status: %d | lock: %d | pid: %d | cmd: %d \n", jrb->status, jrb->lock, jrb->pid, jrb->cmd);
 }
+
+int pick_up_job(workspace_t * ws){
+	int idx = 0;
+	while (1) {
+		int * status_ptr = &(ws->job_buffers[idx].status);
+		//printf("Current idx %d, status: %d\n", idx, *status_ptr);
+		if (__sync_bool_compare_and_swap(status_ptr, JOB_REQUESTED, JOB_BUFFER_IN_USE)){
+			//printf("Found a job at idx %d\n", idx);
+			return idx;
+		}else{
+			idx ++;
+			if (idx==MAX_JOB_BUFFERS){
+				idx = 0;
+			}
+		}
+	}
+}
