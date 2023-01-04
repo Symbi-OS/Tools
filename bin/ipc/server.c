@@ -3,6 +3,7 @@
 #include <sys/syscall.h>
 #include <errno.h>
 #include <pthread.h>
+#include <sys/resource.h>
 
 #define FD_PER_CLIENT 10000
 
@@ -38,13 +39,12 @@ void* workspace_thread(void* ws){
 			}
         }
 		
-		JOB_FOUND:
+JOB_FOUND:
 		job_buffer = &workspace->job_buffers[idx];
+
         // Process the requested command
-		//printf("request %d received.\n", job_buffer->cmd);
 		switch (job_buffer->cmd) {
 		case CMD_WRITE: {
-			//printf("write request received\n");
 			int clientfd = job_buffer->arg1;
 			
 			if (registered_fds[idx][clientfd] == 0) {
@@ -54,10 +54,6 @@ void* workspace_thread(void* ws){
 				// check error case
 				if (borrowed_fd == -1) {
 					perror("pidfd_getfd");
-					//  print errno
-					printf("errno: %d\n", errno);
-					//  print strerror
-					printf("strerror: %s\n", strerror(errno));
 					break;
 				}
 
@@ -108,10 +104,9 @@ void* workspace_thread(void* ws){
 			break;
 		}
 		case CMD_CLOSE: {
-			//printf("close request received\n");
 			int clientfd = job_buffer->arg1;
+			close(registered_fds[idx][clientfd]);
 			registered_fds[idx][clientfd] = 0;
-			//print_job_buffer(job_buffer);
 			break;
 		}
 		case CMD_KILL_SERVER: {
@@ -120,17 +115,11 @@ void* workspace_thread(void* ws){
 		}
 		case CMD_DISCONNECT: {
 			memset(&registered_fds[idx], 0, sizeof(registered_fds[0]));
-			//printf("disconnecting from the server\n");
 			break;
 		}
 		default: break;
 		}
 
-        // Updating the job status flag
-		//printf("Request completed\n");
-		//printf("sleeping...\n");
-		//sleep(2);
-		//printf("sleeping done\n");
 		mark_job_completed(job_buffer);
 		pthread_spin_unlock(&locks[idx]);
 	}
@@ -141,10 +130,29 @@ void* workspace_thread(void* ws){
 
 
 int main(int argc, char** argv) {
-
 	int num_threads = 1;
 
-	if (argc < 1){
+	// By default, every process has a soft and a hard limit on how many
+	// opened handles it can have, and the soft limit is usually around 1024.
+	// We bypass this limitation by setting the soft limit to the hard limit.
+	struct rlimit resource_limit;
+  
+    // Get old limits
+    if (getrlimit(RLIMIT_NOFILE, &resource_limit) != 0) {
+        fprintf(stderr, "%s\n", strerror(errno));
+		return -1;
+	}
+
+	// Set new value
+    resource_limit.rlim_cur = resource_limit.rlim_max;
+  
+    // Set new limits
+    if(setrlimit(RLIMIT_NOFILE, &resource_limit) == -1) {
+        fprintf(stderr, "%s\n", strerror(errno));
+		return -1;
+	}
+
+	if (argc < 1) {
 		printf("Usage: ./<server binary> [optional]<nthreads>\n");
 	} else if (argc == 2) {
 		num_threads = atoi(argv[1]);
