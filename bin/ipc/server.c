@@ -20,7 +20,8 @@ void* workspace_thread(void* ws){
 
 	while (!bShouldExit) {
 		// obtain lock to update next buffer
-        idx = pick_up_job(ws);
+        	idx = pick_up_job(ws);
+		
 		job_buffer = &workspace->job_buffers[idx];
 
         // Process the requested command
