@@ -54,7 +54,7 @@ JOB_FOUND:
 				// check error case
 				if (borrowed_fd == -1) {
 					perror("pidfd_getfd");
-					break;
+					return NULL;
 				}
 
 				registered_fds[idx][clientfd] = borrowed_fd;
@@ -69,6 +69,7 @@ JOB_FOUND:
 			// Write to borrowed_fd
 			if (job_buffer->response == -1) {
 				perror("write failed");
+				return NULL;
 			}
 
 			break;
@@ -87,7 +88,7 @@ JOB_FOUND:
                     printf("errno: %d\n", errno);
                     //  print strerror
                     printf("strerror: %s\n", strerror(errno));
-                    break;
+                    return NULL;
                 }
 
                 registered_fds[idx][clientfd] = borrowed_fd;
@@ -100,6 +101,7 @@ JOB_FOUND:
             // Write to borrowed_fd
             if (job_buffer->response == -1) {
                 perror("read failed");
+				return NULL;
             }
 			break;
 		}
@@ -126,8 +128,6 @@ JOB_FOUND:
 
 	pthread_exit(NULL);
 }
-
-
 
 int main(int argc, char** argv) {
 	int num_threads = 1;
