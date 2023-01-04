@@ -125,9 +125,7 @@ JobRequestBuffer_t* ipc_get_job_buffer(){
 	for (int i = 0; i < MAX_JOB_BUFFERS; i++){
 		JobRequestBuffer_t* current = &(workspace->job_buffers[i]);
         //printf("Checking job buffer [%d] with status of %d\n", i, current->status);
-		if (current->status == JOB_NO_REQUEST){
-			// find a free spot!
-			current->status = JOB_BUFFER_IN_USE;
+		if (__sync_bool_compare_and_swap(&(current->status), JOB_NO_REQUEST, JOB_BUFFER_IN_USE)){
             printf("[IPC Server] Connected to job buffer [%d]\n", i);
             //print_job_buffer(current);
 			return &workspace->job_buffers[i];
@@ -158,18 +156,6 @@ void wait_for_job_completion(JobRequestBuffer_t* jrb) {
     }
 }
 
-void wait_for_job_request(JobRequestBuffer_t* jrb) {
-    if (s_BusyPollingMode) {
-        while (jrb->status != JOB_REQUESTED) {
-            continue;
-        }
-    } else {
-        if (jrb->status != JOB_REQUESTED) {
-            handle_error(" lock is released before a job completes");
-        }
-    }
-}
-
 void disconnect_job_buffer(JobRequestBuffer_t* jrb) {
     jrb->cmd = CMD_DISCONNECT;
     submit_job_request(jrb);
@@ -182,7 +168,7 @@ void print_job_buffer(JobRequestBuffer_t* jrb, char * header){
     printf("status: %d | lock: %d | pid: %d | cmd: %d \n", jrb->status, jrb->lock, jrb->pid, jrb->cmd);
 }
 
-int pick_up_job(workspace_t * ws){
+int wait_for_job_request(workspace_t * ws){
 	int idx = 0;
 	while (1) {
 		int * status_ptr = &(ws->job_buffers[idx].status);
