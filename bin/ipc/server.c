@@ -9,26 +9,9 @@
 
 int target_logfd = -1;
 static uint8_t bShouldExit = 0;
-pthread_spinlock_t locks[MAX_JOB_BUFFERS];
 
 static int registered_fds[MAX_JOB_BUFFERS][FD_PER_CLIENT] = {};
 
-int pick_up_job(workspace_t * ws){
-	int idx = 0;
-	while (1) {
-		int * status_ptr = &(ws->job_buffers[idx].status);
-		//printf("Current idx %d, status: %d\n", idx, *status_ptr);
-		if (__sync_bool_compare_and_swap(status_ptr, JOB_REQUESTED, JOB_BUFFER_IN_USE)){
-			//printf("Found a job at idx %d\n", idx);
-			return idx;
-		}else{
-			idx ++;
-			if (idx==MAX_JOB_BUFFERS){
-				idx = 0;
-			}
-		}
-	}
-}
 
 void* workspace_thread(void* ws){
 	workspace_t *workspace = (workspace_t *) ws;
@@ -122,7 +105,6 @@ void* workspace_thread(void* ws){
 		}
 
 		mark_job_completed(job_buffer);
-		pthread_spin_unlock(&locks[idx]);
 	}
 
 	pthread_exit(NULL);
@@ -164,13 +146,6 @@ int main(int argc, char** argv) {
     }
 	
 	pthread_t tid[num_threads];
-
-	for (int j = 0; j < MAX_JOB_BUFFERS; j++){
-		if (pthread_spin_init(&(locks[j]), PTHREAD_PROCESS_PRIVATE) != 0) {
-			printf("\n mutex init has failed\n");
-			return 1;
-		}
-	}
 
 	for (int j = 0; j < num_threads; j++){
 		int err = pthread_create(&(tid[j]), NULL, &workspace_thread, workspace);
