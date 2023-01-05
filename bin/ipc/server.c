@@ -12,7 +12,6 @@ static uint8_t bShouldExit = 0;
 
 static int registered_fds[MAX_JOB_BUFFERS][FD_PER_CLIENT] = {};
 
-
 void* workspace_thread(void* ws){
 	workspace_t *workspace = (workspace_t *) ws;
 	register int idx = 0;
@@ -44,6 +43,11 @@ void* workspace_thread(void* ws){
 			
 			int server_fd = registered_fds[idx][clientfd];
 
+			// Sanity check the buffer length
+			if (job_buffer->buffer_len > (int)sizeof(job_buffer->buffer)) {
+				job_buffer->buffer_len = (int)sizeof(job_buffer->buffer);
+			}
+
 			job_buffer->response = write(server_fd, job_buffer->buffer, job_buffer->buffer_len);
 			
 			// Write to borrowed_fd
@@ -63,10 +67,6 @@ void* workspace_thread(void* ws){
 
                 // check error case
                 if (borrowed_fd == -1) {
-					printf("job_buffer->pid  : %i\n", job_buffer->pid);
-					printf("pidfd            : %i\n", pidfd);
-					printf("borrowed_fd      : %i\n", borrowed_fd);
-
                     perror("CMD_READ: pidfd_getfd");
                     return NULL;
                 }
@@ -75,6 +75,11 @@ void* workspace_thread(void* ws){
             }
 
             int server_fd = registered_fds[idx][clientfd];
+
+			// Sanity check the buffer length
+			if (job_buffer->buffer_len > (int)sizeof(job_buffer->buffer)) {
+				job_buffer->buffer_len = (int)sizeof(job_buffer->buffer);
+			}
 
 			job_buffer->response = read(server_fd, job_buffer->buffer, job_buffer->buffer_len);
 

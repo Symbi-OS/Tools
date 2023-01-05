@@ -18,7 +18,7 @@
 
 
 // Server Config
-#define MAX_JOB_BUFFERS 70
+#define MAX_JOB_BUFFERS 40
 
 // Commands
 #define CMD_KILL_SERVER  -1
@@ -34,7 +34,7 @@ typedef struct JobRequestBuffer {
     int arg1;             // First integer argument
     int arg2;             // Second integer argument
     int response;         // Response from the server
-	char buffer[128];	  // Command buffer
+	char buffer[4096];	  // Command buffer
 	int buffer_len;		  // Commabd buffer length
     int status;  // Flag indicating which stage the job is at
     int lock;
@@ -44,7 +44,7 @@ typedef struct workspace {
     JobRequestBuffer_t job_buffers[MAX_JOB_BUFFERS];
 } workspace_t;
 
-#define SHMEM_REGION_SIZE 0x3000
+#define SHMEM_REGION_SIZE 0x29000
 
 int futex(int *uaddr, int futex_op, int val, const struct timespec *timeout, int *uaddr2, int val3);
 void futex_wait(int *futexp);
