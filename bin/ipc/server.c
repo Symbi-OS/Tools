@@ -35,7 +35,7 @@ void* workspace_thread(void* ws){
 
 				// check error case
 				if (borrowed_fd == -1) {
-					perror("pidfd_getfd");
+					perror("CMD_WRITE: pidfd_getfd");
 					return NULL;
 				}
 
@@ -43,8 +43,6 @@ void* workspace_thread(void* ws){
 			}
 			
 			int server_fd = registered_fds[idx][clientfd];
-
-			//printf("Client fd: %d, Server fd: %d\n", clientfd, server_fd);
 
 			job_buffer->response = write(server_fd, job_buffer->buffer, job_buffer->buffer_len);
 			
@@ -65,11 +63,11 @@ void* workspace_thread(void* ws){
 
                 // check error case
                 if (borrowed_fd == -1) {
-                    perror("pidfd_getfd");
-                    //  print errno
-                    printf("errno: %d\n", errno);
-                    //  print strerror
-                    printf("strerror: %s\n", strerror(errno));
+					printf("job_buffer->pid  : %i\n", job_buffer->pid);
+					printf("pidfd            : %i\n", pidfd);
+					printf("borrowed_fd      : %i\n", borrowed_fd);
+
+                    perror("CMD_READ: pidfd_getfd");
                     return NULL;
                 }
 
