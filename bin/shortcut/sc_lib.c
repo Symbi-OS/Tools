@@ -10,6 +10,8 @@
 #include <dlfcn.h>
 #include <stdio.h>
 #include <signal.h>
+// include for var args
+#include <stdarg.h>
 
 // TODO: Maybe move this to makefile -I?
 #include "../../../Symlib/include/LINF/sym_all.h"
@@ -21,20 +23,21 @@ extern char **environ;
 void print_red(const char *str) { printf("\033[1;31m%s\033[0m", str); }
 
 // Signal handler for SIGUSR1
-void sigusr1_handler(int signum) {
+// NOTE: We removed the args here int signum, dunno if that's safe
+void sigusr1_handler() {
   printf("Received SIGUSR1\n");
   printf("lowering now\n");
   sym_lower();
 }
 // Signal handler for SIGUSR2
-void sigusr2_handler(int signum) {
+void sigusr2_handler() {
   printf("Received SIGUSR2\n");
   printf("elevating now\n");
   sym_elevate();
 }
 
 // Signal handler for SIGSYS
-void sigsys_handler(int signum) {
+void sigsys_handler() {
   printf("Received SIGSYS\n");
 
   // Print if shortcut is on or off
@@ -304,3 +307,70 @@ MAKE_STRUCTS_AND_FN_3(write, "ksys_write", ssize_t, int, fd, const void *, buf, 
 MAKE_STRUCTS_AND_FN_3(read, "ksys_read", ssize_t, int, fd, void *, buf, size_t, count)
 
 MAKE_STRUCTS_AND_FN_0(getppid, "__do_sys_getppid", pid_t)
+MAKE_STRUCTS_AND_FN_0(getpid, "__do_sys_getpid", pid_t)
+
+// A function called syscall which takes a syscall number and a variable number
+// of arguments. It will call the real syscall with the same arguments.
+// This will set a bit in the ctrl struct to indicate that we are coming from
+// this entry path as opposed to a glibc call like read().
+
+long (*real_syscall)(long, ...) = NULL;
+
+long syscall_entry_ctr = 0;
+// NOTE: TODO, we don't send the call straight to syscall() 
+// it's either going to the glibc fn (like read()) or the ksys fn (like ksys_read)
+// This could be made more symmetric with some modification to the macro.
+long syscall(long syscall_vec, ...) {
+
+  if(real_syscall == NULL) {
+    real_syscall = dlsym(RTLD_NEXT, "syscall");
+  }
+
+  va_list args;
+  va_start(args, syscall_vec);
+
+  printf("syscall_vec %ld\n", syscall_vec);
+
+  long ret;
+  // Case statements for the various options
+  switch (syscall_vec) {
+    case SYS_getppid:
+      // ret = real_syscall(syscall_vec);
+      // ret = getppid();
+      ret = getppid();
+    break;
+    case SYS_write:
+      printf("write\n");
+      assert(false);
+    break;
+    case SYS_read:
+      printf("read\n");
+      assert(false);
+    break;
+    case SYS_open:
+      printf("open\n");
+      assert(false);
+    break;
+    case SYS_close:
+      printf("close\n");
+      assert(false);
+    break;
+    case 448:
+      uint64_t arg1 = va_arg(args, uint64_t);
+      printf("arg1: %ld\n", arg1);
+      // printf("I'm supposed to pass this to the real syscall, but I'm not going to!\n");
+      ret = real_syscall(syscall_vec, arg1);
+      break;
+    default:
+      printf("unknown: %ld\n", syscall_vec);
+      assert(false);
+      // Not sure if this works...
+      // Need a va_end here?
+      ret = real_syscall(syscall_vec, args);
+  }
+  va_end(args);
+
+  return ret;
+}
+
+
