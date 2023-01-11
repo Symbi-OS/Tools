@@ -22,7 +22,7 @@ snapshot_tool: snapshot_tool.c snapshot_tool.h | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB_LINK) -I $(SYMLIB_INCLUDE_DIR)
 
 shortcut/sc_lib.so: shortcut/sc_lib.c 
-	gcc -shared -fPIC -o $@ $(SYMLIB_LINK) $< -I $(SYMLIB_INCLUDE_DIR)
+	gcc $(CFLAGS) -shared -fPIC -o $@ $(SYMLIB_LINK) $< -I $(SYMLIB_INCLUDE_DIR)
 
 clean:
 	rm -rf $(EXECS)
