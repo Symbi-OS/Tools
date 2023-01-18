@@ -13,6 +13,9 @@
 // include for var args
 #include <stdarg.h>
 
+// Include for cpu_set_t
+#include <sched.h>
+
 // TODO: Maybe move this to makefile -I?
 #include "../../../Symlib/include/LINF/sym_all.h"
 
@@ -329,23 +332,93 @@ long syscall(long syscall_vec, ...) {
   va_list args;
   va_start(args, syscall_vec);
 
-  printf("syscall_vec %ld\n", syscall_vec);
-
-  long ret;
+  long ret = -1;
   // Case statements for the various options
   switch (syscall_vec) {
     case SYS_getppid:
-      // ret = real_syscall(syscall_vec);
-      // ret = getppid();
-      ret = getppid();
+        // This should go to our interposed version, shortcutting if necessary
+        // It's a slightly different entry point than syscall() to be fair.
+        return getppid();
+        // This would go to glibc syscall()
+        // return real_syscall(SYS_getppid);
+    break;
+    case SYS_mmap:
+      {
+        void *addr = va_arg(args, void *);
+        size_t length = va_arg(args, size_t);
+        int prot = va_arg(args, int);
+        int flags = va_arg(args, int);
+        int fd = va_arg(args, int);
+        off_t offset = va_arg(args, off_t);
+        return real_syscall(SYS_mmap, addr, length, prot, flags, fd, offset);
+      }
+    break;
+    case SYS_munmap:
+      {
+        void *addr = va_arg(args, void *);
+        size_t length = va_arg(args, size_t);
+        return real_syscall(SYS_munmap, addr, length);
+      }
+    break;
+    case SYS_sendto:
+      {
+        int fd = va_arg(args, int);
+        void *buf = va_arg(args, void *);
+        size_t count = va_arg(args, size_t);
+        int flags = va_arg(args, int);
+        struct sockaddr *dest_addr = va_arg(args, struct sockaddr *);
+        socklen_t addrlen = va_arg(args, socklen_t);
+        return real_syscall(SYS_sendto, fd, buf, count, flags, dest_addr, addrlen);
+      }
+    break;
+    case SYS_recvfrom:
+      {
+        int fd = va_arg(args, int);
+        void *buf = va_arg(args, void *);
+        size_t count = va_arg(args, size_t);
+        int flags = va_arg(args, int);
+        struct sockaddr *src_addr = va_arg(args, struct sockaddr *);
+        socklen_t *addrlen = va_arg(args, socklen_t *);
+        return real_syscall(SYS_recvfrom, fd, buf, count, flags, src_addr, addrlen);
+      }
+    break;
+    case SYS_select:
+      {
+        int nfds = va_arg(args, int);
+        fd_set *readfds = va_arg(args, fd_set *);
+        fd_set *writefds = va_arg(args, fd_set *);
+        fd_set *exceptfds = va_arg(args, fd_set *);
+        struct timeval *timeout = va_arg(args, struct timeval *);
+        return real_syscall(SYS_select, nfds, readfds, writefds, exceptfds, timeout);
+      }
+    break;
+    case SYS_poll:
+      // Get all args and call real_syscall
+      {
+        struct pollfd *fds = va_arg(args, struct pollfd *);
+        // fd count is a size_t.
+        size_t nfds = va_arg(args, size_t);
+        int timeout = va_arg(args, int);
+        return real_syscall(SYS_poll, fds, nfds, timeout);
+      }
     break;
     case SYS_write:
-      printf("write\n");
-      assert(false);
+      {
+        int fd = va_arg(args, int);
+        void *buf = va_arg(args, void *);
+        size_t count = va_arg(args, size_t);
+        return real_syscall(SYS_write, fd, buf, count);
+      }
     break;
     case SYS_read:
-      printf("read\n");
-      assert(false);
+        // Create a local context so these variables arent shared
+        // between the various cases
+        {
+          int fd = va_arg(args, int);
+          void *buf = va_arg(args, void *);
+          size_t count = va_arg(args, size_t);
+          return real_syscall(SYS_read, fd, buf, count);
+        }
     break;
     case SYS_open:
       printf("open\n");
@@ -355,21 +428,55 @@ long syscall(long syscall_vec, ...) {
       printf("close\n");
       assert(false);
     break;
+    case SYS_pread64:
+      int fd = va_arg(args, int);
+      void *buf = va_arg(args, void *);
+      size_t count = va_arg(args, size_t);
+      return real_syscall(SYS_pread64, fd, buf, count);
+    break;
     case 448:
-      uint64_t arg1 = va_arg(args, uint64_t);
-      printf("arg1: %ld\n", arg1);
-      // printf("I'm supposed to pass this to the real syscall, but I'm not going to!\n");
-      ret = real_syscall(syscall_vec, arg1);
+      {
+        // This is our special elevation path
+        // Get uint64_t arg1
+        uint64_t arg1 = va_arg(args, uint64_t);
+        // call real_syscall
+        return real_syscall(syscall_vec, arg1);
+      }
       break;
+    // case SYS_sched_getaffinity:
+    //   {
+    //     // This is untested
+    //     // Get the name of the current process
+    //     char procname[256];
+    //     int ret = readlink("/proc/self/exe", procname, sizeof(procname));
+    //     if (ret == -1) {
+    //       perror("readlink");
+    //       assert(false);
+    //     }
+    //     procname[ret] = '\0';
+    //     printf("Process name: %s\n", procname);
+
+
+    //     printf("sched_getaffinity\n");
+    //     pid_t pid = va_arg(args, pid_t);
+    //     size_t cpusetsize = va_arg(args, size_t);
+    //     cpu_set_t *mask = va_arg(args, cpu_set_t *);
+    //     return real_syscall(SYS_sched_getaffinity, pid, cpusetsize, mask);
+    //   }
+    //   break;
     default:
-      printf("unknown: %ld\n", syscall_vec);
+
+      printf("unknown vec: %ld\n", syscall_vec);
       assert(false);
+
       // Not sure if this works...
       // Need a va_end here?
-      ret = real_syscall(syscall_vec, args);
+      // ret = real_syscall(syscall_vec, args);
   }
   va_end(args);
 
+  // No one should get here.
+  assert(false);
   return ret;
 }
 
