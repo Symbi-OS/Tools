@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <stdlib.h>
+#include <syscall.h>
 
 #include "LINF/sym_all.h"
 
@@ -11,8 +12,10 @@ int bench_time(int count){
   start = clock();
   /* Do the work. */
   int i;
-  for(i=0; i<count; i++)
+  for(i=0; i<count; i++){
+    // syscall(SYS_getppid);
     getppid();
+  }
 
   end = clock();
   cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
@@ -70,16 +73,17 @@ int main(int argc, char *argv[]){
   }
 
   printf("starting getppid syscall\n");
+
   bench_time(count);
 
-  sym_lib_init();
-  sym_touch_every_page_text();
+  // sym_lib_init();
+  // sym_touch_every_page_text();
 
-  printf("starting elevated syscall\n");
-  bench_time_elevated(count);
+  // printf("starting elevated syscall\n");
+  // bench_time_elevated(count);
 
-  printf("starting shortcutted syscall\n");
-  bench_time_internal(count);
+  // printf("starting shortcutted syscall\n");
+  // bench_time_internal(count);
 
   return 0;
 }

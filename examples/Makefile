@@ -37,16 +37,16 @@ $(ELO)/elevate_lower: $(ELO)/elevate_lower.c | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB_LINK) -I $(SYMLIB_INCLUDE_DIR)
 
 $(ECO)/client_RW: $(ECO)/client.c | $(DEPENDENCY_LIBS)
-	$(CC) -DUSE_READ_WRITE $(CFLAGS) -o $@ $^ $(SYMLIB_LINK) -I $(SYMLIB_INCLUDE_DIR)
+	$(CC) $(CFLAGS) -DUSE_READ_WRITE -o $@ $^ $(SYMLIB_LINK) -I $(SYMLIB_INCLUDE_DIR)
 
 $(ECO)/server_RW: $(ECO)/server.c | $(DEPENDENCY_LIBS)
-	gcc -DUSE_READ_WRITE $(CFLAGS) -o $@ $^ $(SYMLIB_LINK) -I $(SYMLIB_INCLUDE_DIR)
+	$(CC) $(CFLAGS) -DUSE_READ_WRITE -o $@ $^ $(SYMLIB_LINK) -I $(SYMLIB_INCLUDE_DIR)
 
 $(ECO)/client_SR: $(ECO)/client.c | $(DEPENDENCY_LIBS)
-	$(CC) -DUSE_SEND_RECV $(CFLAGS) -o $@ $^ $(SYMLIB_LINK) -I $(SYMLIB_INCLUDE_DIR)
+	$(CC) $(CFLAGS) -DUSE_SEND_RECV -o $@ $^ $(SYMLIB_LINK) -I $(SYMLIB_INCLUDE_DIR)
 
 $(ECO)/server_SR: $(ECO)/server.c | $(DEPENDENCY_LIBS)
-	gcc -DUSE_SEND_RECV $(CFLAGS) -o $@ $^ $(SYMLIB_LINK) -I $(SYMLIB_INCLUDE_DIR)
+	$(CC) $(CFLAGS) -DUSE_SEND_RECV -o $@ $^ $(SYMLIB_LINK) -I $(SYMLIB_INCLUDE_DIR)
 
 $(CLK)/clock: $(CLK)/clock.c | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB_LINK) -I $(SYMLIB_INCLUDE_DIR)
