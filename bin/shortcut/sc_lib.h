@@ -51,7 +51,7 @@ struct fn_ctrl {
                               sc_target, __func__); \
   } \
   ingress_work(&fn_name##_ctrl); \
-  int ret; \
+  ret_t ret; \
   if ( do_sc(fn_name##_ctrl.do_shortcut) ){ \
     ret = MAKE_FN_CALL(sc_target_##fn_name, args); \
   } else { \
@@ -63,6 +63,12 @@ struct fn_ctrl {
 
 // This just turns n args into a single arg.
 #define COMBINE_ARGS(...) __VA_ARGS__
+
+#define MAKE_STRUCTS_AND_FN_6(fn_name, sc_target, ret_t, t_1, arg_1, t_2, arg_2, t_3, arg_3, t_4, arg_4, t_5, arg_5, t_6, arg_6) \
+    MAKE_STRUCTS(fn_name, ret_t (*fn_name##_t) ( t_1 arg_1, t_2 arg_2, t_3 arg_3, t_4 arg_4, t_5 arg_5, t_6 arg_6) ) \
+    MAKE_INTERPOSE_FN(fn_name, sc_target, ret_t, \
+                      COMBINE_ARGS(t_1 arg_1, t_2 arg_2, t_3 arg_3, t_4 arg_4, t_5 arg_5, t_6 arg_6), \
+                      COMBINE_ARGS(arg_1, arg_2, arg_3, arg_4, arg_5, arg_6) )
 
 // Combine both structs, variables and fn
 #define MAKE_STRUCTS_AND_FN_3(fn_name, sc_target, ret_t, t_1, arg_1, t_2, arg_2, t_3, arg_3 ) \

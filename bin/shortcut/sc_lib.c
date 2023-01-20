@@ -312,6 +312,25 @@ MAKE_STRUCTS_AND_FN_3(read, "ksys_read", ssize_t, int, fd, void *, buf, size_t, 
 MAKE_STRUCTS_AND_FN_0(getppid, "__do_sys_getppid", pid_t)
 MAKE_STRUCTS_AND_FN_0(getpid, "__do_sys_getpid", pid_t)
 
+// mmap
+MAKE_STRUCTS_AND_FN_6(mmap, "ksys_mmap_pgoff", void *, void *, addr, size_t, len, int, prot, int, flags, int, fd, off_t, offset)
+
+// // munmap
+// #error // target is wrong
+// MAKE_STRUCTS_AND_FN_2(munmap, "ksys_munmap", int, void *, addr, size_t, len)
+// // recvfrom
+// #error // target is wrong
+// MAKE_STRUCTS_AND_FN_6(recvfrom, "ksys_recvfrom", ssize_t, int, fd, void *, buf, size_t, len, unsigned int, flags, struct sockaddr *, src_addr, socklen_t *, addrlen)
+// // sendto
+// #error // target is wrong
+// MAKE_STRUCTS_AND_FN_6(sendto, "ksys_sendto", ssize_t, int, fd, const void *, buf, size_t, len, unsigned int, flags, const struct sockaddr *, dest_addr, socklen_t, addrlen)
+// // poll
+// #error // target is wrong
+// MAKE_STRUCTS_AND_FN_3(poll, "ksys_poll", int, struct pollfd *, fds, nfds_t, nfds, int, timeout)
+// // select
+// #error // target is wrong
+// MAKE_STRUCTS_AND_FN_5(select, "ksys_select", int, int, nfds, fd_set *, readfds, fd_set *, writefds, fd_set *, exceptfds, struct timeval *, timeout)
+
 // A function called syscall which takes a syscall number and a variable number
 // of arguments. It will call the real syscall with the same arguments.
 // This will set a bit in the ctrl struct to indicate that we are coming from
@@ -350,7 +369,8 @@ long syscall(long syscall_vec, ...) {
         int flags = va_arg(args, int);
         int fd = va_arg(args, int);
         off_t offset = va_arg(args, off_t);
-        return real_syscall(SYS_mmap, addr, length, prot, flags, fd, offset);
+        return (long) mmap(addr, length, prot, flags, fd, offset);
+        // return real_syscall(SYS_mmap, addr, length, prot, flags, fd, offset);
       }
     break;
     case SYS_munmap:
@@ -407,7 +427,8 @@ long syscall(long syscall_vec, ...) {
         int fd = va_arg(args, int);
         void *buf = va_arg(args, void *);
         size_t count = va_arg(args, size_t);
-        return real_syscall(SYS_write, fd, buf, count);
+        return write(fd, buf, count);
+        // return real_syscall(SYS_write, fd, buf, count);
       }
     break;
     case SYS_read:
@@ -417,7 +438,8 @@ long syscall(long syscall_vec, ...) {
           int fd = va_arg(args, int);
           void *buf = va_arg(args, void *);
           size_t count = va_arg(args, size_t);
-          return real_syscall(SYS_read, fd, buf, count);
+          return read(fd, buf, count);
+          // return real_syscall(SYS_read, fd, buf, count);
         }
     break;
     case SYS_open:
