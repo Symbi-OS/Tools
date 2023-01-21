@@ -13,13 +13,14 @@ POLLD=sym_poll
 ECO=echo_server
 CLK=clock
 GSM=gs_mitigate
+GSMIG=gs_migration
 SCT=shortcut
 
 EXECS=$(SSD)/stack_starvation $(TFD)/text_fault $(I3D)/int3_probe $(I3D)/trivial_int3 \
 	$(P3D)/print_cr3_static $(GPD)/getppid $(POLLD)/poller \
 	$(ECO)/client_RW $(ECO)/server_RW $(ECO)/client_SR $(ECO)/server_SR \
 	$(ELO)/elevate_lower $(GSM)/gs_mitigate $(DBP)/db_probe $(DBP)/db_probe_local $(DBP)/test \
-	$(DBP)/db_probe_reg $(CLK)/clock $(SCT)/shortcut_test
+	$(DBP)/db_probe_reg $(CLK)/clock $(SCT)/shortcut_test $(GSMIG)/gs_migration
 
 # You should be able to run 'make' in this dir, this just invokes the parent
 # makefile just so we can make use of the inherited variables.
@@ -83,6 +84,9 @@ $(DBP)/db_probe_reg: $(DBP)/db_probe_reg.c | $(DEPENDENCY_LIBS)
 
 $(DBP)/test: $(DBP)/test.c | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB_LINK) -I $(SYMLIB_INCLUDE_DIR) $(KALLSYMLIB)
+
+$(GSMIG)/gs_migration: $(GSMIG)/main.c | $(DEPENDENCY_LIBS)
+	$(CC) $(CFLAGS) -o $@ $^ $(SYMLIB_LINK) -I $(SYMLIB_INCLUDE_DIR) -lrt
 
 $(SCT)/shortcut_test: $(SCT)/shortcut_test.c
 	$(CC) -o $@ $^
