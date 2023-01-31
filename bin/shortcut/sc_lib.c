@@ -19,6 +19,8 @@
 // TODO: Maybe move this to makefile -I?
 #include "../../../Symlib/include/LINF/sym_all.h"
 
+#include <sys/poll.h>
+
 // Just learned this black magic
 extern char **environ;
 
@@ -306,18 +308,26 @@ bool do_sc(bool do_sc_for_fn) {
 }
 // This macro allocates a "real_" fn ptr, a "ksys_" fn ptr, and a fn_ctrl struct
 // Then it implements the relevant interposer fn.
+
+// NOTE: Our rule for getting these fn targets is:
+// 1. Objdump vmlinux and grep for "__x64_sys_" + fn
+// 2a. if non zero args, find the fn it calls, and use that as the target
+// 2b. if zero args, use "__64_sys_" + fn as the target
 MAKE_STRUCTS_AND_FN_3(write, "ksys_write", ssize_t, int, fd, const void *, buf, size_t, count)
 MAKE_STRUCTS_AND_FN_3(read, "ksys_read", ssize_t, int, fd, void *, buf, size_t, count)
+// MAKE_STRUCTS_AND_FN_3(read, "ksys_read", ssize_t, int, fd, void *, buf, size_t, count)
 
-MAKE_STRUCTS_AND_FN_0(getppid, "__do_sys_getppid", pid_t)
-MAKE_STRUCTS_AND_FN_0(getpid, "__do_sys_getpid", pid_t)
+MAKE_STRUCTS_AND_FN_0(getppid, "__x64_sys_getppid", pid_t)
+MAKE_STRUCTS_AND_FN_0(getpid, "__x64_sys_getpid", pid_t)
 
 // mmap
-MAKE_STRUCTS_AND_FN_6(mmap, "ksys_mmap_pgoff", void *, void *, addr, size_t, len, int, prot, int, flags, int, fd, off_t, offset)
+MAKE_STRUCTS_AND_FN_6(mmap, "__x64_sys_mmap", void *, void *, addr, size_t, len, int, prot, int, flags, int, fd, off_t, offset)
+// MAKE_STRUCTS_AND_FN_6(mmap, "vm_mmap_pgoff", void *, void *, addr, size_t, len, int, prot, int, flags, int, fd, off_t, offset)
 
 // // munmap
 // #error // target is wrong
-// MAKE_STRUCTS_AND_FN_2(munmap, "ksys_munmap", int, void *, addr, size_t, len)
+MAKE_STRUCTS_AND_FN_2(munmap, "__x64_sys_munmap", int, void *, addr, size_t, len)
+
 // // recvfrom
 // #error // target is wrong
 // MAKE_STRUCTS_AND_FN_6(recvfrom, "ksys_recvfrom", ssize_t, int, fd, void *, buf, size_t, len, unsigned int, flags, struct sockaddr *, src_addr, socklen_t *, addrlen)
@@ -326,16 +336,21 @@ MAKE_STRUCTS_AND_FN_6(mmap, "ksys_mmap_pgoff", void *, void *, addr, size_t, len
 // MAKE_STRUCTS_AND_FN_6(sendto, "ksys_sendto", ssize_t, int, fd, const void *, buf, size_t, len, unsigned int, flags, const struct sockaddr *, dest_addr, socklen_t, addrlen)
 // // poll
 // #error // target is wrong
-// MAKE_STRUCTS_AND_FN_3(poll, "ksys_poll", int, struct pollfd *, fds, nfds_t, nfds, int, timeout)
+MAKE_STRUCTS_AND_FN_3(poll, "__x64_sys_poll", int, struct pollfd *, fds, nfds_t, nfds, int, timeout)
 // // select
 // #error // target is wrong
-// MAKE_STRUCTS_AND_FN_5(select, "ksys_select", int, int, nfds, fd_set *, readfds, fd_set *, writefds, fd_set *, exceptfds, struct timeval *, timeout)
+MAKE_STRUCTS_AND_FN_5(select, "__x64_sys_select", int, int, nfds, fd_set *, readfds, fd_set *, writefds, fd_set *, exceptfds, struct timeval *, timeout)
+
+// fork XXX don't know if that's the right target, only need it to 
+// lower for now
+// MAKE_STRUCTS_AND_FN_0(fork, "__do_sys_fork", pid_t)
 
 // A function called syscall which takes a syscall number and a variable number
 // of arguments. It will call the real syscall with the same arguments.
 // This will set a bit in the ctrl struct to indicate that we are coming from
 // this entry path as opposed to a glibc call like read().
 
+#if 0
 long (*real_syscall)(long, ...) = NULL;
 
 long syscall_entry_ctr = 0;
@@ -369,14 +384,15 @@ long syscall(long syscall_vec, ...) {
         int flags = va_arg(args, int);
         int fd = va_arg(args, int);
         off_t offset = va_arg(args, off_t);
-        return (long) mmap(addr, length, prot, flags, fd, offset);
-        // return real_syscall(SYS_mmap, addr, length, prot, flags, fd, offset);
+        // return (long) mmap(addr, length, prot, flags, fd, offset);
+        return real_syscall(SYS_mmap, addr, length, prot, flags, fd, offset);
       }
     break;
     case SYS_munmap:
       {
         void *addr = va_arg(args, void *);
         size_t length = va_arg(args, size_t);
+        // return munmap(addr, length);
         return real_syscall(SYS_munmap, addr, length);
       }
     break;
@@ -502,4 +518,5 @@ long syscall(long syscall_vec, ...) {
   return ret;
 }
 
+#endif
 

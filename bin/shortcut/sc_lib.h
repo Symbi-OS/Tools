@@ -69,6 +69,12 @@ struct fn_ctrl {
     MAKE_INTERPOSE_FN(fn_name, sc_target, ret_t, \
                       COMBINE_ARGS(t_1 arg_1, t_2 arg_2, t_3 arg_3, t_4 arg_4, t_5 arg_5, t_6 arg_6), \
                       COMBINE_ARGS(arg_1, arg_2, arg_3, arg_4, arg_5, arg_6) )
+// Do this for 5
+#define MAKE_STRUCTS_AND_FN_5(fn_name, sc_target, ret_t, t_1, arg_1, t_2, arg_2, t_3, arg_3, t_4, arg_4, t_5, arg_5) \
+    MAKE_STRUCTS(fn_name, ret_t (*fn_name##_t) ( t_1 arg_1, t_2 arg_2, t_3 arg_3, t_4 arg_4, t_5 arg_5) ) \
+    MAKE_INTERPOSE_FN(fn_name, sc_target, ret_t, \
+                      COMBINE_ARGS(t_1 arg_1, t_2 arg_2, t_3 arg_3, t_4 arg_4, t_5 arg_5), \
+                      COMBINE_ARGS(arg_1, arg_2, arg_3, arg_4, arg_5) )
 
 // Combine both structs, variables and fn
 #define MAKE_STRUCTS_AND_FN_3(fn_name, sc_target, ret_t, t_1, arg_1, t_2, arg_2, t_3, arg_3 ) \
@@ -79,7 +85,7 @@ struct fn_ctrl {
 
 #define MAKE_STRUCTS_AND_FN_2(fn_name, sc_target, ret_t, t_1, arg_1, t_2, arg_2) \
     MAKE_STRUCTS(fn_name, ret_t (*fn_name##_t) ( t_1 arg_1, t_2 arg_2) ) \
-    MAKE_INTERPOSE_FN(fn_name, sc_target, ret_t, COMBINE_ARGS(t_1 arg_1, t_2 arg_2), COMBINE_ARGS(arg_1, arg_2)
+    MAKE_INTERPOSE_FN(fn_name, sc_target, ret_t, COMBINE_ARGS(t_1 arg_1, t_2 arg_2), COMBINE_ARGS(arg_1, arg_2) )
 
 #define MAKE_STRUCTS_AND_FN_1(fn_name, sc_target, ret_t, t_1, arg_1) \
     MAKE_STRUCTS(fn_name, ret_t (*fn_name##_t) ( t_1 arg_1) ) \
