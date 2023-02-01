@@ -17,7 +17,6 @@
 #include <sched.h>
 
 // TODO: Maybe move this to makefile -I?
-#include "../../../Symlib/include/LINF/sym_all.h"
 
 #include <sys/poll.h>
 
@@ -313,8 +312,8 @@ bool do_sc(bool do_sc_for_fn) {
 // 1. Objdump vmlinux and grep for "__x64_sys_" + fn
 // 2a. if non zero args, find the fn it calls, and use that as the target
 // 2b. if zero args, use "__64_sys_" + fn as the target
-MAKE_STRUCTS_AND_FN_3(write, "ksys_write", ssize_t, int, fd, const void *, buf, size_t, count)
-MAKE_STRUCTS_AND_FN_3(read, "ksys_read", ssize_t, int, fd, void *, buf, size_t, count)
+MAKE_STRUCTS_AND_FN_3(write, "__x64_sys_write", ssize_t, int, fd, const void *, buf, size_t, count)
+MAKE_STRUCTS_AND_FN_3(read, "__x64_sys_read", ssize_t, int, fd, void *, buf, size_t, count)
 // MAKE_STRUCTS_AND_FN_3(read, "ksys_read", ssize_t, int, fd, void *, buf, size_t, count)
 
 MAKE_STRUCTS_AND_FN_0(getppid, "__x64_sys_getppid", pid_t)
@@ -350,173 +349,106 @@ MAKE_STRUCTS_AND_FN_5(select, "__x64_sys_select", int, int, nfds, fd_set *, read
 // This will set a bit in the ctrl struct to indicate that we are coming from
 // this entry path as opposed to a glibc call like read().
 
-#if 0
 long (*real_syscall)(long, ...) = NULL;
 
 long syscall_entry_ctr = 0;
-// NOTE: TODO, we don't send the call straight to syscall() 
-// it's either going to the glibc fn (like read()) or the ksys fn (like ksys_read)
-// This could be made more symmetric with some modification to the macro.
+// NOTE: TODO, we don't send the call straight to syscall()
+// it's either going to the glibc fn (like read()) or the ksys fn (like
+// ksys_read) This could be made more symmetric with some modification to the
+// macro.
 long syscall(long syscall_vec, ...) {
 
-  if(real_syscall == NULL) {
-    real_syscall = dlsym(RTLD_NEXT, "syscall");
-  }
+    if (real_syscall == NULL) {
+        real_syscall = dlsym(RTLD_NEXT, "syscall");
+    }
 
-  va_list args;
-  va_start(args, syscall_vec);
+    va_list args;
+    va_start(args, syscall_vec);
 
-  long ret = -1;
-  // Case statements for the various options
-  switch (syscall_vec) {
+    long ret = -1;
+    switch (syscall_vec) {
+    case SYS_getpid:
+        return getpid();
+        break;
     case SYS_getppid:
-        // This should go to our interposed version, shortcutting if necessary
-        // It's a slightly different entry point than syscall() to be fair.
         return getppid();
-        // This would go to glibc syscall()
-        // return real_syscall(SYS_getppid);
-    break;
-    case SYS_mmap:
-      {
+        break;
+    case SYS_mmap: {
         void *addr = va_arg(args, void *);
         size_t length = va_arg(args, size_t);
         int prot = va_arg(args, int);
         int flags = va_arg(args, int);
         int fd = va_arg(args, int);
         off_t offset = va_arg(args, off_t);
-        // return (long) mmap(addr, length, prot, flags, fd, offset);
-        return real_syscall(SYS_mmap, addr, length, prot, flags, fd, offset);
-      }
-    break;
-    case SYS_munmap:
-      {
+        return (long)mmap(addr, length, prot, flags, fd, offset);
+    } break;
+    case SYS_munmap: {
         void *addr = va_arg(args, void *);
         size_t length = va_arg(args, size_t);
-        // return munmap(addr, length);
-        return real_syscall(SYS_munmap, addr, length);
-      }
-    break;
-    case SYS_sendto:
-      {
-        int fd = va_arg(args, int);
-        void *buf = va_arg(args, void *);
-        size_t count = va_arg(args, size_t);
-        int flags = va_arg(args, int);
-        struct sockaddr *dest_addr = va_arg(args, struct sockaddr *);
-        socklen_t addrlen = va_arg(args, socklen_t);
-        return real_syscall(SYS_sendto, fd, buf, count, flags, dest_addr, addrlen);
-      }
-    break;
-    case SYS_recvfrom:
-      {
-        int fd = va_arg(args, int);
-        void *buf = va_arg(args, void *);
-        size_t count = va_arg(args, size_t);
-        int flags = va_arg(args, int);
-        struct sockaddr *src_addr = va_arg(args, struct sockaddr *);
-        socklen_t *addrlen = va_arg(args, socklen_t *);
-        return real_syscall(SYS_recvfrom, fd, buf, count, flags, src_addr, addrlen);
-      }
-    break;
-    case SYS_select:
-      {
+        return munmap(addr, length);
+    } break;
+    // case SYS_sendto: {
+    //     int fd = va_arg(args, int);
+    //     void *buf = va_arg(args, void *);
+    //     size_t count = va_arg(args, size_t);
+    //     int flags = va_arg(args, int);
+    //     struct sockaddr *dest_addr = va_arg(args, struct sockaddr *);
+    //     socklen_t addrlen = va_arg(args, socklen_t);
+    //     return real_syscall(SYS_sendto, fd, buf, count, flags, dest_addr,
+    //                         addrlen);
+    // } break;
+    // case SYS_recvfrom: {
+    //     int fd = va_arg(args, int);
+    //     void *buf = va_arg(args, void *);
+    //     size_t count = va_arg(args, size_t);
+    //     int flags = va_arg(args, int);
+    //     struct sockaddr *src_addr = va_arg(args, struct sockaddr *);
+    //     socklen_t *addrlen = va_arg(args, socklen_t *);
+    //     return real_syscall(SYS_recvfrom, fd, buf, count, flags, src_addr,
+    //                         addrlen);
+    // } break;
+    case SYS_select: {
         int nfds = va_arg(args, int);
         fd_set *readfds = va_arg(args, fd_set *);
         fd_set *writefds = va_arg(args, fd_set *);
         fd_set *exceptfds = va_arg(args, fd_set *);
         struct timeval *timeout = va_arg(args, struct timeval *);
-        return real_syscall(SYS_select, nfds, readfds, writefds, exceptfds, timeout);
-      }
-    break;
-    case SYS_poll:
-      // Get all args and call real_syscall
-      {
+        return select(nfds, readfds, writefds, exceptfds, timeout);
+    } break;
+    case SYS_poll: {
         struct pollfd *fds = va_arg(args, struct pollfd *);
-        // fd count is a size_t.
         size_t nfds = va_arg(args, size_t);
         int timeout = va_arg(args, int);
-        return real_syscall(SYS_poll, fds, nfds, timeout);
-      }
-    break;
-    case SYS_write:
-      {
+        return poll(fds, nfds, timeout);
+    } break;
+    case SYS_write: {
         int fd = va_arg(args, int);
         void *buf = va_arg(args, void *);
         size_t count = va_arg(args, size_t);
         return write(fd, buf, count);
-        // return real_syscall(SYS_write, fd, buf, count);
-      }
-    break;
-    case SYS_read:
-        // Create a local context so these variables arent shared
-        // between the various cases
-        {
-          int fd = va_arg(args, int);
-          void *buf = va_arg(args, void *);
-          size_t count = va_arg(args, size_t);
-          return read(fd, buf, count);
-          // return real_syscall(SYS_read, fd, buf, count);
-        }
-    break;
-    case SYS_open:
-      printf("open\n");
-      assert(false);
-    break;
-    case SYS_close:
-      printf("close\n");
-      assert(false);
-    break;
-    case SYS_pread64:
-      int fd = va_arg(args, int);
-      void *buf = va_arg(args, void *);
-      size_t count = va_arg(args, size_t);
-      return real_syscall(SYS_pread64, fd, buf, count);
-    break;
-    case 448:
-      {
-        // This is our special elevation path
-        // Get uint64_t arg1
-        uint64_t arg1 = va_arg(args, uint64_t);
-        // call real_syscall
-        return real_syscall(syscall_vec, arg1);
-      }
-      break;
-    // case SYS_sched_getaffinity:
-    //   {
-    //     // This is untested
-    //     // Get the name of the current process
-    //     char procname[256];
-    //     int ret = readlink("/proc/self/exe", procname, sizeof(procname));
-    //     if (ret == -1) {
-    //       perror("readlink");
-    //       assert(false);
-    //     }
-    //     procname[ret] = '\0';
-    //     printf("Process name: %s\n", procname);
+    } break;
+    case SYS_read: {
+        int fd = va_arg(args, int);
+        void *buf = va_arg(args, void *);
+        size_t count = va_arg(args, size_t);
+        return read(fd, buf, count);
+    } break;
+    default: {
+        uint64_t arg1, arg2, arg3, arg4, arg5, arg6;
+        arg1 = va_arg(args, uint64_t);
+        arg2 = va_arg(args, uint64_t);
+        arg3 = va_arg(args, uint64_t);
+        arg4 = va_arg(args, uint64_t);
+        arg5 = va_arg(args, uint64_t);
+        arg6 = va_arg(args, uint64_t);
+        // printf("arg1: %ld arg2: %ld arg3: %ld arg4: %ld arg5: %ld arg6:
+        // %ld\n", arg1, arg2, arg3, arg4, arg5, arg6);
+        return real_syscall(syscall_vec, arg1, arg2, arg3, arg4, arg5, arg6);
+    }
+    }
+    va_end(args);
 
-
-    //     printf("sched_getaffinity\n");
-    //     pid_t pid = va_arg(args, pid_t);
-    //     size_t cpusetsize = va_arg(args, size_t);
-    //     cpu_set_t *mask = va_arg(args, cpu_set_t *);
-    //     return real_syscall(SYS_sched_getaffinity, pid, cpusetsize, mask);
-    //   }
-    //   break;
-    default:
-
-      printf("unknown vec: %ld\n", syscall_vec);
-      assert(false);
-
-      // Not sure if this works...
-      // Need a va_end here?
-      // ret = real_syscall(syscall_vec, args);
-  }
-  va_end(args);
-
-  // No one should get here.
-  assert(false);
-  return ret;
+    // No one should get here.
+    assert(false);
+    return ret;
 }
-
-#endif
-
