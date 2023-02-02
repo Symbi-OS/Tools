@@ -20,6 +20,9 @@
 
 #include <sys/poll.h>
 
+// include for epoll_event
+#include <sys/epoll.h>
+
 // Just learned this black magic
 extern char **environ;
 
@@ -73,7 +76,8 @@ bool envt_var_exists(char *var_name) {
 
 void __attribute__((constructor)) init(void) {
   // function that is called when the library is loaded
-  print_red("Library loaded\n");
+  print_red("SClib: ");
+  printf("Shortcut Lib: for interposing syscalls and shortcutting\n");
 
   // for debugging
   // print_sc_envt_vars();
@@ -89,7 +93,7 @@ void __attribute__((constructor)) init(void) {
     sym_elevate();
   }
 
-  print_red("Done initializing\n");
+  // print_red("Done initializing\n");
 }
 
 void __attribute__((destructor)) cleanUp(void) {
@@ -107,7 +111,7 @@ void build_envt_var(char *buf, char *prefix, const char *fn, char *suffix) {
   strcat(buf, fn);
   // Copy suffix
   strcat(buf, suffix);
-  printf("elevate_fn: %s\n", buf);
+  // printf("elevate_fn: %s\n", buf);
 }
 
 // Only works for ksys
@@ -125,7 +129,7 @@ void build_shortcut_envt_var(char *buf, char *prefix, const char *fn,
   // Copy suffix
   strcat(buf, suffix);
 
-  printf("elevate_fn: %s\n", buf);
+  // printf("elevate_fn: %s\n", buf);
 }
 
 void config_fn_ctrl_for_elevate(struct fn_ctrl *ctrl) {
@@ -185,7 +189,7 @@ void config_fn_lower(struct fn_ctrl *ctrl, const char *fn) {
 }
 
 void config_fn_shortcut(struct fn_ctrl *ctrl, const char *fn, char *sc_target) {
-  printf("config shortcut fn is %s\n", fn);
+  // printf("config shortcut fn is %s\n", fn);
 
   // Manage lower case if necessary.
   char *shortcut_fn = malloc(strlen("SHORTCUT_") + strlen(fn) + strlen("_TO_") +
@@ -194,16 +198,18 @@ void config_fn_shortcut(struct fn_ctrl *ctrl, const char *fn, char *sc_target) {
   build_shortcut_envt_var(shortcut_fn, "SHORTCUT_", fn, "=1", sc_target);
 
   if (envt_var_exists(shortcut_fn)) {
+    print_red("SClib: ");
+    printf("%s: requested shortcut\n", fn);
     // If already sandwiching for elevate, then we can't lower
     assert(ctrl->sandwich_fn == false);
 
-    printf("Found shortcut envt variable\n");
     ctrl->sandwich_fn = false;
     ctrl->enter_elevated = false;
     ctrl->return_elevated = false;
     ctrl->do_shortcut = true;
   } else {
-    printf("no envt variable\n");
+    print_red("SClib: ");
+    printf("%s: interposed, not shortcutting\n", fn);
   }
 
   free(shortcut_fn);
@@ -213,7 +219,7 @@ void config_fn_shortcut(struct fn_ctrl *ctrl, const char *fn, char *sc_target) {
 void config_fn(struct fn_ctrl *ctrl, const char *fn, char *sc_target) {
   init_fn_ctrl(ctrl);
   // Check for elevate envt variable
-  printf("Checking for elevate envt variable\n");
+  // printf("Checking for elevate envt variable\n");
   // printf("envt var:%s\n", "ELEVATE" fn "=1");
 
   // Manage elevate case if necessary.
@@ -339,6 +345,12 @@ MAKE_STRUCTS_AND_FN_3(poll, "__x64_sys_poll", int, struct pollfd *, fds, nfds_t,
 // // select
 // #error // target is wrong
 MAKE_STRUCTS_AND_FN_5(select, "__x64_sys_select", int, int, nfds, fd_set *, readfds, fd_set *, writefds, fd_set *, exceptfds, struct timeval *, timeout)
+
+// Make one for epoll_wait
+MAKE_STRUCTS_AND_FN_4(epoll_wait, "__x64_sys_epoll_wait", int, int, epfd, struct epoll_event *, events, int, maxevents, int, timeout)
+
+// Make one for fork
+MAKE_STRUCTS_AND_FN_0(fork, "__x64_sys_fork", pid_t)
 
 // fork XXX don't know if that's the right target, only need it to 
 // lower for now
