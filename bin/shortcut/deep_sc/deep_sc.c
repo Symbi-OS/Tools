@@ -109,8 +109,7 @@ int write_path(int fd, const void *data, size_t data_len){
 
 int write_populate_cache(int fd, const void *data, size_t data_len){
   int ret;
-  TODO: fix clear cache elem now that we populate send and recieve independently
-  clear_cache_elem(&sym_cache[fd]);
+  clear_sym_net_state(&sym_cache[fd].send);
   uint64_t reg = 0;
   uint64_t flag = DB_GLOBAL;
   int core = sched_getcpu();
@@ -134,8 +133,7 @@ int write_populate_cache(int fd, const void *data, size_t data_len){
 
 int read_populate_cache(int fd, const void *data, size_t data_len){
   int ret;
-  TODO: fix clear cache elem now that we populate send and recieve independently
-  clear_cache_elem(&sym_cache[fd]);
+  clear_sym_net_state(&sym_cache[fd].recv);
 
   uint64_t reg = 0;
   uint64_t flag = DB_GLOBAL;
@@ -166,6 +164,7 @@ int cached_tcp_sendmsg_path(int fd, const void *data, size_t data_len){
 
 int cached_tcp_recvmsg_path(int fd, const void *buf, size_t buf_len){
   int addr_len = 0;
+  int ret;
   update_net_state_hot(&sym_cache[fd].recv, buf, buf_len);
   struct sym_net_state local_sns = sym_cache[fd].recv;
   init_sym_net_state(&local_sns);
