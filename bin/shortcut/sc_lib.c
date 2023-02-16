@@ -252,6 +252,7 @@ void print_ctrl(struct fn_ctrl *ctrl) {
 void get_fn_config_and_targets(struct fn_ctrl *ctrl, void **real_fn,
                                void **shortcut_fn, char *sc_target,
                                const char *fn) {
+  fprintf(stderr, "get_fn_config_and_targets");
   config_fn(ctrl, fn, sc_target);
 
   // Get address of real_write
@@ -327,9 +328,8 @@ bool do_sc(bool do_sc_for_fn) {
 // 1. Objdump vmlinux and grep for "__x64_sys_" + fn
 // 2a. if non zero args, find the fn it calls, and use that as the target
 // 2b. if zero args, use "__64_sys_" + fn as the target
-MAKE_STRUCTS_AND_FN_3(write, "__x64_sys_write", ssize_t, int, fd, const void *, buf, size_t, count)
-MAKE_STRUCTS_AND_FN_3(read, "__x64_sys_read", ssize_t, int, fd, void *, buf, size_t, count)
-// MAKE_STRUCTS_AND_FN_3(read, "ksys_read", ssize_t, int, fd, void *, buf, size_t, count)
+/* MAKE_STRUCTS_AND_FN_3(write, "__x64_sys_write", ssize_t, int, fd, const void *, buf, size_t, count) */
+/* MAKE_STRUCTS_AND_FN_3(read, "__x64_sys_read", ssize_t, int, fd, void *, buf, size_t, count) */
 #if 0
 
 MAKE_STRUCTS_AND_FN_0(getppid, "__x64_sys_getppid", pid_t)
@@ -337,7 +337,6 @@ MAKE_STRUCTS_AND_FN_0(getpid, "__x64_sys_getpid", pid_t)
 
 // mmap
 MAKE_STRUCTS_AND_FN_6(mmap, "__x64_sys_mmap", void *, void *, addr, size_t, len, int, prot, int, flags, int, fd, off_t, offset)
-// MAKE_STRUCTS_AND_FN_6(mmap, "vm_mmap_pgoff", void *, void *, addr, size_t, len, int, prot, int, flags, int, fd, off_t, offset)
 
 // // munmap
 // #error // target is wrong
@@ -356,10 +355,8 @@ MAKE_STRUCTS_AND_FN_3(poll, "__x64_sys_poll", int, struct pollfd *, fds, nfds_t,
 // #error // target is wrong
 MAKE_STRUCTS_AND_FN_5(select, "__x64_sys_select", int, int, nfds, fd_set *, readfds, fd_set *, writefds, fd_set *, exceptfds, struct timeval *, timeout)
 
-// Make one for epoll_wait
 MAKE_STRUCTS_AND_FN_4(epoll_wait, "__x64_sys_epoll_wait", int, int, epfd, struct epoll_event *, events, int, maxevents, int, timeout)
 
-// Make one for fork
 MAKE_STRUCTS_AND_FN_0(fork, "__x64_sys_fork", pid_t)
 
 // fork XXX don't know if that's the right target, only need it to 
@@ -503,7 +500,7 @@ ssize_t write(int fd, const void *buf, size_t count) {
 
   // Print caller return address 2 above
   uint64_t addr = (uint64_t) __builtin_extract_return_addr (__builtin_return_address (0));
-  printf("caller return address is %lx\n", addr);
+  /* fprintf(stderr, "caller return address is %lx\n", addr); */
 
   ingress_work(&write_ctrl, __func__);
   int ret;
@@ -541,28 +538,42 @@ ssize_t write(int fd, const void *buf, size_t count) {
 }
 // TODO: Invalidate cache on close.
 
-// typedef ssize_t (*read_t)(int fd, void *buf, size_t count);
-// read_t real_read = ((void *)0);
-// struct fn_ctrl read_ctrl = {0, 0, 0, 0};
-// #error
-// read_t ksys_read = ((void *)0);
+uint64_t read_target = 0;
+typedef ssize_t (*read_t)(int fd, void *buf, size_t count);
+read_t real_read = ((void *)0);
+struct fn_ctrl read_ctrl = {0, 0, 0, 0};
+my_tcp_recvmsg_t tcp_recvmsg = ((void *)0);
 
+ssize_t read(int fd, void *buf, size_t count) {
+  if (!real_read) {
+    get_fn_config_and_targets(&read_ctrl, (void **)&real_read,
+                              (void **)&tcp_recvmsg, "tcp_recvmsg", __func__);
+  }
+  // Print caller return address 2 above
+  uint64_t addr = (uint64_t) __builtin_extract_return_addr (__builtin_return_address (0));
+  /* fprintf(stderr, "caller return address is %lx\n", addr); */
 
-
-// ssize_t read(int fd, void *buf, size_t count) {
-//   if (!real_read) {
-//     get_fn_config_and_targets(&read_ctrl, (void **)&real_read,
-//                               (void **)&ksys_read, "ksys_read", __func__);
-//   }
-//   ingress_work(&read_ctrl, __func__);
-//   int ret;
-//   if (do_sc(read_ctrl.do_shortcut)) {
-//     #error
-//     ret = ksys_read(fd, buf, count);
-//   } else {
-//     ret = real_read(fd, buf, count);
-//   }
-//   egress_work(&read_ctrl);
-//   return ret;
-// }
-
+  ingress_work(&read_ctrl, __func__);
+  int ret;
+  //TODO: fix this address
+  if (do_sc(read_ctrl.do_shortcut && (addr == 0x500751))) {
+    if(read_target == 0){
+      read_target = addr;
+    } else {
+      // lemme know if it changes.
+      assert(read_target == addr);
+    }
+    if (sym_cache[fd].recv.valid == true) {
+      /* fprintf(stderr, "Fast read\n"); */
+      ret = cached_tcp_recvmsg_path(fd, buf, count);
+    } else {
+      /* fprintf(stderr, "populate cache normal read path\n"); */
+      ret = read_populate_cache(fd, buf, count);
+    }
+  } else {
+      /* fprintf(stderr, "normal read path\n"); */
+      ret = real_read(fd, buf, count);
+  }
+  egress_work(&read_ctrl);
+  return ret;
+}
