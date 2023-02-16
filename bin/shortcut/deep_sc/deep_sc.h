@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <sys/types.h>
 
 #define SYM_CACHE_SZ 1000
 #define MSG_STRUCT_SZ 96
@@ -17,6 +18,8 @@
 typedef int (*my_ksys_write_t)(unsigned int fd, const char *buf, size_t count);
 typedef void (*void_fn_ptr)(unsigned long);
 typedef int (*my_ksys_read_t)(unsigned int fd, const char *buf, size_t count);
+typedef ssize_t (*write_t)(int fd, const void *buf, size_t count);
+typedef ssize_t (*read_t)(int fd, void *buf, size_t count);
 
 typedef int (*my_tcp_sendmsg_t)(void *, void*, size_t count);
 typedef int (*my_tcp_recvmsg_t)(void *, void*, size_t len,
@@ -26,8 +29,6 @@ typedef unsigned long (*my___fdget_t)(unsigned int);
 void_fn_ptr get_fn_address(char *symbol);
 //extern uint64_t int3_rdi;
 extern uint64_t addr_msg;
-// extern my_ksys_read_t my_ksys_read;
-// extern my_ksys_write_t my_ksys_write;
 extern my_tcp_sendmsg_t tcp_sendmsg;
 extern my_tcp_recvmsg_t tcp_recvmsg;
 extern struct cache_elem* sym_cache;
@@ -92,6 +93,8 @@ struct cache_elem{
   bool valid;
 };
 
+extern write_t real_write;
+extern read_t real_read;
 void init_tcp_sc();
 void init_ksys_sc();
 void invalidate_cache_elem(int fd);
