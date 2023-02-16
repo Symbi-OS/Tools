@@ -270,9 +270,7 @@ void get_fn_config_and_targets(struct fn_ctrl *ctrl, void **real_fn,
 }
 
 // TODO: assert const
-void ingress_work(struct fn_ctrl *ctrl, const char *fn_name) {
-
-
+void ingress_work(struct fn_ctrl *ctrl) {
   // User passed -e write, we will elevate before unconditionally
   if (ctrl->sandwich_fn) {
     if (ctrl->enter_elevated) {
@@ -330,7 +328,8 @@ bool do_sc(bool do_sc_for_fn) {
 // 2b. if zero args, use "__64_sys_" + fn as the target
 /* MAKE_STRUCTS_AND_FN_3(write, "__x64_sys_write", ssize_t, int, fd, const void *, buf, size_t, count) */
 /* MAKE_STRUCTS_AND_FN_3(read, "__x64_sys_read", ssize_t, int, fd, void *, buf, size_t, count) */
-#if 0
+
+#ifndef DEEP_SHORTCUT
 
 MAKE_STRUCTS_AND_FN_0(getppid, "__x64_sys_getppid", pid_t)
 MAKE_STRUCTS_AND_FN_0(getpid, "__x64_sys_getpid", pid_t)
@@ -472,7 +471,7 @@ long syscall(long syscall_vec, ...) {
     return ret;
 }
 
-#endif
+#else
 
 // Type for close function
 typedef int (*close_t)(int fd);
@@ -502,7 +501,7 @@ ssize_t write(int fd, const void *buf, size_t count) {
   uint64_t addr = (uint64_t) __builtin_extract_return_addr (__builtin_return_address (0));
   /* fprintf(stderr, "caller return address is %lx\n", addr); */
 
-  ingress_work(&write_ctrl, __func__);
+  ingress_work(&write_ctrl);
   int ret;
 
   if (do_sc(write_ctrl.do_shortcut) && ( addr == 0x5007b1) ) {
@@ -553,7 +552,7 @@ ssize_t read(int fd, void *buf, size_t count) {
   uint64_t addr = (uint64_t) __builtin_extract_return_addr (__builtin_return_address (0));
   /* fprintf(stderr, "caller return address is %lx\n", addr); */
 
-  ingress_work(&read_ctrl, __func__);
+  ingress_work(&read_ctrl);
   int ret;
   //TODO: fix this address
   if (do_sc(read_ctrl.do_shortcut && (addr == 0x500751))) {
@@ -577,3 +576,4 @@ ssize_t read(int fd, void *buf, size_t count) {
   egress_work(&read_ctrl);
   return ret;
 }
+#endif
