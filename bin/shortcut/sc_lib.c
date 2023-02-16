@@ -522,18 +522,18 @@ ssize_t write(int fd, const void *buf, size_t count) {
     }
 
     // if the cache element is populated
-    if (sym_cache[fd].valid == true) {
-      fprintf(stderr, "Fast write\n");
+    if (sym_cache[fd].send.valid == true) {
+      /* fprintf(stderr, "Fast write\n"); */
       ret = cached_tcp_sendmsg_path(fd, buf, count);
       // ret = real_write(fd, buf, count);
     } else {
-      printf("aa populate cache normal write path\n");
+      /* printf("populate cache normal write path\n"); */
       ret = write_populate_cache(fd, buf, count);
       // ret = real_write(fd, buf, count);
     }
 
   } else {
-    printf("normal write path\n");
+    /* printf("normal write path\n"); */
     ret = real_write(fd, buf, count);
   }
   egress_work(&write_ctrl);

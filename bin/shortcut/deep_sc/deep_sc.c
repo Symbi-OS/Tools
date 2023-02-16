@@ -24,7 +24,8 @@ void init_ksys_sc(){
 }
 
 void invalidate_cache_elem(int fd){
-  sym_cache[fd].valid = false;
+  sym_cache[fd].send.valid = false;
+  sym_cache[fd].recv.valid = false;
 }
 
 void print_msg_iter(struct msg_iter *mi){
@@ -67,29 +68,7 @@ void init_sym_net_state(struct sym_net_state *net_state){
   // Hook kiocb into msg's kiocb pointer
   net_state->msg.kiocb_p = &(net_state->ks);
   // NOTE sk and ctr are 0 from memset
-}
-
-
-void init_cache_elem(struct cache_elem *cache_elem){
-  // We assume that cache_elem->send.msg has been copied in already by the #BP handler.
-  // Currently we don't do this on the tcp_recv path because they're so similar.
-
-  cache_elem->recv.msg = cache_elem->send.msg;
-
-  // Init send
-  init_sym_net_state(&cache_elem->send);
-
-  // init recv
-  init_sym_net_state(&cache_elem->recv);
-
-
-  // Fixup recv msg_iter bc it's diff from send.
-  // You can remove this if you probe tcp_recvmsg.
-  // False for recv, true for send (copied)
-  cache_elem->recv.msg.mi.data_source = 0;
-
-
-  cache_elem->valid = true;
+  net_state->valid = true;
 }
 
 void update_sym_net_state(struct sym_net_state *net_state, void *sk, void* file_p){
@@ -176,18 +155,28 @@ int write_populate_cache(int fd, const void *data, size_t data_len){
   // again, sym_cache[conn->fd].msg.mi already populated.
   // has some junk kern ptrs that need to be updated.
   // NOTE: don't move this above write().
-  init_cache_elem(&sym_cache[fd]);
-  //sym_elevate();
-  // write it into the cache
+  init_sym_net_state(&sym_cache[fd].send);
   update_cache_elem(&sym_cache[fd], (void *)(sp->get.pt_r.rdi), fd_to_filep(fd));
-  //sym_lower();
-  /*
-  printf("\nWRITE_POPULATE_CACHE\n");
-  printf("send\n");
-  print_msg_struct(&sym_cache[fd].send.msg);
-  printf("recv\n");
-  print_msg_struct(&sym_cache[fd].recv.msg);
-  */
+  return ret;
+}
+
+int read_populate_cache(int fd, const void *data, size_t data_len){
+  int ret;
+  TODO: fix clear cache elem now that we populate send and recieve independently
+  clear_cache_elem(&sym_cache[fd]);
+
+  uint64_t reg = 0;
+  uint64_t flag = DB_GLOBAL;
+  int core = sched_getcpu();
+  struct scratchpad * sp = (struct scratchpad *) get_scratch_pg(core);
+  sym_set_db_probe((uint64_t)tcp_recvmsg, reg, flag);
+
+  sym_elevate();
+  sp->read_addr_msg = 0;
+  ret = real_read(fd, (void *)data, data_len);
+  memcpy(&sym_cache[fd].recv.msg, (void *)sp->addr_msg, 96);
+  init_sym_net_state(&sym_cache[fd].recv);
+  update_cache_elem(&sym_cache[fd], (void *)(sp->get.pt_r.rdi), fd_to_filep(fd));
   return ret;
 }
 
@@ -196,45 +185,18 @@ int cached_tcp_sendmsg_path(int fd, const void *data, size_t data_len){
   // the fish. <:===<
   //             '
   int ret;
-  //sym_elevate();
   update_net_state_hot(&sym_cache[fd].send, data, data_len);
-
   struct sym_net_state local_sns = sym_cache[fd].send;
-
   init_sym_net_state(&local_sns);
-/*
-  printf("CACHED_SENDMSG\n");
-  printf("send\n");
-  print_msg_struct(&sym_cache[fd].send.msg);
-  printf("recv\n");
-  print_msg_struct(&sym_cache[fd].recv.msg);
-*/
-  printf("About to try tcp_sendmsg\n");
-  // print all args
-  printf("tcp_sendmsg args:\n");
-  printf("sk: %#lx\n", (uint64_t)local_sns.sk);
-  printf("msg: %#lx\n", (uint64_t)&local_sns.msg);
-  printf("size: %d\n", data_len);
-  printf("tcp_sendmsg %p\n", tcp_sendmsg);
   ret = tcp_sendmsg(local_sns.sk, &local_sns.msg, data_len);
-  printf("Got through that one \n");
-  printf("ret: %d\n", ret);
-  //sym_lower();
-
   return ret;
 }
 
 int cached_tcp_recvmsg_path(int fd, const void *buf, size_t buf_len){
   int addr_len = 0;
-
   update_net_state_hot(&sym_cache[fd].recv, buf, buf_len);
-
   struct sym_net_state local_sns = sym_cache[fd].recv;
   init_sym_net_state(&local_sns);
-  /* update_net_state_hot(&local_sns, buf, buf_len); */
-
-  /* print_msg_struct(&local_sns.msg); */
-
-  return tcp_recvmsg(local_sns.sk, &local_sns.msg, buf_len, 64, 0, &addr_len);
-  /* return tcp_recvmsg(sym_cache[conn->fd].recv.sk, &sym_cache[conn->fd].recv.msg, buf_len, 64, 0, &addr_len); */
+  ret = tcp_recvmsg(local_sns.sk, &local_sns.msg, buf_len, 64, 0, &addr_len);
+  return ret;
 }
