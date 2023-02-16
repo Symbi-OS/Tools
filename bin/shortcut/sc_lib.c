@@ -28,6 +28,8 @@
 // Just learned this black magic
 extern char **environ;
 
+struct cache_elem* sym_cache;
+
 // Function that prints string in red
 void print_red(const char *str) { printf("\033[1;31m%s\033[0m", str); }
 
@@ -328,6 +330,7 @@ bool do_sc(bool do_sc_for_fn) {
 MAKE_STRUCTS_AND_FN_3(write, "__x64_sys_write", ssize_t, int, fd, const void *, buf, size_t, count)
 MAKE_STRUCTS_AND_FN_3(read, "__x64_sys_read", ssize_t, int, fd, void *, buf, size_t, count)
 // MAKE_STRUCTS_AND_FN_3(read, "ksys_read", ssize_t, int, fd, void *, buf, size_t, count)
+#if 0
 
 MAKE_STRUCTS_AND_FN_0(getppid, "__x64_sys_getppid", pid_t)
 MAKE_STRUCTS_AND_FN_0(getpid, "__x64_sys_getpid", pid_t)
@@ -472,26 +475,27 @@ long syscall(long syscall_vec, ...) {
     return ret;
 }
 
+#endif
+
 // Type for close function
 typedef int (*close_t)(int fd);
 int close(int fd) {
   // invalidate fdth element of sym_cache array
-  printf("close called on fd %d\n", fd);
+  /* printf("close called on fd %d\n", fd); */
   invalidate_cache_elem(fd);
   close_t my_close = (close_t) dlsym(RTLD_NEXT, "close");
+  return my_close(fd);
 }
 
-uint64_t write_target = 0;
-
 typedef ssize_t (*write_t)(int fd, const void *buf, size_t count);
-
+uint64_t write_target = 0;
 write_t real_write = ((void *)0);
 struct fn_ctrl write_ctrl = {0, 0, 0, 0};
-
 my_tcp_sendmsg_t tcp_sendmsg = ((void *)0);
 
 
 ssize_t write(int fd, const void *buf, size_t count) {
+  /* fprintf(stderr, "made it to write\n"); */
   if (!real_write) {
     get_fn_config_and_targets(&write_ctrl, (void **)&real_write,
                               (void **)&tcp_sendmsg, "tcp_sendmsg", __func__);

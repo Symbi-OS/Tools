@@ -169,7 +169,7 @@ int write_populate_cache(int fd, const void *data, size_t data_len){
   //sym_lower();
 
   // run syscall ... triggers probe.
-  ret = write(fd, data, data_len);
+  ret = real_write(fd, data, data_len);
   // NOW WE HAVE SK AND MSG COPIED
   memcpy(&sym_cache[fd].send.msg, (void *)sp->addr_msg, 96);
   // This stitches iov and ks into msg.
