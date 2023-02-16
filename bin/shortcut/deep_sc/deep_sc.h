@@ -79,6 +79,7 @@ struct msg_struct {
 /* static_assert(sizeof(struct msg_struct) == 96, "Size of msg_struct is not correct"); */
 
 struct sym_net_state{
+  bool valid;
   void               *sk;
   uint64_t            ctr;
 
@@ -90,11 +91,11 @@ struct sym_net_state{
 struct cache_elem{
   struct sym_net_state send;
   struct sym_net_state recv;
-  bool valid;
 };
 
 extern write_t real_write;
 extern read_t real_read;
+
 void init_tcp_sc();
 void init_ksys_sc();
 void invalidate_cache_elem(int fd);
@@ -112,6 +113,7 @@ void * fd_to_filep(int fd);
 void check_on_probe(uint64_t addr);
 int write_path(int fd, const void *data, size_t data_len);
 int write_populate_cache(int fd, const void *data, size_t data_len);
+int read_populate_cache(int fd, const void *data, size_t data_len);
 int cached_tcp_sendmsg_path(int fd, const void *data, size_t data_len);
 int cached_tcp_recvmsg_path(int fd, const void *buf, size_t buf_len);
 #endif //__SYM_SHORTCUTS_H

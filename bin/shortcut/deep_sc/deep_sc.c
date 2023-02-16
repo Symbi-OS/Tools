@@ -10,8 +10,6 @@ my_ksys_write_t my_ksys_write;
 my_tcp_sendmsg_t tcp_sendmsg;
 my_tcp_recvmsg_t tcp_recvmsg;
 
-struct cache_elem* sym_cache;
-
 void init_tcp_sc(){
   tcp_sendmsg = NULL;
   tcp_recvmsg = NULL;
@@ -29,26 +27,24 @@ void invalidate_cache_elem(int fd){
 }
 
 void print_msg_iter(struct msg_iter *mi){
-  printf("mi->data_source %u\n", mi->data_source);
-  printf("mi->count %lx\n", mi->count);
-  printf("mi->iov %p\n", mi->iov);
+  fprintf(stderr, "mi->data_source %u\n", mi->data_source);
+  fprintf(stderr, "mi->count %lx\n", mi->count);
+  fprintf(stderr, "mi->iov %p\n", mi->iov);
 }
 
 void print_kiocb_struct(struct kiocb_struct *ki){
-  printf("ki->file_p %p\n", ki->file_p);
+  fprintf(stderr, "ki->file_p %p\n", ki->file_p);
 }
 
 void print_msg_struct(struct msg_struct *msg){
-  printf("\n");
-  printf("name %p\n",    msg->msg_name );
-  printf("len %d\n",     msg->msg_name_len);
-  printf("kiocb_p %p\n",(void *) msg->kiocb_p);
+  fprintf(stderr, "\n");
+  fprintf(stderr, "name %p\n",    msg->msg_name );
+  fprintf(stderr, "len %d\n",     msg->msg_name_len);
+  fprintf(stderr, "kiocb_p %p\n",(void *) msg->kiocb_p);
 
 
   print_msg_iter(&msg->mi);
   print_kiocb_struct(msg->kiocb_p);
-  /* printf("%p", msg_struct); */
-  /* printf("%p", msg_struct); */
 }
 
 void clear_sym_net_state(struct sym_net_state *net_state){
@@ -81,13 +77,8 @@ void update_sym_net_state(struct sym_net_state *net_state, void *sk, void* file_
 
 void update_cache_elem(struct cache_elem *cache_elem, void *sk, void* file_p){
   // Got socket from BP exception
-
   update_sym_net_state(&cache_elem->send, sk, file_p);
   update_sym_net_state(&cache_elem->recv, sk, file_p);
-
-  //NOTE not for now.
-  // iov will get loaded on hot path
-  // msg_iter.count
 }
 
 void update_net_state_hot(struct sym_net_state *net_state, const void *buf, int buf_len){
@@ -95,12 +86,8 @@ void update_net_state_hot(struct sym_net_state *net_state, const void *buf, int 
   // msg_iter.count
   net_state->iov.iov_base = (void *) buf;
   net_state->iov.iov_len = buf_len;
-
   net_state->msg.mi.count = buf_len;
 }
-
-
-  // get file pointer
 
 void * fd_to_filep(int fd){
   my___fdget_t my___fdget = (my___fdget_t) sym_get_fn_address("__fdget");
@@ -112,9 +99,7 @@ void * fd_to_filep(int fd){
 }
 
 void check_on_probe(uint64_t addr){
-  /* sym_elevate(); */
   printf("1st byte at probe is %#x \n", *((unsigned char *) addr));
-  /* sym_lower(); */
 }
 
 int write_path(int fd, const void *data, size_t data_len){
@@ -124,28 +109,15 @@ int write_path(int fd, const void *data, size_t data_len){
 
 int write_populate_cache(int fd, const void *data, size_t data_len){
   int ret;
-
-  // TODO finish me.
-  /* init_sym_net_state(); */
+  TODO: fix clear cache elem now that we populate send and recieve independently
   clear_cache_elem(&sym_cache[fd]);
-
-
-  // THIS SETS A PROBE HIT ON THE write() path.
-  // NOTE: This is just to suppress the dmesg "Already Elevated"
-  // sym_lower();
-  // NOTE: Sticky could solve this, ignoring on cold path.
-  // NOTE: bc^ lowered us
   uint64_t reg = 0;
   uint64_t flag = DB_GLOBAL;
   int core = sched_getcpu();
   struct scratchpad * sp = (struct scratchpad *) get_scratch_pg(core);
   sym_set_db_probe((uint64_t)tcp_sendmsg, reg, flag);
-
   sym_elevate();
-  // MSG WILL GET UPDATED ON write()
   sp->read_addr_msg = 0;
-  //sp->addr_msg = (uint64_t)&sym_cache[fd].send.msg;
-  //sym_lower();
 
   // run syscall ... triggers probe.
   ret = real_write(fd, data, data_len);
