@@ -1,4 +1,5 @@
 #define _GNU_SOURCE
+#ifdef DEEP_SHORTCUT
 #include <sched.h>
 #include <stdio.h>
 #include <string.h>
@@ -171,3 +172,4 @@ int cached_tcp_recvmsg_path(int fd, const void *buf, size_t buf_len){
   ret = tcp_recvmsg(local_sns.sk, &local_sns.msg, buf_len, 64, 0, &addr_len);
   return ret;
 }
+#endif

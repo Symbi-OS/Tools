@@ -23,7 +23,9 @@
 // include for epoll_event
 #include <sys/epoll.h>
 
+#ifdef DEEP_SHORTCUT
 #include "deep_sc/deep_sc.h"
+#endif
 
 // Just learned this black magic
 extern char **environ;
@@ -80,8 +82,9 @@ bool envt_var_exists(char *var_name) {
 
 void __attribute__((constructor)) init(void) {
   // Allocate the sym cache really do this in the lib.
+  #ifdef DEEP_SHORTCUT
   sym_cache = (struct cache_elem*) calloc(SYM_CACHE_SZ, (sizeof(struct cache_elem)));
-
+  #endif
   // function that is called when the library is loaded
   print_red("SClib: ");
   printf("Shortcut Lib: for interposing syscalls and shortcutting\n");
@@ -319,6 +322,9 @@ bool do_sc(bool do_sc_for_fn) {
   return true;
 
 }
+
+#ifndef DEEP_SHORTCUT
+
 // This macro allocates a "real_" fn ptr, a "ksys_" fn ptr, and a fn_ctrl struct
 // Then it implements the relevant interposer fn.
 
@@ -326,10 +332,8 @@ bool do_sc(bool do_sc_for_fn) {
 // 1. Objdump vmlinux and grep for "__x64_sys_" + fn
 // 2a. if non zero args, find the fn it calls, and use that as the target
 // 2b. if zero args, use "__64_sys_" + fn as the target
-/* MAKE_STRUCTS_AND_FN_3(write, "__x64_sys_write", ssize_t, int, fd, const void *, buf, size_t, count) */
-/* MAKE_STRUCTS_AND_FN_3(read, "__x64_sys_read", ssize_t, int, fd, void *, buf, size_t, count) */
-
-#ifndef DEEP_SHORTCUT
+MAKE_STRUCTS_AND_FN_3(write, "__x64_sys_write", ssize_t, int, fd, const void *, buf, size_t, count)
+MAKE_STRUCTS_AND_FN_3(read, "__x64_sys_read", ssize_t, int, fd, void *, buf, size_t, count)
 
 MAKE_STRUCTS_AND_FN_0(getppid, "__x64_sys_getppid", pid_t)
 MAKE_STRUCTS_AND_FN_0(getpid, "__x64_sys_getpid", pid_t)
