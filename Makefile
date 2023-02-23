@@ -2,7 +2,7 @@ SHELL := /bin/bash
 
 CC=gcc
 # XXX: We do see this break mitigate when set to -O3
-CFLAGS= -O0 -ggdb -Wall -Wextra -mno-red-zone
+CFLAGS= -O0 -ggdb -Wall -Wextra -mno-red-zone -fno-omit-frame-pointer
 export CC CFLAGS
 
 
@@ -29,7 +29,7 @@ CPUS=$(shell nproc)
 
 .PHONY: all bin examples clean_bin clean_examples
 
-all: bin examples
+all: bin #examples
 
 mitigate:
 	./bin/recipes/mitigate_all.sh
