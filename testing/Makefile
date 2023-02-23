@@ -1,8 +1,18 @@
-# XXX Mitigate all sometimes fails. Lots of cores spinning on a ?lock?
+# Loop of write system calls, first elevated, then shortcutted.
+# Linux Prototypes dir
+LP=../../LinuxPrototypes/
+TESTS= wr_sc wr_elev
+all_abi: $(TESTS)
+
+wr_sc:
+	make -C $(LP)/write_loop/ run_elev_sc_wr_only
+wr_elev:
+	make -C $(LP)/write_loop/ run_elev
+
+# These are the legacy tests.
 
 # Test symbiote functionality in roughly more challenging contexts.
 EX=../examples/
-
 # Want these in order, think undefined by make.
 all: sync sudo_check check_proc_cmdline check_fsgsbase rebuild_all mitigate_cores all_clock all_elevate_lower all_getppid all_print_cr3 lebench stack_starvation trivial_int3 run_db run_db_reg
 
