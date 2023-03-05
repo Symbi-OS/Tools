@@ -82,12 +82,12 @@ void print_args(struct pt_regs *regs) {
 #define MAKE_INTERPOSE_FN(fn_name, sc_target, ret_t, types_and_args, args)     \
     MAKE_SIG(ret_t, fn_name, types_and_args) {                                 \
         struct pt_regs regs;                                                   \
-        asm volatile("movq %%rdi, %0" : "=m"(regs.rdi));                       \
-        asm volatile("movq %%rsi, %0" : "=m"(regs.rsi));                       \
-        asm volatile("movq %%rdx, %0" : "=m"(regs.rdx));                       \
-        asm volatile("movq %%rcx, %0" : "=m"(regs.r10));                       \
-        asm volatile("movq %%r8, %0" : "=m"(regs.r8));                         \
-        asm volatile("movq %%r9, %0" : "=m"(regs.r9));                         \
+        asm volatile("movq %%rdi, %0" : "=m"(regs.rdi) : : "memory");          \
+        asm volatile("movq %%rsi, %0" : "=m"(regs.rsi) : : "memory");          \
+        asm volatile("movq %%rdx, %0" : "=m"(regs.rdx) : : "memory");          \
+        asm volatile("movq %%rcx, %0" : "=m"(regs.r10) : : "memory");          \
+        asm volatile("movq %%r8, %0" : "=m"(regs.r8) : : "memory");            \
+        asm volatile("movq %%r9, %0" : "=m"(regs.r9) : : "memory");            \
         if (!real_##fn_name) {                                                 \
             get_fn_config_and_targets(                                         \
                 &fn_name##_ctrl, (void **)&real_##fn_name,                     \
@@ -96,13 +96,39 @@ void print_args(struct pt_regs *regs) {
         ingress_work(&fn_name##_ctrl);                                         \
         ret_t ret;                                                             \
         if (do_sc(fn_name##_ctrl.do_shortcut)) {                               \
+            uint64_t user_stack;                                               \
+            asm volatile("mov %%rsp, %0" : "=m"(user_stack) : : "memory");     \
+            uint64_t kern_stack;                                               \
+            asm volatile("mov  %%gs:0x17b90,%0"                                \
+                         : "=g"(kern_stack)                                    \
+                         :                                                     \
+                         : "memory");                                          \
+            asm volatile("mov %0, %%rsp" : : "r"(kern_stack));                 \
+            asm volatile("mov %0, %%rsp" : : "r"(user_stack));                 \
+            fprintf(stderr, "kern stack: %lx\n", kern_stack);                  \
             ret = (ret_t)MAKE_FN_CALL(sc_target_##fn_name, &regs);             \
+            asm volatile("mov %0, %%rsp" : : "r"(user_stack));                 \
         } else {                                                               \
+            fprintf(stderr, "not shortcutting\n");                             \
             ret = MAKE_FN_CALL(real_##fn_name, args);                          \
         }                                                                      \
         egress_work(&fn_name##_ctrl);                                          \
         return ret;                                                            \
     }
+
+#if 0
+;
+            uint64_t user_stack;                                               \
+
+            asm volatile("mov %%rsp, %0" : "=m"(user_stack) : : "memory");     \
+            asm volatile("mov  %gs:0x17b90,%rsp");                             \
+            asm("movq %%rsp, %0" : "=r"(user_stack) : : "memory");             \
+
+
+            asm volatile("mov %0, %%rsp" : : "r"(user_stack));                 \
+
+
+#endif
 
 // This just turns n args into a single arg.
 #define COMBINE_ARGS(...) __VA_ARGS__
