@@ -98,18 +98,10 @@ void print_args(struct pt_regs *regs) {
         if (do_sc(fn_name##_ctrl.do_shortcut)) {                               \
             uint64_t user_stack;                                               \
             asm volatile("mov %%rsp, %0" : "=m"(user_stack) : : "memory");     \
-            uint64_t kern_stack;                                               \
-            asm volatile("mov  %%gs:0x17b90,%0"                                \
-                         : "=g"(kern_stack)                                    \
-                         :                                                     \
-                         : "memory");                                          \
-            asm volatile("mov %0, %%rsp" : : "r"(kern_stack));                 \
-            asm volatile("mov %0, %%rsp" : : "r"(user_stack));                 \
-            fprintf(stderr, "kern stack: %lx\n", kern_stack);                  \
+            asm volatile("mov %gs:0x17b90, %rsp");                           \
             ret = (ret_t)MAKE_FN_CALL(sc_target_##fn_name, &regs);             \
             asm volatile("mov %0, %%rsp" : : "r"(user_stack));                 \
         } else {                                                               \
-            fprintf(stderr, "not shortcutting\n");                             \
             ret = MAKE_FN_CALL(real_##fn_name, args);                          \
         }                                                                      \
         egress_work(&fn_name##_ctrl);                                          \
@@ -117,6 +109,7 @@ void print_args(struct pt_regs *regs) {
     }
 
 #if 0
+try to substitute 
 ;
             uint64_t user_stack;                                               \
 
