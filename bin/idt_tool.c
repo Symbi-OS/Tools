@@ -73,6 +73,8 @@ void print_desc(struct dtr *idt, int vector){
   sym_print_idt_desc((unsigned char *) idt->base, (unsigned int)vector);
 }
 
+
+
 void * get_aligned_kern_pg(){
 
   // TODO: is there a right way to do this?
@@ -81,19 +83,9 @@ void * get_aligned_kern_pg(){
   vzalloc_t vzalloc = (vzalloc_t) sym_get_fn_address("vzalloc");
 #pragma GCC diagnostic pop
 
-  sym_elevate();
-  // Todo: pull into symlib
-  // uint64_t user_stack;
-  // asm volatile("mov %%rsp, %0" : "=m"(user_stack) : : "memory");
-  // asm volatile("mov %gs:0x17b90, %rsp");
-  uint64_t user_stack;
-  SYM_PRESERVE_USER_STACK(user_stack);
-  SYM_SWITCH_TO_KERN_STACK(); 
-  void *p = vzalloc(IDT_SZ_BYTES);
-  // asm volatile("mov %0, %%rsp" : : "r"(user_stack));
-  SYM_RESTORE_USER_STACK(user_stack);
-  // Mem leak need this to be page aligned 
-  sym_lower();
+  SYM_ON_KERN_STACK_DO( \
+    void *p = vzalloc(IDT_SZ_BYTES);\
+  );
 
   /* printf("got kern page ptr %p\n", p); */
   assert( ((long unsigned )p % IDT_SZ_BYTES ) == 0);
