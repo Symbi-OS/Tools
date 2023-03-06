@@ -83,11 +83,15 @@ void * get_aligned_kern_pg(){
 
   sym_elevate();
   // Todo: pull into symlib
+  // uint64_t user_stack;
+  // asm volatile("mov %%rsp, %0" : "=m"(user_stack) : : "memory");
+  // asm volatile("mov %gs:0x17b90, %rsp");
   uint64_t user_stack;
-  asm volatile("mov %%rsp, %0" : "=m"(user_stack) : : "memory");
-  asm volatile("mov %gs:0x17b90, %rsp");
+  SYM_PRESERVE_USER_STACK(user_stack);
+  SYM_SWITCH_TO_KERN_STACK(); 
   void *p = vzalloc(IDT_SZ_BYTES);
-  asm volatile("mov %0, %%rsp" : : "r"(user_stack));
+  // asm volatile("mov %0, %%rsp" : : "r"(user_stack));
+  SYM_RESTORE_USER_STACK(user_stack);
   // Mem leak need this to be page aligned 
   sym_lower();
 
