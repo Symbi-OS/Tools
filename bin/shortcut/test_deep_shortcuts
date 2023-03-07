@@ -1,0 +1,50 @@
+#!/bin/bash
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+make -C ../../../Tools clean
+make -C ../../../Tools DEEP_SC_DEFINE=-DDEEP_SHORTCUT all && \
+echo "" && \
+echo -e "${GREEN}Built Tools With Deep Shortcuts${NC}" && \
+echo ""
+
+read -p "Enter number of server tests to run (default is 1): " num_tests
+#check that num_tests is a positive integer
+if [[ $num_tests =~ ^[0-9]+$ ]]; then
+    echo "Running $num_tests tests"
+else
+    echo "Invalid input, defaulting to 1 test"
+    num_tests=1
+fi
+
+read -p "Enter number of clients per server (default is 1): " num_clients
+#check that num_clients is a positive integer
+if [[ $num_clients =~ ^[0-9]+$ ]]; then
+    echo "Running $num_clients clients per server"
+else
+    echo "Invalid input, defaulting to 1 client"
+    num_clients=1
+fi
+
+read -p "Enter number of requests to send (default is 100000): " num_requests
+#check that num_requests is a positive integer
+if [[ $num_requests =~ ^[0-9]+$ ]]; then
+    echo "Sending $num_requests requests"
+else
+    echo "Invalid input, defaulting to 100000 requests"
+    num_requests=100000
+fi
+
+echo ""
+echo -e "${GREEN}Running $num_tests tests with $num_clients clients and $num_requests requests${NC}"
+echo ""
+
+for ((i=1; i<=$num_tests; i++))
+    do
+        taskset -c 0 bash -c 'shortcut.sh -be -s "write->tcp_sendmsg" -s "read->tcp_recvmsg" --- \
+        ../../../artifacts/redis/fed36/redis-server --protected-mode no --save '' --appendonly no' &
+        sleep 1
+        redis-benchmark -t set -n $num_requests -c $num_clients && echo -e "${GREEN}done with test $i${NC}"
+        pkill redis-server
+        sleep 1
+    done
