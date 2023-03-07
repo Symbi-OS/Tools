@@ -48,3 +48,5 @@ for ((i=1; i<=$num_tests; i++))
         pkill redis-server
         sleep 1
     done
+
+echo -e "${GREEN}FINISHED ALL TESTS${NC}"
