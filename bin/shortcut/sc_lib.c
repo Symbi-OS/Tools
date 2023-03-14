@@ -99,6 +99,9 @@ void __attribute__((constructor)) init(void) {
 
 void __attribute__((destructor)) cleanUp(void) {
     // function that is called when the library is »closed«.
+#ifdef DEEP_SHORTCUT
+    free(sym_cache);
+#endif
     sym_lower();
 }
 
