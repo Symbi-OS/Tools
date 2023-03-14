@@ -159,7 +159,11 @@ int cached_tcp_sendmsg_path(int fd, const void *data, size_t data_len){
   update_net_state_hot(&sym_cache[fd].send, data, data_len);
   struct sym_net_state local_sns = sym_cache[fd].send;
   init_sym_net_state(&local_sns);
+  uint64_t user_stack;
+  asm volatile("mov %%rsp, %0" : "=m"(user_stack) : : "memory");
+  asm volatile("mov %gs:0x17b90, %rsp");
   ret = tcp_sendmsg(local_sns.sk, &local_sns.msg, data_len);
+  asm volatile("mov %0, %%rsp" : : "r"(user_stack));
   return ret;
 }
 
@@ -169,7 +173,11 @@ int cached_tcp_recvmsg_path(int fd, const void *buf, size_t buf_len){
   update_net_state_hot(&sym_cache[fd].recv, buf, buf_len);
   struct sym_net_state local_sns = sym_cache[fd].recv;
   init_sym_net_state(&local_sns);
+  uint64_t user_stack;
+  asm volatile("mov %%rsp, %0" : "=m"(user_stack) : : "memory");
+  asm volatile("mov %gs:0x17b90, %rsp");
   ret = tcp_recvmsg(local_sns.sk, &local_sns.msg, buf_len, 64, 0, &addr_len);
+  asm volatile("mov %0, %%rsp" : : "r"(user_stack));
   return ret;
 }
 #endif
