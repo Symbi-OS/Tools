@@ -344,7 +344,6 @@ MAKE_STRUCTS_AND_FN_0(fork, "__x64_sys_fork", pid_t)
 // of arguments. It will call the real syscall with the same arguments.
 // This will set a bit in the ctrl struct to indicate that we are coming from
 // this entry path as opposed to a glibc call like read().
-
 #if 0
 long (*real_syscall)(long, ...) = NULL;
 
@@ -354,13 +353,21 @@ long syscall_entry_ctr = 0;
 // ksys_read) This could be made more symmetric with some modification to the
 // macro.
 long syscall(long syscall_vec, ...) {
+    struct pt_regs regs;
+    // Get the damn args
+    asm volatile("movq %%rdi, %0" : "=m"(regs.rdi) : : "memory");
+    asm volatile("movq %%rsi, %0" : "=m"(regs.rsi) : : "memory");
+    asm volatile("movq %%rdx, %0" : "=m"(regs.rdx) : : "memory");
+    asm volatile("movq %%rcx, %0" : "=m"(regs.rcx) : : "memory");
+    asm volatile("movq %%r8, %0" : "=m"(regs.r8) : : "memory");
+    asm volatile("movq %%r9, %0" : "=m"(regs.r9) : : "memory");
 
     if (real_syscall == NULL) {
         real_syscall = dlsym(RTLD_NEXT, "syscall");
     }
 
-    va_list args;
-    va_start(args, syscall_vec);
+    // va_list args;
+    // va_start(args, syscall_vec);
 
     long ret = -1;
     switch (syscall_vec) {
@@ -368,21 +375,27 @@ long syscall(long syscall_vec, ...) {
         return getpid();
         break;
     case SYS_getppid:
+        fprintf(stderr, "call glibc getppid\n");
         return getppid();
         break;
     case SYS_mmap: {
-        void *addr = va_arg(args, void *);
-        size_t length = va_arg(args, size_t);
-        int prot = va_arg(args, int);
-        int flags = va_arg(args, int);
-        int fd = va_arg(args, int);
-        off_t offset = va_arg(args, off_t);
-        return (long)mmap(addr, length, prot, flags, fd, offset);
+        fprintf(stderr, "mmap nyi\n");
+        exit(1);
+        // void *addr = va_arg(args, void *);
+        // size_t length = va_arg(args, size_t);
+        // int prot = va_arg(args, int);
+        // int flags = va_arg(args, int);
+        // int fd = va_arg(args, int);
+        // off_t offset = va_arg(args, off_t);
+        // return (long)mmap(addr, length, prot, flags, fd, offset);
     } break;
     case SYS_munmap: {
-        void *addr = va_arg(args, void *);
-        size_t length = va_arg(args, size_t);
-        return munmap(addr, length);
+        fprintf(stderr, "munmap nyi\n");
+        exit(1);
+        return 0;
+        // void *addr = va_arg(args, void *);
+        // size_t length = va_arg(args, size_t);
+        // return munmap(addr, length);
     } break;
     // case SYS_sendto: {
     //     int fd = va_arg(args, int);
@@ -405,45 +418,48 @@ long syscall(long syscall_vec, ...) {
     //                         addrlen);
     // } break;
     case SYS_select: {
-        int nfds = va_arg(args, int);
-        fd_set *readfds = va_arg(args, fd_set *);
-        fd_set *writefds = va_arg(args, fd_set *);
-        fd_set *exceptfds = va_arg(args, fd_set *);
-        struct timeval *timeout = va_arg(args, struct timeval *);
-        return select(nfds, readfds, writefds, exceptfds, timeout);
+        // int nfds = va_arg(args, int);
+        // fd_set *readfds = va_arg(args, fd_set *);
+        // fd_set *writefds = va_arg(args, fd_set *);
+        // fd_set *exceptfds = va_arg(args, fd_set *);
+        // struct timeval *timeout = va_arg(args, struct timeval *);
+        // return select(nfds, readfds, writefds, exceptfds, timeout);
+        fprintf(stderr, "select nyi\n");
+        exit(-1);
     } break;
     case SYS_poll: {
-        struct pollfd *fds = va_arg(args, struct pollfd *);
-        size_t nfds = va_arg(args, size_t);
-        int timeout = va_arg(args, int);
-        return poll(fds, nfds, timeout);
+        // struct pollfd *fds = va_arg(args, struct pollfd *);
+        // size_t nfds = va_arg(args, size_t);
+        // int timeout = va_arg(args, int);
+        // return poll(fds, nfds, timeout);
+        fprintf(stderr, "poll nyi\n");
     } break;
     case SYS_write: {
-        int fd = va_arg(args, int);
-        void *buf = va_arg(args, void *);
-        size_t count = va_arg(args, size_t);
-        return write(fd, buf, count);
+        // int fd = va_arg(args, int);
+        // void *buf = va_arg(args, void *);
+        // size_t count = va_arg(args, size_t);
+        return write((int)regs.rdi, (char*)regs.rsi, (size_t)regs.rdx);
     } break;
     case SYS_read: {
-        int fd = va_arg(args, int);
-        void *buf = va_arg(args, void *);
-        size_t count = va_arg(args, size_t);
-        return read(fd, buf, count);
+        // int fd = va_arg(args, int);
+        // void *buf = va_arg(args, void *);
+        // size_t count = va_arg(args, size_t);
+        return read((int)regs.rdi, (char *)regs.rsi, (size_t)regs.rdx);
     } break;
     default: {
-        uint64_t arg1, arg2, arg3, arg4, arg5, arg6;
-        arg1 = va_arg(args, uint64_t);
-        arg2 = va_arg(args, uint64_t);
-        arg3 = va_arg(args, uint64_t);
-        arg4 = va_arg(args, uint64_t);
-        arg5 = va_arg(args, uint64_t);
-        arg6 = va_arg(args, uint64_t);
+        // uint64_t arg1, arg2, arg3, arg4, arg5, arg6;
+        // arg1 = va_arg(args, uint64_t);
+        // arg2 = va_arg(args, uint64_t);
+        // arg3 = va_arg(args, uint64_t);
+        // arg4 = va_arg(args, uint64_t);
+        // arg5 = va_arg(args, uint64_t);
+        // arg6 = va_arg(args, uint64_t);
         // fprintf(stderr, "arg1: %ld arg2: %ld arg3: %ld arg4: %ld arg5: %ld arg6:
         // %ld\n", arg1, arg2, arg3, arg4, arg5, arg6);
-        return real_syscall(syscall_vec, arg1, arg2, arg3, arg4, arg5, arg6);
+        return real_syscall(syscall_vec, regs.rdi, regs.rsi, regs.rdx, regs.rcx, regs.r8, regs.r9);
     }
     }
-    va_end(args);
+    // va_end(args);
 
     // No one should get here.
     assert(false);
