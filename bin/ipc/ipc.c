@@ -173,7 +173,6 @@ int wait_for_job_request(workspace_t * ws){
 	while (1) {
 		int * status_ptr = &(ws->job_buffers[idx].status);
 		//printf("Current idx %d, status: %d\n", idx, *status_ptr);
-		(void)getppid();		
 
 		if (__sync_bool_compare_and_swap(status_ptr, JOB_REQUESTED, JOB_BUFFER_IN_USE)){
 			//printf("Found a job at idx %d\n", idx);
@@ -182,6 +181,7 @@ int wait_for_job_request(workspace_t * ws){
 			idx ++;
 			if (idx==MAX_JOB_BUFFERS){
 				idx = 0;
+				(void)getppid();
 			}
 		}
 	}
