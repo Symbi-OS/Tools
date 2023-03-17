@@ -19,14 +19,12 @@ for i in $(seq 0 $((NUM_CPUS - 1))); do
             #     exit 1
             # fi
 
-            "${SCRIPT_DIR}"/interposing_mitigator.sh -m df -t "$i"
-            if [ $? -ne 0 ]; then
+            if ! "${SCRIPT_DIR}"/interposing_mitigator.sh -m df -t "$i"; then
                 echo interposing_mitigator failed for df core "$i"
                 exit 1
             fi
 
-            ${SCRIPT_DIR}/interposing_mitigator.sh -m tf -t $i
-            if [ $? -ne 0 ]; then
+            if ! "${SCRIPT_DIR}"/interposing_mitigator.sh -m tf -t "$i"; then
                 echo "interposing_mitigator failed for tf core $i"
                 exit 1
             fi
@@ -34,8 +32,7 @@ for i in $(seq 0 $((NUM_CPUS - 1))); do
             # This one has a weird bug & we use db exceptions now anyway
             # ${SCRIPT_DIR}/interposing_mitigator.sh -m i3 -t $i
 
-            ${SCRIPT_DIR}/interposing_mitigator.sh -m db -t $i
-            if [ $? -ne 0 ]; then
+            if ! "${SCRIPT_DIR}"/interposing_mitigator.sh -m db -t "$i"; then
                 echo "interposing_mitigator failed for db core $i"
                 exit 1
             fi
