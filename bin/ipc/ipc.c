@@ -170,7 +170,14 @@ void print_job_buffer(JobRequestBuffer_t* jrb, char * header){
 
 int wait_for_job_request(workspace_t * ws){
 	int idx = 0;
+	int rcu_countdown = 1000;
 	while (1) {
+		--rcu_countdown;
+		if (rcu_countdown == 0) {
+			(void)getppid();
+			rcu_countdown = 1000;
+		}
+
 		int * status_ptr = &(ws->job_buffers[idx].status);
 		//printf("Current idx %d, status: %d\n", idx, *status_ptr);
 
@@ -181,7 +188,6 @@ int wait_for_job_request(workspace_t * ws){
 			idx ++;
 			if (idx==MAX_JOB_BUFFERS){
 				idx = 0;
-				(void)getppid();
 			}
 		}
 	}
