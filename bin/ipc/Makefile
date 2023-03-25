@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS= -O3 -ggdb -Wall -Wextra -mno-red-zone -lpthread -lrt
+CFLAGS=-O3 -ggdb -Wall -Wextra -mno-red-zone -lpthread -lrt
 export CC CFLAGS
 
 #Check for kernel version
@@ -13,7 +13,7 @@ endif
 RUN_ITERATIONS := 10000
 export RUN_ITERATIONS
 
-all: server server_killer independent_client ipc_shortcut.so
+all: server server_killer independent_client ipc.so ipc_shortcut.so
 
 # GET TARGET INFO
 
@@ -55,8 +55,11 @@ independent_client: client.c
 server_killer: server_killer.c ipc.c
 	$(CC) $(CFLAGS) $^ -o $@
 
+ipc.so: ipc.c
+	$(CC) $(CFLAGS) -shared -fPIC $^ -o $@
+
 ipc_shortcut.so: ipc_shortcut.c ipc.c
-	$(CC) $(CCFLAGS) -shared -fPIC $^ -o $@
+	$(CC) $(CFLAGS) -shared -fPIC $^ -o $@
 
 run_independent_client: independent_client
 	taskset -c 1 ./independent_client $(RUN_ITERATIONS)
@@ -81,5 +84,5 @@ copy_binaries_to_artifacts: server server_killer ipc_shortcut.so
 	\cp server server_killer ipc_shortcut.so /home/root/Symbi-OS/artifacts/ipc_interposer/ 
 
 clean:
-	rm -rf server server_killer independent_client ipc_shortcut.so run_log scalability.log sys_info/
+	rm -rf server server_killer independent_client ipc.so ipc_shortcut.so run_log scalability.log sys_info/
 	rm -f /dev/shm/sym_server_shm
