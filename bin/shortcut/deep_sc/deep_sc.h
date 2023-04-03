@@ -32,6 +32,7 @@ extern uint64_t addr_msg;
 extern my_tcp_sendmsg_t tcp_sendmsg;
 extern my_tcp_recvmsg_t tcp_recvmsg;
 extern struct cache_elem* sym_cache;
+extern my___fdget_t my___fdget;
 
 struct kiocb_struct{
   void * file_p;
