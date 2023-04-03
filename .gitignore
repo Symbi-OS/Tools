@@ -32,3 +32,5 @@ examples/db_probe/test
 testing/.mitigated_all
 
 bin/shortcut/sc_lib.so
+
+*.o
