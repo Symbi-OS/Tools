@@ -10,7 +10,7 @@ redirect:
 	make -C ../ bin
 
 %.o: %.c
-	$(CC) -c $(CFLAGS) -I $(SYMLIB_INCLUDE_DIR) -fPIC -o $@ $<
+	$(CC) -c $(CFLAGS) -I $(SYMLIB_INCLUDE_DIR) $(DEEP_SC_DEFINE) -fPIC -o $@ $<
 
 # Don't call this target directly
 all: $(EXECS)
