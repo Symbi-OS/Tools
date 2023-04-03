@@ -10,6 +10,7 @@ my_ksys_read_t my_ksys_read;
 my_ksys_write_t my_ksys_write;
 my_tcp_sendmsg_t tcp_sendmsg;
 my_tcp_recvmsg_t tcp_recvmsg;
+my___fdget_t my___fdget = ((void*)0);
 
 void init_tcp_sc(){
   tcp_sendmsg = NULL;
@@ -91,8 +92,10 @@ void update_net_state_hot(struct sym_net_state *net_state, const void *buf, int 
 }
 
 void * fd_to_filep(int fd){
-  my___fdget_t my___fdget = (my___fdget_t) sym_get_fn_address("__fdget");
-  sym_elevate();
+  if (my___fdget == NULL) {
+      my___fdget = (my___fdget_t) sym_get_fn_address("__fdget");
+      sym_elevate();
+  }
   uint64_t tmp = my___fdget(fd);
   tmp >>= 1;
   tmp <<= 1;
@@ -116,7 +119,7 @@ int write_populate_cache(int fd, const void *data, size_t data_len){
   int core = sched_getcpu();
   struct scratchpad * sp = (struct scratchpad *) get_scratch_pg(core);
   sym_set_db_probe((uint64_t)tcp_sendmsg, reg, flag);
-  sym_elevate();
+  /* sym_elevate(); */
   sp->read_addr_msg = 0;
 
   // run syscall ... triggers probe.
@@ -142,7 +145,7 @@ int read_populate_cache(int fd, const void *data, size_t data_len){
   struct scratchpad * sp = (struct scratchpad *) get_scratch_pg(core);
   sym_set_db_probe((uint64_t)tcp_recvmsg, reg, flag);
 
-  sym_elevate();
+  /* sym_elevate(); */
   sp->read_addr_msg = 0;
   ret = real_read(fd, (void *)data, data_len);
   memcpy(&sym_cache[fd].recv.msg, (void *)sp->addr_msg, 96);
