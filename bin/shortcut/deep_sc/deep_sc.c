@@ -8,8 +8,6 @@
 
 my_ksys_read_t my_ksys_read;
 my_ksys_write_t my_ksys_write;
-my_tcp_sendmsg_t tcp_sendmsg;
-my_tcp_recvmsg_t tcp_recvmsg;
 my___fdget_t my___fdget = ((void*)0);
 
 void init_tcp_sc(){
