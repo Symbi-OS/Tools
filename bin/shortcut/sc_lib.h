@@ -79,20 +79,39 @@ void print_args(struct pt_regs *regs) {
 
 // NOTE: RCX goes to r10 bc it's clobbered in syscall instruction, this is
 // what syscall() does.
-#define MAKE_INTERPOSE_FN(fn_name, sc_target, ret_t, types_and_args, args)     \
-    MAKE_SIG(ret_t, fn_name, types_and_args) {                                 \
-        struct pt_regs regs;                                                   \
-        asm volatile("movq %%rdi, %0" : "=m"(regs.rdi) : : "memory");          \
-        asm volatile("movq %%rsi, %0" : "=m"(regs.rsi) : : "memory");          \
-        asm volatile("movq %%rdx, %0" : "=m"(regs.rdx) : : "memory");          \
-        asm volatile("movq %%rcx, %0" : "=m"(regs.r10) : : "memory");          \
-        asm volatile("movq %%r8, %0" : "=m"(regs.r8) : : "memory");            \
-        asm volatile("movq %%r9, %0" : "=m"(regs.r9) : : "memory");            \
+#if 1
+#define STORE_REGS()                                                       \
+    asm volatile("movq %%rdi, %0" : "=m"(regs.rdi) : : "memory");          \
+    asm volatile("movq %%rsi, %0" : "=m"(regs.rsi) : : "memory");          \
+    asm volatile("movq %%rdx, %0" : "=m"(regs.rdx) : : "memory");          \
+    asm volatile("movq %%rcx, %0" : "=m"(regs.r10) : : "memory");          \
+    asm volatile("movq %%r8, %0" : "=m"(regs.r8) : : "memory");            \
+    asm volatile("movq %%r9, %0" : "=m"(regs.r9) : : "memory");
+#else
+static inline void store_regs(struct pt_regs* regs) {
+    asm volatile("movq %%rdi, %0" : "=m"(regs->rdi) : : "memory");
+    asm volatile("movq %%rsi, %0" : "=m"(regs->rsi) : : "memory");
+    asm volatile("movq %%rdx, %0" : "=m"(regs->rdx) : : "memory");
+    asm volatile("movq %%rcx, %0" : "=m"(regs->r10) : : "memory");
+    asm volatile("movq %%r8, %0" : "=m"(regs->r8) : : "memory");
+    asm volatile("movq %%r9, %0" : "=m"(regs->r9) : : "memory");
+}
+#endif
+
+// do while here is just ensuuring macro exppands as a single statement.
+#define INITIALIZE_FUNCTION(fn_name, sc_target)                                \
         if (!real_##fn_name) {                                                 \
             get_fn_config_and_targets(                                         \
                 &fn_name##_ctrl, (void **)&real_##fn_name,                     \
                 (void **)&sc_target_##fn_name, sc_target, __func__);           \
-        }                                                                      \
+        }
+
+
+#define MAKE_INTERPOSE_FN(fn_name, sc_target, ret_t, types_and_args, args)     \
+    MAKE_SIG(ret_t, fn_name, types_and_args) {                                 \
+        struct pt_regs regs;                                                   \
+        STORE_REGS();                                                     \
+        INITIALIZE_FUNCTION(fn_name, sc_target);                               \
         ingress_work(&fn_name##_ctrl);                                         \
         ret_t ret;                                                             \
         if (do_sc(fn_name##_ctrl.do_shortcut)) {                               \
@@ -109,7 +128,7 @@ void print_args(struct pt_regs *regs) {
     }
 
 #if 0
-try to substitute 
+try to substitute
 ;
             uint64_t user_stack;                                               \
 
