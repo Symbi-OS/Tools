@@ -334,11 +334,13 @@ MAKE_STRUCTS_AND_FN_4(pwrite64, "__x64_sys_pwrite64", ssize_t, int, fd, const vo
 //                       iov, int, iovcnt, off_t, offset)
 // pwritev64
 // pwritev64v2
-
-
-
 // MAKE_STRUCTS_AND_FN_4(pread, "__x64_sys_pread64", ssize_t, int, fd, void *,
 //                       buf, size_t, count, off_t, offset);
+
+// ssize_t sendmsg(int sockfd, const struct msghdr *msg, int flags);
+
+MAKE_STRUCTS_AND_FN_3(sendmsg, "__x64_sys_sendmsg", ssize_t, int, sockfd, const struct msghdr*,
+                      msg, int, flags)
 
 MAKE_STRUCTS_AND_FN_3(write, "__x64_sys_write", ssize_t, int, fd, const void *,
                       buf, size_t, count)

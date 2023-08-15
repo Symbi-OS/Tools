@@ -7,6 +7,7 @@
 #include <sys/types.h>
 
 #include <sys/uio.h>
+#include <sys/socket.h>
 
 
 int normal_path_ct = 0;
