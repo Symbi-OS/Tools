@@ -2,7 +2,7 @@ SHELL := /bin/bash
 
 CC=gcc
 # XXX: We do see this break mitigate when set to -O3
-CFLAGS= -O0 -ggdb -Wall -Wextra -mno-red-zone -fno-omit-frame-pointer
+CFLAGS= -O2 -ggdb -Wall -Wextra -mno-red-zone -fno-omit-frame-pointer
 CFLAGS+=-Wfatal-errors
 export CC CFLAGS
 
