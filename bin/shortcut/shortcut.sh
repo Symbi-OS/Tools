@@ -203,7 +203,8 @@ function run () {
 
         # Gets overwritten here...
         # HACK: FIXME
-        export LD_LIBRARY_PATH="/home/$(whoami)/Symbi-OS/Symlib/dynam_build:/home/$(whoami)/Symbi-OS/Tools/bin/shortcut/deep_sc"
+        #export LD_LIBRARY_PATH="/home/$(whoami)/Symbi-OS/Symlib/dynam_build:/home/$(whoami)/Symbi-OS/Tools/bin/shortcut/deep_sc"
+        #export LD_LIBRARY_PATH="/home/$(whoami)/Symbi-OS/Symlib/dynam_build:/home/$(whoami)/Symbi-OS/Tools/bin/shortcut/deep_sc"
 
         LD_LIBRARY_ENVT_VAR="LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
 

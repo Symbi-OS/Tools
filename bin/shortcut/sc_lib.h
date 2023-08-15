@@ -6,6 +6,12 @@
 #include <stdbool.h>
 #include <sys/types.h>
 
+#include <sys/uio.h>
+
+
+int normal_path_ct = 0;
+int sc_path_ct = 0;
+
 // Struct that contains all flags for function interposition
 
 // HACK: huge hack to toggle shortcut
@@ -112,8 +118,10 @@ void print_args(struct pt_regs *regs) {
 #define CALL_FUNCTION(fn_name, sc_target, ret_t, args) \
     ret_t ret;                                         \
     if (do_sc(fn_name##_ctrl.do_shortcut)) {           \
+        sc_path_ct++; \
         HANDLE_SHORTCUT(fn_name, sc_target, ret_t)     \
     } else {                                           \
+        normal_path_ct++; \
         ret = MAKE_FN_CALL(real_##fn_name, args);      \
     }
 

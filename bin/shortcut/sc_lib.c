@@ -103,6 +103,8 @@ void __attribute__((destructor)) cleanUp(void) {
     free(sym_cache);
 #endif
     sym_lower();
+    printf("Normal path count is %d\n", normal_path_ct);
+    printf("SC path count is %d\n", sc_path_ct);
 }
 
 // Takes buffer, prefix, fn, and suffix
@@ -319,6 +321,25 @@ bool do_sc(bool do_sc_for_fn) {
 
 #ifndef DEEP_SHORTCUT
 
+// ssize_t pread(int fd, void *buf, size_t count, off_t offset);
+
+// ssize_t pwrite(int fd, const void *buf, size_t count, off_t offset);
+
+// MAKE_STRUCTS_AND_FN_4(__libc_pwrite, "__x64_sys_pwrite64", ssize_t, int, fd, const void *,
+//                       buf, size_t, nbytes, off_t, offset)
+
+MAKE_STRUCTS_AND_FN_4(pwrite64, "__x64_sys_pwrite64", ssize_t, int, fd, const void *,
+                      buf, size_t, count, off_t, offset)
+// MAKE_STRUCTS_AND_FN_4(pwritev, "__x64_sys_pwritev", ssize_t, int, fd, const struct iovec *,
+//                       iov, int, iovcnt, off_t, offset)
+// pwritev64
+// pwritev64v2
+
+
+
+// MAKE_STRUCTS_AND_FN_4(pread, "__x64_sys_pread64", ssize_t, int, fd, void *,
+//                       buf, size_t, count, off_t, offset);
+
 MAKE_STRUCTS_AND_FN_3(write, "__x64_sys_write", ssize_t, int, fd, const void *,
                       buf, size_t, count)
 MAKE_STRUCTS_AND_FN_3(read, "__x64_sys_read", ssize_t, int, fd, void *, buf,
@@ -338,6 +359,7 @@ MAKE_STRUCTS_AND_FN_4(epoll_wait, "__x64_sys_epoll_wait", int, int, epfd,
                       struct epoll_event *, events, int, maxevents, int,
                       timeout)
 MAKE_STRUCTS_AND_FN_0(fork, "__x64_sys_fork", pid_t)
+
 
 // fork XXX don't know if that's the right target, only need it to
 // lower for now
