@@ -40,5 +40,15 @@ run_simple_walk: simple_walk
 run_readwrite_test: readwrite_test
 	./readwrite_test
 
+run_all_tests: all
+	@echo ======== Simple Page Table Walk ========
+	./simple_walk
+
+	@echo ======== Read-Write Modification ========
+	- ./readwrite_test
+	./readwrite_test 1
+
+	@echo ""
+
 clean:
 	rm -rf .Module.* .modules.* Module* modules* kpt_util kpt_util.mod* *.ko *.o .kpt_util* simple_walk readwrite_test

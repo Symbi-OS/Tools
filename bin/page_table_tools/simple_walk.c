@@ -34,10 +34,8 @@ void walk_pagetable(int should_print_pte) {
         vma = get_next_vma(vma);
     }
 
-    printf("\n==============================\n");
     printf("----- Visited %li Pages -----\n", pages_visited);
-    printf("     Pages Present : %li\n", pages_present);
-    printf("==============================\n");
+    printf("     Pages Present : %li\n\n", pages_present);
 }
 
 int main() {
