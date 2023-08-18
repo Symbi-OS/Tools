@@ -10,7 +10,12 @@ CFLAGS += -D__KERNEL__
 LINUX_PATH=../../../linux
 obj-m += kpt_util.o
 
-all: simple_walk readwrite_test
+all: prep simple_walk readwrite_test
+
+default_ld_script.ld:
+	ld --verbose | awk 'BEGIN {p=0}; /^=======/ {if (p==0) p=1; else p=2; next}; p==1' > $@
+
+prep: default_ld_script.ld
 
 kpt_util: kpt_util.c
 	make -C $(LINUX_PATH) M=$(PWD) modules
