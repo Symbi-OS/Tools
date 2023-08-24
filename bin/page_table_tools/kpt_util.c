@@ -66,7 +66,7 @@ void make_pte_readonly(pte_t* pte) {
     pte_wrprotect(*pte);
 }
 
-void flush_tlb(uint64_t addr) {
+void flush_tlb(void) {
     __flush_tlb_all();
 }
 
