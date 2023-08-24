@@ -47,4 +47,4 @@ extern uint64_t get_task_vma_end(void* vma);
 extern struct page_table_entry* get_pte_for_address(void* task, uint64_t addr);
 
 extern void make_pte_readonly(struct page_table_entry* pte);
-extern void flush_tlb(uint64_t addr);
+extern void flush_tlb();

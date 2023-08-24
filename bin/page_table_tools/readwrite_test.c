@@ -15,7 +15,7 @@ void change_pte_readwrite_permissions() {
     assert((pte->read_write == 0));
 
     pte->read_write = 1;
-    flush_tlb((uint64_t)myCharArr);
+    flush_tlb();
 
     sym_lower();
 }
