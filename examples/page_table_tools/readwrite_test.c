@@ -24,12 +24,13 @@ void read_and_print_char_value() {
     printf("Read byte value: '%c'\n", *myCharArr);
 }
 
-void modify_char_value() {
-    *((unsigned char*)myCharArr) = 'x';
+void modify_char_value(char newChar) {
+    *((unsigned char*)myCharArr) = newChar;
 }
 
 int main(int argc, char** argv) {
     (void)argv;
+	char newChar = 'x';
 
     read_and_print_char_value();
 
@@ -37,9 +38,10 @@ int main(int argc, char** argv) {
     // modification through the PTE.
     if (argc > 1) {
         change_pte_readwrite_permissions();
+		newChar = *argv[1];
     }
 
-    modify_char_value();
+    modify_char_value(newChar);
     read_and_print_char_value();
 
     return 0;
