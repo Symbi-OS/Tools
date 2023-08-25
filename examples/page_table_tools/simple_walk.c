@@ -38,17 +38,24 @@ void walk_pagetable(int should_print_pte) {
     printf("     Pages Present : %li\n\n", pages_present);
 }
 
-int main() {
-    sym_elevate();
+int main(int argc, char** argv) {
+    int pages_to_allocate = 5;
+	if (argc > 1) {
+		pages_to_allocate = atoi(argv[1]);
+	}
+	
+	sym_elevate();
 
     walk_pagetable(0);
 
-    unsigned char* ptr = (unsigned char*)malloc(5 * PAGE_SIZE);
-    ptr[1 * PAGE_SIZE - 1] = 'h';
-    ptr[2 * PAGE_SIZE - 1] = 'e';
-    ptr[3 * PAGE_SIZE - 1] = 'l';
-    ptr[4 * PAGE_SIZE - 1] = 'l';
-    ptr[5 * PAGE_SIZE - 1] = 'o';
+	// Allocating more pages of memory
+	printf("Allocating %i bytes (%i pages)...\n\n", pages_to_allocate * PAGE_SIZE, pages_to_allocate);
+    unsigned char* ptr = (unsigned char*)malloc(pages_to_allocate * PAGE_SIZE);
+	
+	// Touching the pages to make them present
+	for (int i = 1; i <= pages_to_allocate; ++i) {
+		ptr[i * PAGE_SIZE - 1] = 'x';
+	}
 
     walk_pagetable(0);
 
