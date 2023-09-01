@@ -180,6 +180,11 @@ void config_fn_lower(struct fn_ctrl *ctrl, const char *fn) {
 
     // Manage lower case if necessary.
     char *lower_fn = malloc(strlen("LOWER_") + strlen(fn) + strlen("=1") + 1);
+    // Check that malloc didn't fail
+    if (lower_fn == NULL) {
+        fprintf(stderr, "Malloc failed\n");
+        exit(1);
+    }
     build_envt_var(lower_fn, "LOWER_", fn, "=1");
     if (envt_var_exists(lower_fn)) {
         // If already sandwiching for elevate, then we can't lower
@@ -200,6 +205,11 @@ void config_fn_shortcut(struct fn_ctrl *ctrl, const char *fn, char *sc_target) {
     char *shortcut_fn =
         malloc(strlen("SHORTCUT_") + strlen(fn) + strlen("_TO_") +
                strlen(sc_target) + strlen("=1") + 1);
+    // Check that malloc didn't fail
+    if (shortcut_fn == NULL) {
+        fprintf(stderr, "Malloc failed\n");
+        exit(1);
+    }
 
     build_shortcut_envt_var(shortcut_fn, "SHORTCUT_", fn, "=1", sc_target);
 
