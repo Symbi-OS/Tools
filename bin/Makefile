@@ -7,7 +7,7 @@ DEEP_SC_DEFINE = "-UDEEP_SHORTCUT"
 # You should be able to run 'make' in this dir, this just invokes the parent
 # makefile just so we can make use of the inherited variables.
 redirect:
-	make -C ../ bin
+	$(MAKE) -C ../ bin
 
 %.o: %.c
 	$(CC) -c $(CFLAGS) -I $(SYMLIB_INCLUDE_DIR) $(DEEP_SC_DEFINE) -fPIC -o $@ $<
@@ -32,7 +32,7 @@ snapshot_tool: snapshot_tool.c snapshot_tool.h | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB_LINK) -I $(SYMLIB_INCLUDE_DIR)
 
 shortcut/sc_lib.so: shortcut/sc_lib.o shortcut/deep_sc/deep_sc.o
-	gcc $(CFLAGS) -shared -fPIC -o $@ $(SYMLIB_LINK) $^ $(DEEP_SC_DEFINE)
+	$(CC) $(CFLAGS) -shared -fPIC -o $@ $(SYMLIB_LINK) $^ $(DEEP_SC_DEFINE)
 
 clean:
 	rm -rf $(EXECS)
