@@ -1,5 +1,6 @@
 INCLUDE default_ld_script.ld
 
+printk = 0xffffffff81ca81f7;
 pgdir_shift = 0xffffffff826f1a6c;
 boot_cpu_data = 0xffffffff82b63640;
 physical_mask = 0xffffffff82708310;

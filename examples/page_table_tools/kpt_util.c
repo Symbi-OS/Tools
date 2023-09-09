@@ -62,6 +62,52 @@ pte_t* get_pte_for_address(struct task_struct* task, uint64_t addr) {
     return pte;
 }
 
+void fill_page_table_info_for_address(
+    struct task_struct* task,
+    uint64_t addr,
+    uint64_t* out_pgd,
+    uint64_t* out_p4d,
+    uint64_t* out_pud,
+    uint64_t* out_pmd,
+    uint64_t* out_pte
+) {
+    struct mm_struct* task_mm;
+    pgd_t* pgd;
+    p4d_t* p4d;
+    pud_t* pud;
+    pmd_t* pmd;
+    pte_t* pte;
+
+    task_mm = task->mm;
+
+    pgd = pgd_offset(task_mm, addr);
+    if (pgd_none(*pgd) || pgd_bad(*pgd))
+        return;
+
+    p4d = p4d_offset(pgd, addr);
+    if (p4d_none(*p4d) || p4d_bad(*p4d))
+        return;
+
+    pud = pud_offset(p4d, addr);
+    if (pud_none(*pud) || pud_bad(*pud))
+        return;
+
+    pmd = pmd_offset(pud, addr);
+    if (pmd_none(*pmd) || pmd_bad(*pmd))
+        return;
+
+    pte = pte_offset_kernel(pmd, addr);
+    if (!pte)
+        return;
+
+    // Write the results into output variables
+    *out_pgd = pgd_val(*pgd);
+    *out_p4d = p4d_val(*p4d);
+    *out_pud = pud_val(*pud);
+    *out_pmd = pmd_val(*pmd);
+    *out_pte = pte_val(*pte);
+}
+
 void make_pte_readonly(pte_t* pte) {
     pte_wrprotect(*pte);
 }

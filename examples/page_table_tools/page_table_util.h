@@ -46,5 +46,15 @@ extern uint64_t get_task_vma_end(void* vma);
 
 extern struct page_table_entry* get_pte_for_address(void* task, uint64_t addr);
 
+extern void fill_page_table_info_for_address(
+    void* task,
+    uint64_t addr,
+    struct page_table_entry* opgd,
+    struct page_table_entry* op4d,
+    struct page_table_entry* opud,
+    struct page_table_entry* opmd,
+    struct page_table_entry* opte
+);
+
 extern void make_pte_readonly(struct page_table_entry* pte);
 extern void flush_tlb();
