@@ -1,4 +1,5 @@
 CC=gcc
+CXX=g++
 CFLAGS=-O0 -ggdb -Wall -Wextra -mno-red-zone -lpthread -lrt
 
 SYMLIB_DIR=../../../Symlib
@@ -6,6 +7,7 @@ SYMLIB_DYNAM_BUILD_DIR=$(SYMLIB_DIR)/dynam_build
 SYMLIB_INCLUDE_DIR=$(SYMLIB_DIR)/include
 SYMLIB_LINK=-lSym
 CFLAGS += -D__KERNEL__
+CXXFLAGS=$(CFLAGS) -std=c++17
 
 LINUX_PATH=../../../linux
 obj-m += kpt_util.o
@@ -27,8 +29,11 @@ kpt_util.o: kpt_util.c
 page_table_util.o: page_table_util.c
 	$(CC) $(CFLAGS) -c $^ -o $@ -I$(SYMLIB_INCLUDE_DIR)
 
-simple_walk.o: simple_walk.c
-	$(CC) $(CFLAGS) -c $^ -o $@ -I$(SYMLIB_INCLUDE_DIR)
+json11.o: json11.cpp
+	$(CXX) $(CXXFLAGS) -c $^ -o $@
+
+simple_walk.o: simple_walk.cpp
+	$(CXX) $(CXXFLAGS) -c $^ -o $@ -I$(SYMLIB_INCLUDE_DIR)
 
 readwrite_test.o: readwrite_test.c
 	$(CC) $(CFLAGS) -fPIC -c $^ -o $@ -I$(SYMLIB_INCLUDE_DIR)
@@ -36,8 +41,8 @@ readwrite_test.o: readwrite_test.c
 page_migration_test.o: page_migration_test.c
 	$(CC) $(CFLAGS) -fPIC -c $^ -o $@ -I$(SYMLIB_INCLUDE_DIR)
 
-simple_walk: simple_walk.o page_table_util.o kpt_util.o
-	$(CC) $(CFLAGS) -o $@ $^ -lSym -L../../../Symlib/dynam_build -T symhelper.ld
+simple_walk: simple_walk.o page_table_util.o kpt_util.o json11.o
+	$(CXX) $(CXXFLAGS) -o $@ $^ -lSym -L../../../Symlib/dynam_build -T symhelper.ld
 
 readwrite_test: readwrite_test.o page_table_util.o kpt_util.o
 	$(CC) $(CFLAGS) -o $@ $^ -lSym -L../../../Symlib/dynam_build -T symhelper.ld
