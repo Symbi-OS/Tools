@@ -3,6 +3,7 @@ extern "C" {
     #include <LINF/sym_all.h>
 }
 
+#include <memory>
 #include <map>
 #include <vector>
 #include <string>
@@ -12,259 +13,153 @@ extern "C" {
 #include <unistd.h>
 #include "json11.hpp"
 
-struct pgd_to_p4ds_map {
-    struct page_table_entry pgd;
-    std::vector<struct page_table_entry> p4ds;
-};
-
-struct p4d_to_puds_map {
-    struct page_table_entry p4d;
-    std::vector<struct page_table_entry> puds;
-};
-
-struct pud_to_pmds_map {
-    struct page_table_entry pud;
-    std::vector<struct page_table_entry> pmds;
-};
-
-struct pmd_to_ptes_map {
-    struct page_table_entry pmd;
-    std::vector<struct page_table_entry> ptes;
-};
-
-static std::map<uint64_t, pgd_to_p4ds_map> pgd_map;  // pgd -> p4ds
-static std::map<uint64_t, p4d_to_puds_map> p4d_map;  // p4d -> puds
-static std::map<uint64_t, pud_to_pmds_map> pud_map;  // pud -> pmds
-static std::map<uint64_t, pmd_to_ptes_map> pmd_map;  // pmd -> ptes
-
 std::string to_hex_string(uint64_t value) {
     std::stringstream ss;
     ss << std::hex << value;
     return ss.str();
 }
 
-bool pte_exists_in_pmd_map(
-    uint64_t pmd_pfn,
-    struct page_table_entry& pte
-) {
-    for (auto& entry : pmd_map[pmd_pfn].ptes) {
-        if (entry.page_frame_number == pte.page_frame_number) {
-            return true;
+#include <iostream>
+#include <map>
+
+class ProcessPageTableSnapshot {
+public:
+    struct PageTableLevelRepr {
+        struct page_table_entry entry;
+        std::map<uint64_t, PageTableLevelRepr> children;
+    };
+
+    void update_entries_for_vaddr(
+        struct page_table_entry pgd,
+        struct page_table_entry p4d,
+        struct page_table_entry pud,
+        struct page_table_entry pmd,
+        struct page_table_entry pte
+    ) {
+        // Populate or retrieve PGD entry
+        PageTableLevelRepr& pgd_entry = root_map[pgd.page_frame_number];
+        pgd_entry.entry = pgd;
+
+        // Populate or retrieve P4D entry
+        PageTableLevelRepr& p4d_entry = pgd_entry.children[p4d.page_frame_number];
+        p4d_entry.entry = p4d;
+
+        // Populate or retrieve PUD entry
+        PageTableLevelRepr& pud_entry = p4d_entry.children[pud.page_frame_number];
+        pud_entry.entry = pud;
+
+        // Populate or retrieve PMD entry
+        PageTableLevelRepr& pmd_entry = pud_entry.children[pmd.page_frame_number];
+        pmd_entry.entry = pmd;
+
+        // Populate or retrieve PTE entry
+        PageTableLevelRepr& pte_entry = pmd_entry.children[pte.page_frame_number];
+        pte_entry.entry = pte;
+    }
+
+    json11::Json to_json(const PageTableLevelRepr& entry_repr) const {
+        auto& entry = entry_repr.entry;
+
+        json11::Json::object json_object;
+        json_object["pfn"] = to_hex_string(entry.page_frame_number);
+        json_object["present"] = (int)entry.present;
+        json_object["read_write"] = (int)entry.read_write;
+        json_object["user_supervisor"] = (int)entry.user_supervisor;
+        json_object["page_write_through"] = (int)entry.page_write_through;
+        json_object["page_cache_disabled"] = (int)entry.page_cache_disabled;
+        json_object["accessed"] = (int)entry.accessed;
+        json_object["dirty"] = (int)entry.dirty;
+        json_object["page_access_type"] = (int)entry.page_access_type;
+        json_object["global"] = (int)entry.global;
+        json_object["protection_key"] = (int)entry.protection_key;
+        json_object["execute_disable"] = (int)entry.execute_disable;
+      
+        json11::Json::object children_json_object;
+        for (const auto& child : entry_repr.children) {
+            children_json_object[to_hex_string(child.first)] = to_json(child.second);
         }
+        json_object["children"] = children_json_object;
+
+        return json_object;
     }
 
-    return false;
-}
+    json11::Json to_json() const {
+        static struct page_table_entry dummy_entry = { .value = 0 };
 
-json11::Json merge_json_objects(const json11::Json& obj1, const json11::Json& obj2) {
-    json11::Json::object combined = obj1.object_items();
-    
-    for (const auto& item : obj2.object_items()) {
-        combined[item.first] = item.second;
+        return to_json({.entry = dummy_entry, .children = root_map});
     }
 
-    return combined;
-}
+    inline std::map<uint64_t, PageTableLevelRepr>& get_root_map() { return root_map; }
 
-json11::Json pte_to_json(struct page_table_entry& entry) {
-    return json11::Json::object({
-        { "pfn", to_hex_string(entry.page_frame_number) },
-        { "present", (int)entry.present },
-        { "read_write", (int)entry.read_write },
-        { "user_supervisor", (int)entry.user_supervisor },
-        { "page_write_through", (int)entry.page_write_through },
-        { "page_cache_disabled", (int)entry.page_cache_disabled },
-        { "accessed", (int)entry.accessed },
-        { "dirty", (int)entry.dirty },
-        { "page_access_type", (int)entry.page_access_type },
-        { "global", (int)entry.global },
-        { "protection_key", (int)entry.protection_key },
-        { "execute_disable", (int)entry.execute_disable }
-    });
-}
+private:
+    std::map<uint64_t, PageTableLevelRepr> root_map;
+};
 
-json11::Json::array pmds_to_json(
-    std::vector<struct page_table_entry>& pmds
+std::shared_ptr<ProcessPageTableSnapshot> snapshot_pagetable(
+    void* task
 ) {
-    json11::Json::array pmds_json_array;
+    auto snapshot = std::make_shared<ProcessPageTableSnapshot>();
+    uint64_t pages_recorded = 0;
 
-    for (auto& pmd_entry : pmds) {
-        uint64_t pmd_pfn = (uint64_t)pmd_entry.page_frame_number;
-        auto& ptes = pmd_map[pmd_pfn].ptes;
-
-        json11::Json::array ptes_json_array;
-        for (auto& pte : ptes) {
-            ptes_json_array.push_back(json11::Json::object(
-                pte_to_json(pte).object_items()
-            ));
-        }
-
-        json11::Json pmd_json_obj = json11::Json::object({
-            { "ptes", ptes_json_array }
-        });
-        pmd_json_obj = merge_json_objects(pmd_json_obj, pte_to_json(pmd_entry));
-
-        pmds_json_array.push_back(pmd_json_obj);
-    }
-
-    return pmds_json_array;
-}
-
-json11::Json::array puds_to_json(
-    std::vector<struct page_table_entry>& puds
-) {
-    json11::Json::array puds_json_array;
-
-    for (auto& pud_entry : puds) {
-        uint64_t pud_pfn = (uint64_t)pud_entry.page_frame_number;
-        auto& pmds = pud_map[pud_pfn].pmds;
-
-        json11::Json pud_json_obj = json11::Json::object({
-            { "pmds", pmds_to_json(pmds) }
-        });
-        pud_json_obj = merge_json_objects(pud_json_obj, pte_to_json(pud_entry));
-
-        puds_json_array.push_back(pud_json_obj);
-    }
-
-    return puds_json_array;
-}
-
-json11::Json::array p4ds_to_json(
-    std::vector<struct page_table_entry>& p4ds
-) {
-    json11::Json::array p4ds_json_array;
-
-    for (auto& p4d_entry : p4ds) {
-        uint64_t p4d_pfn = (uint64_t)p4d_entry.page_frame_number;
-        auto& puds = p4d_map[p4d_pfn].puds;
-
-        json11::Json p4d_json_obj = json11::Json::object({
-            { "puds", puds_to_json(puds) }
-        });
-        p4d_json_obj = merge_json_objects(p4d_json_obj, pte_to_json(p4d_entry));
-
-        p4ds_json_array.push_back(p4d_json_obj);
-    }
-
-    return p4ds_json_array;
-}
-
-json11::Json::array pgds_to_json() {
-    json11::Json::array pgds_json_array;
-
-    for (auto& [_, map] : pgd_map) {
-        auto& p4ds = map.p4ds;
-
-        json11::Json pgd_json_obj = json11::Json::object({
-            { "p4ds", p4ds_to_json(p4ds) }
-        });
-        pgd_json_obj = merge_json_objects(pgd_json_obj, pte_to_json(map.pgd));
-
-        pgds_json_array.push_back(pgd_json_obj);
-    }
-
-    return pgds_json_array;
-}
-
-void walk_pagetable(void* task, const char* filename) {
-    pgd_map.clear();
-    p4d_map.clear();
-    pud_map.clear();
-    pmd_map.clear();
-
-    uint64_t pages_visited = 0;
-    uint64_t pages_present = 0;
-    
     void* vma = get_task_base_vma(task);
     while (vma) {
         uint64_t vm_start = get_task_vma_start(vma);
         uint64_t vm_end = get_task_vma_end(vma);
 
-        printf("vma->vm_start : 0x%lx\n", vm_start);
-        printf("vma->vm_end   : 0x%lx\n", vm_end);
+        for (uint64_t vmpage = vm_start; vmpage < vm_end; vmpage += PAGE_SIZE) {
+            struct page_table_entry pgd, p4d, pud, pmd, pte = { .value = 0 };
+            fill_page_table_info_for_address(
+                task,
+                vmpage,
+                &pgd, &p4d, &pud, &pmd, &pte
+            );
 
-        for (uint64_t vmpage = vm_start; vmpage < vm_end; vmpage += PAGE_SIZE) { 
-            struct page_table_entry* pte = get_pte_for_address(task, vmpage);
-            if (!pte)
+            // Make sure the PTE is valid and present
+            if (pte.page_frame_number == 0 || pte.present == 0) {
                 continue;
-
-            ++pages_visited;
-
-            if (pte->present) {
-                ++pages_present;
-
-                struct page_table_entry pgd, p4d, pud, pmd, pte_leaf;
-                fill_page_table_info_for_address(
-                    task,
-                    vmpage,
-                    &pgd, &p4d, &pud, &pmd,
-                    &pte_leaf
-                );
-
-                uint64_t pgd_pfn = (uint64_t)pgd.page_frame_number;
-                uint64_t p4d_pfn = (uint64_t)p4d.page_frame_number;
-                uint64_t pud_pfn = (uint64_t)pud.page_frame_number;
-                uint64_t pmd_pfn = (uint64_t)pmd.page_frame_number;
-
-                // Register the PGD
-                if (pgd_map.find(pgd_pfn) == pgd_map.end()) {
-                    pgd_map[(uint64_t)pgd.page_frame_number] = { .pgd = pgd, .p4ds = {} };
-                }
-                if (p4d_map.find(p4d_pfn) == p4d_map.end()) {
-                    pgd_map[(uint64_t)pgd.page_frame_number].p4ds.push_back(p4d);
-                }
-
-                // Register the P4D
-                if (p4d_map.find(p4d_pfn) == p4d_map.end()) {
-                    p4d_map[(uint64_t)p4d.page_frame_number] = { .p4d = p4d, .puds = {} };
-                }
-                if (pud_map.find(pud_pfn) == pud_map.end()) {
-                    p4d_map[(uint64_t)p4d.page_frame_number].puds.push_back(pud);
-                }
-
-                // Register the PUD
-                if (pud_map.find(pud_pfn) == pud_map.end()) {
-                    pud_map[(uint64_t)pud.page_frame_number] = { .pud = pud, .pmds = {} };
-                }
-                if (pmd_map.find(pmd_pfn) == pmd_map.end()) {
-                    pud_map[(uint64_t)pud.page_frame_number].pmds.push_back(pmd);
-                }
-
-                // Register the PMD
-                if (pmd_map.find(pmd_pfn) == pmd_map.end()) {
-                    pmd_map[(uint64_t)pmd.page_frame_number] = { .pmd = pmd, .ptes = {} };
-                }
-                if (!pte_exists_in_pmd_map(pmd_pfn, pte_leaf)) {
-                    pmd_map[(uint64_t)pmd.page_frame_number].ptes.push_back(pte_leaf);
-                }
             }
+
+            // Record the page table level entries for the snapshot
+            snapshot->update_entries_for_vaddr(pgd, p4d, pud, pmd, pte);
+
+            ++pages_recorded;
         }
 
         vma = get_next_vma(vma);
     }
 
-    printf("----- Visited %li Pages -----\n", pages_visited);
-    printf("     Pages Present : %li\n\n", pages_present);
+    printf("Recorded %li\n", pages_recorded);
+    return snapshot;
+}
 
-    // Export data to a file
-    json11::Json root = json11::Json::object({
-        { "pgds", pgds_to_json() },  // You'll need to replace this with the actual cr3 base address
-    });
-    
-    std::string json_str = root.dump();
-    std::ofstream log(filename);
-    log << json_str;
+void export_pagetable_snapshot_to_file(
+    std::shared_ptr<ProcessPageTableSnapshot>& snapshot,
+    const std::string& filename
+) {
+    std::string dump_content = snapshot->to_json().dump();
+
+    std::ofstream out(filename + ".json");
+    out << dump_content;
 }
 
 int main(int argc, char** argv) {
     int current_pid = getpid();
     int target_pid = current_pid;
+    std::string export_filename = "pte_dump_" + std::to_string(target_pid);
 
     // Set the target pid to the provided argument
 	if (argc > 1) {
-		target_pid = atoi(argv[1]);
+		int requested_target_pid = atoi(argv[1]);
+
+        if (requested_target_pid != 0) {
+            target_pid = requested_target_pid;
+        }
 	}
+
+    // Set the dump export filename if such is provided
+    if (argc > 2) {
+        export_filename = std::string(argv[2]);
+    }
 	
     printf("Current PID: %i\n", current_pid);
     printf("Target  PID: %i\n", target_pid);
@@ -278,9 +173,9 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    walk_pagetable(target_task_struct, "pte_dump.json");
-
+    auto snapshot = snapshot_pagetable(target_task_struct);
     sym_lower();
 
+    export_pagetable_snapshot_to_file(snapshot, export_filename);
     return 0;
 }
