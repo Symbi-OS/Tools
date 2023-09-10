@@ -74,9 +74,9 @@ public:
         json_object["protection_key"] = (int)entry.protection_key;
         json_object["execute_disable"] = (int)entry.execute_disable;
       
-        json11::Json::object children_json_object;
+        json11::Json::array children_json_object;
         for (const auto& child : entry_repr.children) {
-            children_json_object[to_hex_string(child.first)] = to_json(child.second);
+            children_json_object.push_back(to_json(child.second));
         }
         json_object["children"] = children_json_object;
 
