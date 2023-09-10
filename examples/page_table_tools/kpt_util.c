@@ -2,6 +2,7 @@
 #include <linux/kernel.h>	/* Needed for KERN_INFO */
 #include <linux/sched.h>
 #include <linux/mm.h>
+#include <linux/pid.h>
 #include <asm/pgtable.h>
 #include <asm/tlbflush.h>
 #include <linux/printk.h>
@@ -11,6 +12,21 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Albert Slepak");
 MODULE_DESCRIPTION("Page-Walk Module");
 MODULE_VERSION("1.0");
+
+struct task_struct* get_task_struct_from_pid(__kernel_pid_t pid) {
+    struct pid* pid_struct;
+    struct task_struct* task;
+
+    pid_struct = find_get_pid(pid);
+    if (!pid_struct) {
+        return NULL;
+    }
+    
+    task = pid_task(pid_struct, PIDTYPE_PID);
+    put_pid(pid_struct);
+
+    return task;
+}
 
 struct vm_area_struct* get_task_base_vma(struct task_struct* task) {
     struct mm_struct* mm = task->mm;

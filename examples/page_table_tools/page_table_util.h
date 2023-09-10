@@ -38,6 +38,8 @@ struct page_table {
 void print_page_table_entry(struct page_table_entry* entry);
 void* get_current_task();
 
+extern void* get_task_struct_from_pid(int pid);
+
 extern void* get_task_base_vma(void* task);
 extern void* get_next_vma(void* vma);
 

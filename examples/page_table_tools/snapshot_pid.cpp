@@ -9,6 +9,7 @@ extern "C" {
 #include <sstream>
 #include <iomanip>
 #include <fstream>
+#include <unistd.h>
 #include "json11.hpp"
 
 struct pgd_to_p4ds_map {
@@ -166,7 +167,7 @@ json11::Json::array pgds_to_json() {
     return pgds_json_array;
 }
 
-void walk_pagetable(int should_print_pte, const char* filename) {
+void walk_pagetable(void* task, const char* filename) {
     pgd_map.clear();
     p4d_map.clear();
     pud_map.clear();
@@ -174,20 +175,17 @@ void walk_pagetable(int should_print_pte, const char* filename) {
 
     uint64_t pages_visited = 0;
     uint64_t pages_present = 0;
-    void* current_task = get_current_task();
     
-    void* vma = get_task_base_vma(current_task);
+    void* vma = get_task_base_vma(task);
     while (vma) {
         uint64_t vm_start = get_task_vma_start(vma);
         uint64_t vm_end = get_task_vma_end(vma);
 
-        if (should_print_pte) {
-            printf("vma->vm_start : 0x%lx\n", vm_start);
-            printf("vma->vm_end   : 0x%lx\n", vm_end);
-        }
+        printf("vma->vm_start : 0x%lx\n", vm_start);
+        printf("vma->vm_end   : 0x%lx\n", vm_end);
 
         for (uint64_t vmpage = vm_start; vmpage < vm_end; vmpage += PAGE_SIZE) { 
-            struct page_table_entry* pte = get_pte_for_address(current_task, vmpage);
+            struct page_table_entry* pte = get_pte_for_address(task, vmpage);
             if (!pte)
                 continue;
 
@@ -195,13 +193,10 @@ void walk_pagetable(int should_print_pte, const char* filename) {
 
             if (pte->present) {
                 ++pages_present;
-                if (should_print_pte) {
-                    print_page_table_entry(pte);
-                }
 
                 struct page_table_entry pgd, p4d, pud, pmd, pte_leaf;
                 fill_page_table_info_for_address(
-                    current_task,
+                    task,
                     vmpage,
                     &pgd, &p4d, &pud, &pmd,
                     &pte_leaf
@@ -263,27 +258,28 @@ void walk_pagetable(int should_print_pte, const char* filename) {
 }
 
 int main(int argc, char** argv) {
-    int pages_to_allocate = 1000;
+    int current_pid = getpid();
+    int target_pid = current_pid;
+
+    // Set the target pid to the provided argument
 	if (argc > 1) {
-		pages_to_allocate = atoi(argv[1]);
+		target_pid = atoi(argv[1]);
 	}
 	
+    printf("Current PID: %i\n", current_pid);
+    printf("Target  PID: %i\n", target_pid);
+
 	sym_elevate();
 
-    walk_pagetable(0, "pte_dump_before.json");
+    void* target_task_struct = get_task_struct_from_pid(target_pid);
+    if (!target_task_struct) {
+        sym_lower();
+        printf("Error> target PID could not be found\n");
+        return -1;
+    }
 
-	// Allocating more pages of memory
-	printf("Allocating %i bytes (%i pages)...\n\n", pages_to_allocate * PAGE_SIZE, pages_to_allocate);
-    unsigned char* ptr = (unsigned char*)malloc(pages_to_allocate * PAGE_SIZE);
-	
-	// Touching the pages to make them present
-	for (int i = 1; i <= pages_to_allocate; ++i) {
-		ptr[i * PAGE_SIZE - 1] = 'x';
-	}
+    walk_pagetable(target_task_struct, "pte_dump.json");
 
-    walk_pagetable(0, "pte_dump_after.json");
-
-    free(ptr);
     sym_lower();
 
     return 0;
