@@ -153,6 +153,7 @@ int main(int argc, char** argv) {
 
         if (requested_target_pid != 0) {
             target_pid = requested_target_pid;
+            export_filename = "pte_dump_" + std::to_string(target_pid);
         }
 	}
 
