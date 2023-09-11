@@ -1,40 +1,51 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
 .App {
-  text-align: center;
-}
-
-.App-header {
-  background-color: #3d4149;
-  min-height: 60px;
-  padding: 10px;
-  color: white;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: row;
+  height: 100vh;
+  width: 100%;
 }
 
-.header-buttons {
-  margin-top: 20px;
+.App-sidebar {
+  width: 280px;
+  background-color: #3d4149;
+  color: white;
+  padding: 15px;
+  flex-direction: column;
+  display: flex;
 }
 
-.header-buttons button {
-  margin-left: 10px;
-  margin-right: 10px;
-}
-
-.upload-section {
-  align-self: flex-end;
+.App-sidebar > * {
+  margin-bottom: 10px;
 }
 
 .App-main {
+  flex-grow: 1;
   background-color: #282c34;
-  width: 100%;
-  height: calc(100vh - 60px);
+}
+
+.upload-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.center-label {
+  display: block;
+  text-align: center;
+  font-size: 11pt;
 }
 
 #radial-tree-container {
   display: flex;
   flex: 1;
   user-select: none;
+  height: 100%;
 }
 
 .tooltip {
@@ -78,4 +89,19 @@ button {
 
 button:hover {
   background-color: #4f5769;
+}
+
+hr {
+  padding: 10px 0;
+  border: none;
+
+  &:before {
+    content: "";
+    display: block;
+    position: absolute;
+    left: 0;
+    max-width: 308px;
+    width: 100%;
+    border: 1px solid rgb(116, 116, 116);
+  }
 }

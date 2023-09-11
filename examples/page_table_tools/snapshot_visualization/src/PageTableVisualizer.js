@@ -48,7 +48,12 @@ const PageTableVisualizer = () => {
         reader.onload = (event) => {
             const fileContent = event.target.result;
             // Assuming the file contains JSON that's compatible with your existing state
-            setData2(JSON.parse(fileContent));
+            
+            const data2 = JSON.parse(fileContent);
+            setData2(data2);
+
+            const diffResult = generateDiffDataset(data, data2);
+            setDiffData(diffResult);
         };
         reader.readAsText(file);
     };
@@ -112,69 +117,50 @@ const PageTableVisualizer = () => {
         return diffData;
     };
 
-    const handleGenerateDiff = () => {
-        if (data && data2) {
-            const diffResult = generateDiffDataset(data, data2);
-            setDiffData(diffResult);
-        }
-    };
-
     const handleDatasetDisplayChange = (e) => {
         setDatasetDisplayOption(e.target.value);
     };
 
     return (
         <div className="App">
-            <header className="App-header">
-                <div className="header-buttons" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <div>
-                        <button onClick={toggleShowLabels}>
-                            {showLabels ? 'Hide Labels' : 'Show Labels'}
-                        </button>
-                        <button onClick={toggleShowHeatmap}>
-                            {showHeatmap ? 'Hide Heatmap' : 'Show Heatmap'}
-                        </button>
-                        <label>Heatmap Property: </label>
-                        <select value={heatmapProperty} onChange={(e) => setHeatmapProperty(e.target.value)}>
-                            <option value="read_write">Read/Write</option>
-                            <option value="user_supervisor">User/Supervisor</option>
-                            <option value="accessed">Accessed</option>
-                            <option value="dirty">Dirty</option>
-                            <option value="page_access_type">Page Access Type</option>
-                            <option value="global">Global</option>
-                            <option value="protection_key">Protection Key</option>
-                            <option value="execute_disable">Execute Disable</option>
-                        </select>
-                    </div>
-                    <div className="upload-section" style={{ alignSelf: 'flex-end', marginLeft: 40 }}>
-                        <input type="file" id="fileInput" onChange={handleFileChange} style={{ display: 'none' }} />
-                        <label htmlFor="fileInput">
-                            <button type="button" onClick={() => document.getElementById('fileInput').click()}>
-                                Upload PTE Data
-                            </button>
-                        </label>
-                        <span>{fileName}</span>
-                    </div>
-                    <div className="upload-section" style={{alignSelf: 'flex-end'}}>
-                        <input type="file" id="fileInput2" onChange={handleFileChange2} style={{display: 'none'}} />
-                        <label htmlFor="fileInput2">
-                            <button type="button" onClick={() => document.getElementById('fileInput2').click()}>
-                                Upload Second PTE Data
-                            </button>
-                        </label>
-                        <span>{fileName2}</span>
-                    </div>
-                    <button onClick={handleGenerateDiff} disabled={!data2}>
-                        Generate Diff
-                    </button>
-                    <label>Display: </label>
-                    <select value={datasetDisplayOption} onChange={handleDatasetDisplayChange} style={{marginLeft: 10}}>
-                        {data && <option value="dataset1">{fileName !== 'No file chosen' ? fileName : "sample_dump"}</option>}
-                        {data2 && <option value="dataset2">{fileName2}</option>}
-                        {diffData && <option value="diff">Diff</option>}
-                    </select>
-                </div>
-            </header>
+            <aside className="App-sidebar">
+                <button onClick={toggleShowLabels}>
+                    {showLabels ? 'Hide Labels' : 'Show Labels'}
+                </button>
+                <hr/>
+                <button onClick={toggleShowHeatmap}>
+                    {showHeatmap ? 'Hide Heatmap' : 'Show Heatmap'}
+                </button>
+                <span className="center-label">Heatmap Property</span>
+                <select value={heatmapProperty} onChange={(e) => setHeatmapProperty(e.target.value)}>
+                    <option value="read_write">Read/Write</option>
+                    <option value="user_supervisor">User/Supervisor</option>
+                    <option value="accessed">Accessed</option>
+                    <option value="dirty">Dirty</option>
+                    <option value="page_access_type">Page Access Type</option>
+                    <option value="global">Global</option>
+                    <option value="protection_key">Protection Key</option>
+                    <option value="execute_disable">Execute Disable</option>
+                </select>
+                <hr/>
+                <input type="file" id="fileInput" onChange={handleFileChange} style={{ display: 'none' }} />
+                <button type="button" onClick={() => document.getElementById('fileInput').click()}>
+                        Upload PTE Data
+                </button>
+                <span className="center-label" style={{fontSize: '9pt'}}>{fileName}</span>
+                <input type="file" id="fileInput2" onChange={handleFileChange2} style={{display: 'none'}} />
+                <button type="button" onClick={() => document.getElementById('fileInput2').click()} style={{marginTop:'20px'}}>
+                    Upload Second PTE Data
+                </button>
+                <span className="center-label" style={{fontSize: '9pt', marginBottom:'10px'}}>{fileName2}</span>
+                <hr/>
+                <span className="center-label">Display</span>
+                <select value={datasetDisplayOption} onChange={handleDatasetDisplayChange} style={{marginLeft: 10}}>
+                    {data && <option value="dataset1">{fileName !== 'No file chosen' ? fileName : "sample_dump"}</option>}
+                    {data2 && <option value="dataset2">{fileName2}</option>}
+                    {diffData && <option value="diff">Diff</option>}
+                </select>
+            </aside>
             <main className="App-main">
                 {datasetDisplayOption === 'dataset1' && <RadialTree data={data} showLabels={showLabels} showHeatmap={showHeatmap} heatmapProperty={heatmapProperty} />}
                 {datasetDisplayOption === 'dataset2' && data2 && <RadialTree data={data2} showLabels={showLabels} showHeatmap={showHeatmap} heatmapProperty={heatmapProperty} />}
