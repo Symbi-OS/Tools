@@ -62,7 +62,23 @@ const RadialTree = ({ data, showLabels, showHeatmap, heatmapProperty }) => {
             .attr("class", "link")
             .attr("d", linkGenerator)
             .style("fill", "none")
-            .style("stroke", "#ccc")
+            .style("stroke", d => {
+                if (!d.target.data.linkStatus) {
+                    // If we are not viewing the diff dataset or no difference
+                    return "#ccc";
+                } else if (d.target.data.linkStatus === 'new') {
+                    // If this is a newly added node in the diff
+                    return "#46c75f";
+                } else if (d.target.data.linkStatus === 'removed') {
+                    // If this is a removed node in the diff
+                    return "#c75144";
+                } else if (d.target.data.linkStatus === 'modified') {
+                    // If this is a modified node in the diff
+                    return "#b59c36";
+                } else {
+                    return "#ccc";
+                }
+            })
             .style('stroke-width', 1 / initialScale);
 
         const nodeGroup = g.selectAll(".node")
