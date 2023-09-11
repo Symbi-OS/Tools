@@ -12,6 +12,7 @@ const PageTableVisualizer = () => {
     const [heatmapProperty, setHeatmapProperty] = useState('read_write');
     const [fileName, setFileName] = useState("No file chosen");
     const [fileName2, setFileName2] = useState("No file chosen");
+    const [datasetDisplayOption, setDatasetDisplayOption] = useState('dataset1');
 
     const toggleShowLabels = () => setShowLabels(!showLabels);
     const toggleShowHeatmap = () => setShowHeatmap(!showHeatmap);
@@ -118,6 +119,10 @@ const PageTableVisualizer = () => {
         }
     };
 
+    const handleDatasetDisplayChange = (e) => {
+        setDatasetDisplayOption(e.target.value);
+    };
+
     return (
         <div className="App">
             <header className="App-header">
@@ -162,13 +167,18 @@ const PageTableVisualizer = () => {
                     <button onClick={handleGenerateDiff} disabled={!data2}>
                         Generate Diff
                     </button>
+                    <label>Display: </label>
+                    <select value={datasetDisplayOption} onChange={handleDatasetDisplayChange} style={{marginLeft: 10}}>
+                        {data && <option value="dataset1">{fileName !== 'No file chosen' ? fileName : "sample_dump"}</option>}
+                        {data2 && <option value="dataset2">{fileName2}</option>}
+                        {diffData && <option value="diff">Diff</option>}
+                    </select>
                 </div>
             </header>
             <main className="App-main">
-            {diffData ? 
-                <RadialTree data={diffData} showLabels={showLabels} showHeatmap={showHeatmap} heatmapProperty={heatmapProperty} /> :
-                <RadialTree data={data} showLabels={showLabels} showHeatmap={showHeatmap} heatmapProperty={heatmapProperty} />
-            }
+                {datasetDisplayOption === 'dataset1' && <RadialTree data={data} showLabels={showLabels} showHeatmap={showHeatmap} heatmapProperty={heatmapProperty} />}
+                {datasetDisplayOption === 'dataset2' && data2 && <RadialTree data={data2} showLabels={showLabels} showHeatmap={showHeatmap} heatmapProperty={heatmapProperty} />}
+                {datasetDisplayOption === 'diff' && diffData && <RadialTree data={diffData} showLabels={showLabels} showHeatmap={showHeatmap} heatmapProperty={heatmapProperty} />}
             </main>
         </div>
     );

@@ -12,6 +12,10 @@
   align-items: center;
 }
 
+.header-buttons {
+  margin-top: 20px;
+}
+
 .header-buttons button {
   margin-left: 10px;
   margin-right: 10px;
@@ -60,4 +64,18 @@
 .tooltip .value {
   flex: 1;
   text-align: right;
+}
+
+button {
+  background-color: #282c34;
+  color: white;
+  padding: 4px 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.1s ease;
+}
+
+button:hover {
+  background-color: #4f5769;
 }
