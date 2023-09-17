@@ -83,9 +83,11 @@ void * get_aligned_kern_pg(){
   vzalloc_t vzalloc = (vzalloc_t) sym_get_fn_address("vzalloc");
 #pragma GCC diagnostic pop
 
+  sym_elevate();
   SYM_ON_KERN_STACK_DO( \
     void *p = vzalloc(IDT_SZ_BYTES);\
   );
+  sym_lower();
 
   /* printf("got kern page ptr %p\n", p); */
   assert( ((long unsigned )p % IDT_SZ_BYTES ) == 0);
