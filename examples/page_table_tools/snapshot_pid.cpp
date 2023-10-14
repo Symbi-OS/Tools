@@ -11,6 +11,7 @@ extern "C" {
 #include <iomanip>
 #include <fstream>
 #include <unistd.h>
+#include <signal.h>
 #include "json11.hpp"
 
 std::string to_hex_string(uint64_t value) {
@@ -174,9 +175,13 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    auto snapshot = snapshot_pagetable(target_task_struct);
+    //auto snapshot = snapshot_pagetable(target_task_struct);
+    kill(target_pid, SIGSTOP);
+    impersonate_syscall(target_task_struct);
+
+    kill(target_pid, SIGCONT);
     sym_lower();
 
-    export_pagetable_snapshot_to_file(snapshot, export_filename);
+    //export_pagetable_snapshot_to_file(snapshot, export_filename);
     return 0;
 }

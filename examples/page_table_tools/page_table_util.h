@@ -60,3 +60,5 @@ extern void fill_page_table_info_for_address(
 
 extern void make_pte_readonly(struct page_table_entry* pte);
 extern void flush_tlb();
+
+extern void impersonate_syscall(void* target_task);
