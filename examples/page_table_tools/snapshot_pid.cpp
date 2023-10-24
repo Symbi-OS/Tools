@@ -166,7 +166,21 @@ int main(int argc, char** argv) {
     printf("Current PID: %i\n", current_pid);
     printf("Target  PID: %i\n", target_pid);
 
+    // printf("TEST DEBUG\n");
 	sym_elevate();
+
+    // uint64_t currentTaskBefore = *((uint64_t*)0xffffffff82e7b120);
+    // uint64_t currentTaskAfter = *((uint64_t*)0xffffffff82e7b118);
+    // uint64_t pidBefore = *((uint64_t*)0xffffffff82e7b110);
+    // uint64_t pidAfter = *((uint64_t*)0xffffffff82e7b108);
+
+    // sym_lower();
+
+    // printf("currentTaskBefore  : 0x%lx\n", currentTaskBefore);
+    // printf("currentTaskAfter   : 0x%lx\n", currentTaskAfter);
+    // printf("pidBefore : %li\n", pidBefore);
+    // printf("pidAfter  : %li\n", pidAfter);
+    // return 0;
 
     void* target_task_struct = get_task_struct_from_pid(target_pid);
     if (!target_task_struct) {
