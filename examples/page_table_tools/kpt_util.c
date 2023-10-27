@@ -29,6 +29,10 @@ MODULE_AUTHOR("Albert Slepak");
 MODULE_DESCRIPTION("Page-Walk Module");
 MODULE_VERSION("1.0");
 
+int get_current_pid(void) {
+    return current->pid;
+}
+
 struct task_struct* get_task_struct_from_pid(__kernel_pid_t pid) {
     struct pid* pid_struct;
     struct task_struct* task;
@@ -179,13 +183,14 @@ void impersonate_syscall(struct task_struct* target_task) {
     char* per_cpu_data;
     // uint64_t gsbase;
     int test_pid;
+    pid_t forked_pid;
     // int test_pid2;
     // int test_pid3;
     // int ppid;
     // unsigned long gs_0;
     struct kernel_clone_args args = {
-        .exit_signal = SIGCHLD,
-    };
+		.exit_signal = SIGCHLD,
+	};
 
     // Disable preemption and local interrupts
     local_irq_disable();
@@ -205,7 +210,10 @@ void impersonate_syscall(struct task_struct* target_task) {
 
     test_pid = current->pid;
 
-    forked_task = copy_process(NULL, 0, NUMA_NO_NODE, &args);
+    //forked_task = copy_process(NULL, 0, NUMA_NO_NODE, &args);
+    forked_task = NULL;
+
+    forked_pid = kernel_clone(&args);
 
     this_cpu_write(current_task, original_task);
     if (!static_branch_likely(&switch_to_cond_stibp)) {
@@ -217,6 +225,7 @@ void impersonate_syscall(struct task_struct* target_task) {
     local_irq_enable();
 
     printk("forked_task     : 0x%llx\n", (uint64_t)forked_task);
+    printk("forked_pid      : %lli\n", (uint64_t)forked_pid);
     printk("test_pid        : %i\n", test_pid);
     printk("current->pid    : %i\n", current->pid);
     printk("\n");
