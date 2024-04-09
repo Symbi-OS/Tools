@@ -31,7 +31,7 @@ idt_tool: idt_tool.c idt_tool.h | $(DEPENDENCY_LIBS)
 snapshot_tool: snapshot_tool.c snapshot_tool.h | $(DEPENDENCY_LIBS)
 	$(CC) $(CFLAGS) -o $@ $< $(SYMLIB_LINK) -I $(SYMLIB_INCLUDE_DIR)
 
-shortcut/sc_lib.so: shortcut/sc_lib.o shortcut/deep_sc/deep_sc.o
+shortcut/sc_lib.so: shortcut/sc_lib.c shortcut/sc_lib.h
 	gcc $(CFLAGS) -shared -fPIC -o $@ $(SYMLIB_LINK) $^ $(DEEP_SC_DEFINE)
 
 clean:
