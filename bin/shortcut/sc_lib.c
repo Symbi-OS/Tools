@@ -69,33 +69,7 @@ bool envt_var_exists(char *var_name) {
     return false;
 }
 
-void __attribute__((constructor)) init(void) {
-// Allocate the sym cache really do this in the lib.
-#ifdef DEEP_SHORTCUT
-    sym_cache =
-        (struct cache_elem *)calloc(SYM_CACHE_SZ, (sizeof(struct cache_elem)));
-#endif
-    // function that is called when the library is loaded
-    print_red("SClib: ");
-    fprintf(stderr,
-            "Shortcut Lib: for interposing syscalls and shortcutting\n");
 
-    // for debugging
-    // print_sc_envt_vars();
-
-    // Register signal handlers
-    signal(SIGUSR1, sigusr1_handler);
-    signal(SIGUSR2, sigusr2_handler);
-    signal(SIGSYS, sigsys_handler);
-
-    // If environment variable 'BEGIN_ELE=1' is set, elevate
-    if (envt_var_exists("BEGIN_ELE=1")) {
-        fprintf(stderr, "Elevating\n");
-        sym_elevate();
-    }
-
-    // print_red("Done initializing\n");
-}
 
 void __attribute__((destructor)) cleanUp(void) {
     // function that is called when the library is »closed«.
@@ -294,7 +268,7 @@ void egress_work(struct fn_ctrl *ctrl) {
     }
 }
 
-bool do_sc(bool do_sc_for_fn) {
+inline bool do_sc(bool do_sc_for_fn) {
     // Master control, if this isn't set, no chance we're shortcutting.
     if (!do_sc_for_fn)
         return false;
@@ -342,8 +316,8 @@ MAKE_STRUCTS_AND_FN_4(pwrite64, "__x64_sys_pwrite64", ssize_t, int, fd, const vo
 MAKE_STRUCTS_AND_FN_3(sendmsg, "__x64_sys_sendmsg", ssize_t, int, sockfd, const struct msghdr*,
                       msg, int, flags)
 
-MAKE_STRUCTS_AND_FN_3(write, "__x64_sys_write", ssize_t, int, fd, const void *,
-                      buf, size_t, count)
+// MAKE_STRUCTS_AND_FN_3(write, "__x64_sys_write", ssize_t, int, fd, const void *,
+//                       buf, size_t, count)
 MAKE_STRUCTS_AND_FN_3(read, "__x64_sys_read", ssize_t, int, fd, void *, buf,
                       size_t, count)
 MAKE_STRUCTS_AND_FN_0(getppid, "__x64_sys_getppid", pid_t)
@@ -362,7 +336,133 @@ MAKE_STRUCTS_AND_FN_4(epoll_wait, "__x64_sys_epoll_wait", int, int, epfd,
                       timeout)
 MAKE_STRUCTS_AND_FN_0(fork, "__x64_sys_fork", pid_t)
 
+typedef ssize_t (*write_t)(int fd, const void *buf, size_t count);
+write_t real_write = NULL;
+write_t ksys_write = NULL;
+struct fn_ctrl write_ctrl = {0, 0, 0, 0};
+entry_t sc_target_write = NULL;
+// Per thread variable
+__thread struct pt_regs regs;
 
+#define DO_SC 1
+ssize_t write(int fd, const void *buf, size_t count) {
+
+#if DO_SC
+    // uint64_t count = 0;
+    ssize_t ret;
+    uint64_t user_stack;
+    // Save the user stack pointer
+    asm volatile("mov %%rsp, %0" : "=m"(user_stack) : : "memory");
+    // Switch to the kernel stack
+    asm volatile("mov %gs:0x17b90, %rsp");
+
+    // regs.rdi = fd;
+    // regs.rsi = (uint64_t)buf;
+    // regs.rdx = count;
+    // ret = (ssize_t)sc_target_write(&regs);
+
+    ret = ksys_write(fd, buf, count);
+    
+    // Restore the user stack pointer
+    asm volatile("mov %0, %%rsp" : : "r"(user_stack));
+
+    return ret;
+
+#else
+// Normal path
+return real_write(fd, buf, count);
+#endif
+
+}
+
+#define ARE_WE_INTER 0
+#if ARE_WE_INTER
+ssize_t write(int fd, const void *buf, size_t count) {
+    // This will really fuck up runtime to check your code is working
+    // printf("interposing \n");
+    
+    // Save the function arguments in the pt_regs structure
+    // asm volatile("movq %%rdi, %0" : "=m"(regs.rdi) : : "memory");
+    // asm volatile("movq %%rsi, %0" : "=m"(regs.rsi) : : "memory");
+    // asm volatile("movq %%rdx, %0" : "=m"(regs.rdx) : : "memory");
+    // asm volatile("movq %%rcx, %0" : "=m"(regs.r10) : : "memory");
+    // asm volatile("movq %%r8, %0" : "=m"(regs.r8) : : "memory");
+    // asm volatile("movq %%r9, %0" : "=m"(regs.r9) : : "memory");
+
+
+    // Call the original write function
+    if(!do_sc(write_ctrl.do_shortcut))
+        return real_write(fd, buf, count);
+
+    // We know we're shortcutting
+    regs.rdi = fd;
+    regs.rsi = (uint64_t)buf;
+    regs.rdx = count;
+
+    // if (!real_write) {
+    //     // Get the function configuration and targets
+    //     get_fn_config_and_targets(&write_ctrl, (void **)&real_write, (void **)&sc_target_write, "__x64_sys_write", __func__);
+    // }
+
+    ssize_t ret;
+    
+    sc_path_ct++;
+    uint64_t user_stack;
+    
+    // Save the user stack pointer
+    asm volatile("mov %%rsp, %0" : "=m"(user_stack) : : "memory");
+    
+    // Switch to the kernel stack
+    asm volatile("mov %gs:0x17b90, %rsp");
+    
+    // Call the system call target function
+    ret = (ssize_t)sc_target_write(&regs);
+    
+    // Restore the user stack pointer
+    asm volatile("mov %0, %%rsp" : : "r"(user_stack));
+
+    return ret;
+}
+#endif
+
+void __attribute__((constructor)) init(void) {
+// Allocate the sym cache really do this in the lib.
+#ifdef DEEP_SHORTCUT
+    sym_cache =
+        (struct cache_elem *)calloc(SYM_CACHE_SZ, (sizeof(struct cache_elem)));
+#endif
+    // function that is called when the library is loaded
+    print_red("SClib: ");
+    fprintf(stderr,
+            "Shortcut Lib: for interposing syscalls and shortcutting\n");
+
+    // for debugging
+    // print_sc_envt_vars();
+
+    // Register signal handlers
+    signal(SIGUSR1, sigusr1_handler);
+    signal(SIGUSR2, sigusr2_handler);
+    signal(SIGSYS, sigsys_handler);
+
+    // If environment variable 'BEGIN_ELE=1' is set, elevate
+    if (envt_var_exists("BEGIN_ELE=1")) {
+        fprintf(stderr, "Elevating\n");
+        sym_elevate();
+
+        ksys_write = (void *)sym_get_fn_address("ksys_write");
+        printf("ksys_write is %p\n", ksys_write);
+        assert(ksys_write != NULL);
+    }
+
+    // print_red("Done initializing\n");
+    if (!real_write) {
+        real_write = dlsym(RTLD_NEXT, "write");
+        if (!real_write) {
+            fprintf(stderr, "Error: failed to find the original write function\n");
+            exit(1);
+        }
+    }
+}
 // fork XXX don't know if that's the right target, only need it to
 // lower for now
 // MAKE_STRUCTS_AND_FN_0(fork, "__do_sys_fork", pid_t)
